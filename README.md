@@ -1,1 +1,1 @@
-# accounting-application.github.io
+# SWE 4713 Accounting Web Application
