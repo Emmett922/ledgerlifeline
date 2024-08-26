@@ -1,1 +1,1 @@
-# SWE 4713 Accounting Web Application
+# Client-side Frontend for Ledger Lifeline Web Application
