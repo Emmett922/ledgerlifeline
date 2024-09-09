@@ -1,0 +1,145 @@
+/* CSS copied over from style.css with updated class names */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* New */
+.error-message {
+    color: #ff0000;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom right, #283048, #859398);
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px;
+}
+
+.register .register-page-container {
+    width: 400px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.register h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.register .register-input-group {
+    margin-bottom: 20px;
+}
+
+.register .register-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.register .register-input-group input,
+.register .register-input-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.register .register-input-group input:focus,
+.register .register-input-group select:focus {
+    border-color: #007bff;
+}
+
+/* -- Dealing with outline of password input -- */
+.register .register-input-group input[name="password"].valid:focus {
+    border-color: green;
+}
+.register .register-input-group input[name="password"].invalid:focus {
+    border-color: red;
+}
+
+/* -- Dealing with outline of password input validity messages -- */
+.register .password-requirements p.valid {
+    color: green;
+}
+.register .password-requirements p.invalid {
+    color: red;
+}
+
+/* -- Dealing with outline of confirmPassword input -- */
+.register .register-input-group input[name="confirmPassword"]:focus {
+    outline: none;
+}
+.register .register-input-group input[name="confirmPassword"] {
+    border: 2px solid transparent;
+}
+.register .register-input-group input[name="confirmPassword"].match {
+    border-color: green;
+}
+.register .register-input-group input[name="confirmPassword"].mismatch {
+    border-color: red;
+}
+
+/* -- Dealing with status message of confirmPassword input -- */
+.register .register-input-group p {
+    font-size: 15px;
+}
+.register .register-input-group p.match {
+    color: green;
+}
+.register .register-input-group p.mismatch {
+    color: red;
+}
+
+.register .register-submit-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #3d3d3d;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.register .register-submit-btn:hover {
+    background-color: #007bff;
+}
+
+#confirmPassword:disabled {
+    cursor: not-allowed;
+}
+
+.register-submit-btn:disabled {
+    background-color: #858484;
+    cursor: not-allowed;
+}
+
+.register-submit-btn:disabled:hover {
+    background-color: #858484;
+}
+
+@media (max-width: 768px) {
+    .register .register-page-container {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+}
