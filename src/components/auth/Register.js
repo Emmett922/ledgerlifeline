@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import "./styles/Register.css";
 
 const Register = () => {
@@ -23,7 +22,7 @@ const Register = () => {
         hasSpecialChar: false,
     });
 
-    // Validate Password
+    // Validate Password function
     const validatePassword = (password) => {
         const minLength = password.length >= 8;
         const startsWithLetter = /^[a-zA-Z]/.test(password);
@@ -59,6 +58,9 @@ const Register = () => {
             setEmail(value);
         } else if (name === "password") {
             setPassword(value);
+            // Call validatePassword whenever the password changes
+            validatePassword(value);
+
             // Clear confirm password if password is cleared
             if (!value) {
                 setConfirmPassword("");
@@ -67,6 +69,10 @@ const Register = () => {
             setConfirmPassword(value);
         } else if (name === "securityQuestion") {
             setSecurityQuestion(value);
+            if (value === "") {
+                // Clear answer if no question is selected
+                setSecurityAnswer("");
+            }
         } else if (name === "securityAnswer") {
             setSecurityAnswer(value);
         }
@@ -75,7 +81,7 @@ const Register = () => {
     // Function to handle form submission
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Handle form submission
+        // Handle form submission here
         console.log("Form submitted with:", {
             firstName,
             lastName,
@@ -102,17 +108,19 @@ const Register = () => {
         password &&
         confirmPassword &&
         passwordMatch &&
+        isPasswordValid &&
         securityQuestion &&
         securityAnswer
     );
 
     const content = (
         <section className="register">
+            <img className="logo" src="" alt="LedgerLifeline Logo" />
             <div className="register-page-container">
                 <form id="registerForm" onSubmit={handleSubmit}>
                     <h2>Create New Account</h2>
                     <div className="register-input-group">
-                        <label for="firstName">First Name</label>
+                        <label htmlFor="firstName">First Name</label>
                         <input
                             type="text"
                             id="firstName"
@@ -124,7 +132,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="register-input-group">
-                        <label for="lastName">Last Name</label>
+                        <label htmlFor="lastName">Last Name</label>
                         <input
                             type="text"
                             id="lastName"
@@ -136,7 +144,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="register-input-group">
-                        <label for="address">Address</label>
+                        <label htmlFor="address">Address</label>
                         <input
                             type="text"
                             id="address"
@@ -148,7 +156,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="register-input-group">
-                        <label for="dob">Date of Birth</label>
+                        <label htmlFor="dob">Date of Birth</label>
                         <input
                             type="date"
                             id="dob"
@@ -159,7 +167,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="register-input-group">
-                        <label for="email">Email</label>
+                        <label htmlFor="email">Email</label>
                         <input
                             type="text"
                             id="email"
@@ -171,7 +179,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="register-input-group">
-                        <label for="password">Password</label>
+                        <label htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
@@ -180,12 +188,10 @@ const Register = () => {
                             onChange={handleInputChange}
                             required
                             placeholder="Enter password"
-                            className={isPasswordValid ? "valid" : "invalid"}
+                            className={password ? (isPasswordValid ? "valid" : "invalid") : ""}
                         />
                         <div className="password-requirements">
-                            <p
-                                className={passwordRequirements.minLength ? "valid" : "invalid"}
-                            >
+                            <p className={passwordRequirements.minLength ? "valid" : "invalid"}>
                                 - Minmum 8 characters
                             </p>
                             <p
@@ -195,14 +201,10 @@ const Register = () => {
                             >
                                 - Starts with a letter
                             </p>
-                            <p
-                                className={passwordRequirements.hasLetter ? "valid" : "invalid"}
-                            >
+                            <p className={passwordRequirements.hasLetter ? "valid" : "invalid"}>
                                 - Contains a letter
                             </p>
-                            <p
-                                className={passwordRequirements.hasNumber ? "valid" : "invalid"}
-                            >
+                            <p className={passwordRequirements.hasNumber ? "valid" : "invalid"}>
                                 - Contains a number
                             </p>
                             <p
@@ -210,21 +212,22 @@ const Register = () => {
                                     passwordRequirements.hasSpecialChar ? "valid" : "invalid"
                                 }
                             >
-                                - Continas a special character
+                                - Contains a special character
                             </p>
                         </div>
                     </div>
                     <div className="register-input-group">
-                        <label for="confirmPassword">Confirm Password</label>
+                        <label htmlFor="confirmPassword">Confirm Password</label>
                         <input
                             type="password"
                             id="confirmPassword"
                             name="confirmPassword"
                             value={confirmPassword}
                             onChange={handleInputChange}
+                            onFocus={(event) => event.target.select()} // Selects entire value of field on focus
                             required
                             placeholder="Confirm password"
-                            disabled={!password} // Disable until password is filled
+                            disabled={!isPasswordValid} // Disable until password is filled
                             // If user input does not match password, set classname to mismatch
                             // Else, set classname to match
                             className={
@@ -248,7 +251,6 @@ const Register = () => {
                             name="securityQuestion"
                             value={securityQuestion}
                             onChange={handleInputChange}
-                            required
                         >
                             <option value="">Select a security question</option>
                             <option value="What is your mother's maiden name?">
@@ -271,10 +273,11 @@ const Register = () => {
                             <input
                                 type="text"
                                 id="securityAnswer"
+                                name="securityAnswer"
                                 value={securityAnswer}
                                 onChange={handleInputChange}
                                 required
-                                placeholder="Enter the answer to your security question"
+                                placeholder="Enter answer to security question"
                             />
                         </div>
                     )}

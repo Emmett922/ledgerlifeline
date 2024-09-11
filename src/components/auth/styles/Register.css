@@ -15,15 +15,25 @@
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #283048, #859398);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.register {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to bottom right, #283048, #859398);
+    width: 100%;
 }
 
 .logo {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
     padding: 10px;
@@ -31,10 +41,13 @@ body {
 
 .register .register-page-container {
     width: 400px;
+    max-width: 90%;
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    margin-top: 80px;
+    margin-bottom: 20px;
 }
 
 .register h2 {
@@ -85,16 +98,10 @@ body {
 }
 
 /* -- Dealing with outline of confirmPassword input -- */
-.register .register-input-group input[name="confirmPassword"]:focus {
-    outline: none;
-}
-.register .register-input-group input[name="confirmPassword"] {
-    border: 2px solid transparent;
-}
-.register .register-input-group input[name="confirmPassword"].match {
+.register .register-input-group input[name="confirmPassword"].match:focus {
     border-color: green;
 }
-.register .register-input-group input[name="confirmPassword"].mismatch {
+.register .register-input-group input[name="confirmPassword"].mismatch:focus {
     border-color: red;
 }
 
@@ -109,6 +116,7 @@ body {
     color: red;
 }
 
+/* Submit button styling */
 .register .register-submit-btn {
     width: 100%;
     padding: 10px;
@@ -141,5 +149,6 @@ body {
     .register .register-page-container {
         width: 90%;
         margin-bottom: 20px;
+        margin-top: 80px;
     }
 }
