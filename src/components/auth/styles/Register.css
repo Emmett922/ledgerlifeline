@@ -16,20 +16,19 @@
 
 body {
     min-height: 100vh;
-    background: linear-gradient(to bottom right, #283048, #859398);
-    padding: 20px;
-    overflow-y: auto;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    margin: 0;
+    background: linear-gradient(to bottom right, #283048, #859398);
 }
 
 .register {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    padding-top: 10vh;
+}
+
+.top-of-page {
+    height: 10vh;
+    margin-bottom: 20px;
 }
 
 .logo {
@@ -41,13 +40,10 @@ body {
 
 .register .register-page-container {
     width: 400px;
-    max-width: 90%;
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    margin-top: 80px;
-    margin-bottom: 20px;
 }
 
 .register h2 {
@@ -126,6 +122,9 @@ body {
     font-size: 14px;
     cursor: pointer;
     text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .register .register-submit-btn:hover {

@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import ForgotPassword from "./components/auth/ForgotPassword";
+import Users from "./components/admin/Users";
 
 function App() {
     const location = useLocation();
@@ -19,6 +20,9 @@ function App() {
             case "/forgot-password":
                 document.title = "Forgot Password - Ledger Lifeline";
                 break;
+            case "/users":
+                document.title = "Users - Ledger Lifeline";
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -30,6 +34,7 @@ function App() {
                 <Route index element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="forgot-password" element={<ForgotPassword />} />
+                <Route path="users" element={<Users />} />
             </Route>
         </Routes>
     );

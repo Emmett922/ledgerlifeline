@@ -16,10 +16,31 @@ const Login = () => {
     };
 
     // Function to handle form submission
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Handle form submission
-        console.log("Form submitted with:", { username, password });
+
+        // Prepare data to send
+        const userData = { username, password };
+
+        // Get API url
+        const API_URL = process.env.REACT_APP_API_URL;
+
+        // Handle form submission here
+        try {
+            const response = await fetch(`${API_URL}/users/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const result = await response.json();
+            alert(`${result.message}`);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            alert("An error occured. Please try again.");
+        }
     };
 
     // Check if both username and password are filled
