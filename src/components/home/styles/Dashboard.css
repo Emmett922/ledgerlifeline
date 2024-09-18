@@ -1,0 +1,197 @@
+/* General resets and styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Page background and container */
+body {
+    background-image: linear-gradient(to bottom right, #283048, #859398);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+/* Dashboard layout */
+.dashboard {
+    display: flex;
+    width: 100%;
+    max-width: 1550px;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 35vh;
+    height: 90vh;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.sidebar-header {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.profile-img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.profile-name {
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 25px;
+}
+
+.sidebar-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.sidebar-button .dashboard-link,
+.sidebar-button .chart-of-accounts-link,
+.sidebar-button .users-link,
+.sidebar-button .accounts-link,
+.sidebar-button .event-log-link,
+.sidebar-button .journalize-link,
+.sidebar-button .income-statement-link,
+.sidebar-button .balance-sheet-link,
+.sidebar-button .retained-earnings-link,
+.sidebar-button .logout-link {
+    text-decoration: none;
+    color: #fff;
+}
+
+.sidebar-button:hover {
+    background-color: #1c4a7c;
+}
+
+/* Main content styles */
+.dashboard .main-content {
+    width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
+    margin-left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.dashboard .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Flexbox alignment for header and button */
+.dashboard .header-title {
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard .Dashboard1 h1 {
+    text-align: left;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+.dashboard .dashboard1 {
+    color: #007bff;
+}
+
+.dashboard .top-boxes, .bottom-boxes {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+  
+.dashboard .top-boxes .Current-Ratio, 
+.dashboard .top-boxes .Return-Assests, 
+.dashboard .top-boxes .Return-Equity,
+.dashboard .bottom-boxes .Net-Profit, 
+.dashboard .bottom-boxes .Asset-Turnover, 
+.dashboard .bottom-boxes .Quick-Ratio {
+    width: 30%; /* Adjust this to control the box width */
+    height: 100px;
+    background-color: #007bff; /* Light background for boxes */
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+  
+.dashboard .top-boxes:hover .Current-Ratio:hover, 
+.dashboard .top-boxes:hover .Return-Assests:hover, 
+.dashboard .top-boxes:hover .Return-Equity:hover,
+.dashboard .bottom-boxes:hover .Net-Profit:hover, 
+.dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
+.dashboard .bottom-boxes:hover .Quick-Ratio:hover {
+    background-color: #1c4a7c;
+}
+
+.dashboard .top-boxes h1, .bottom-boxes h1 {
+    font-size: 12px;
+    margin: 0;
+    width: 50%; /* Title takes half of the box */
+    text-align: left;
+}
+  
+.dashboard .top-boxes div, .bottom-boxes div {
+    width: 50%; /* Number takes the other half */
+    text-align: right;
+}
+  
+.dashboard .top-boxes div h1, .bottom-boxes div h1 {
+    font-size: 24px;
+    margin: 0;
+    font-weight: bold;
+}
+  
+@media (max-width: 768px) {
+    .dashboard .top-boxes, .bottom-boxes {
+        flex-direction: column;
+    }
+  
+    .dashboard .top-boxes .Current-Ratio, 
+    .dashboard .top-boxes .Return-Assests, 
+    .dashboard .top-boxes .Return-Equity,
+    .dashboard .bottom-boxes .Net-Profit, 
+    .dashboard .bottom-boxes .Asset-Turnover, 
+    .dashboard .bottom-boxes .Quick-Ratio {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}

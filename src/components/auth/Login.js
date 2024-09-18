@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     // Function to handle input changes
     const handleInputChange = (event) => {
@@ -36,7 +39,26 @@ const Login = () => {
             });
 
             const result = await response.json();
-            alert(`${result.message}`);
+
+            if (result.success) {
+                alert(`Welcome, ${result.user.first_name} ${result.user.last_name}!`);
+
+                // Sotre user data in localStorage
+                const userToStore = {
+                    first_name: result.user.first_name,
+                    last_name: result.user.last_name,
+                    username: result.user.username,
+                    role: result.user.role,
+                    active: result.user.active,
+                };
+
+                localStorage.setItem('user', JSON.stringify(userToStore));
+
+                // Redirect to the dashboard
+                navigate('/dashboard');
+            } else {
+                alert(result.message);
+            }
         } catch (error) {
             console.error("Error submitting form:", error);
             alert("An error occured. Please try again.");

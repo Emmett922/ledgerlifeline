@@ -10,6 +10,7 @@ const ForgotPassword = () => {
     const [securityAnswer, setSecurityAnswer] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [passwordHistory, setPasswordHistory] = useState([]);
     const [step, setStep] = useState(1);
     const API_URL = process.env.REACT_APP_API_URL;
 
@@ -90,6 +91,7 @@ const ForgotPassword = () => {
             // Else, alert the user with the error message
             if (response.ok && result.email === email) {
                 setUser(result);
+                setPasswordHistory(result.passwordHistory);
                 const fetchedSecurityQuestion = result.securityQuestion.question;
                 setSecurityQuestion(fetchedSecurityQuestion);
                 setStep(2); // Move to step 2

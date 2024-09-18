@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./styles/Users.css";
+import { Link } from "react-router-dom";
 
 const Users = () => {
     const [isEditUserVisible, setIsEditUserVisible] = useState(false);
@@ -7,7 +8,14 @@ const Users = () => {
     const [isExpiredPasswordsVisible, setIsExpiredPasswordsVisible] = useState(false);
     const [isRegisterVisible, setIsRegisterVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [role, setRole] = useState("");
+    const [changedRole, setChangedRole] = useState(false);
+    const [active, setActive] = useState(false);
+    const [changedActive, setChangedActive] = useState(false);
     const [userArray, setUserArray] = useState([]);
+    const [userTable, setUserTable] = useState(1);
     const API_URL = process.env.REACT_APP_API_URL;
 
     // Fetch users from the database
@@ -48,6 +56,78 @@ const Users = () => {
         { name: "Jane Smith", lastChange: "2023-12-01" },
     ];
 
+    const handleChangeTable = (event) => {
+        if (userTable === 1) {
+            setUserTable(2);
+            event.target.innerHTML = "Back";
+        } else {
+            setUserTable(1);
+            event.target.innerHTML = "Requests";
+        }
+    };
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+
+        if (name === "role") {
+            setRole(value);
+            setChangedRole(true);
+        } else if (name === "active") {
+            setActive(value);
+            setChangedActive(true);
+        }
+    };
+
+    const handleEditUser = async () => {
+        if (changedRole) {
+            const userData = {
+                username: selectedUser.username,
+                role: role,
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/users/role`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(userData),
+                });
+
+                const result = await response.json();
+                alert(`${result.message}`);
+            } catch (error) {
+                console.error("Error submitting edit:", error);
+                alert("An error occurred. Please try again.");
+            }
+        }
+
+        if (changedActive) {
+            const userData = {
+                username: selectedUser.username,
+                isActive: active,
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/users/active`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(userData),
+                });
+
+                const result = await response.json();
+                alert(`${result.message}`);
+            } catch (error) {
+                console.error("Error submitting edit:", error);
+                alert("An error occurred. Please try again.");
+            }
+        }
+        setIsEditUserVisible(false);
+        window.location.reload();
+    };
+
     const handleSendEmail = () => {
         if (selectedUser) {
             // Add your email sending logic here
@@ -56,7 +136,7 @@ const Users = () => {
     };
 
     const content = (
-        <section className="dashboard">
+        <section className="users">
             <aside className="sidebar">
                 <div className="profile-img">
                     <img src={profileImageUrl} alt="Profile" className="profile-img" />
@@ -66,14 +146,39 @@ const Users = () => {
                 </div>
                 <ul>
                     <a>
-                        <button className="sidebar-button">Dashboard</button>
+                        <button className="sidebar-button">
+                            <Link className="dashboard-link" to="dashboard">
+                                Dashboard
+                            </Link>
+                        </button>
                     </a>
                     <a>
-                        <button className="sidebar-button">Users</button>
+                        <button className="sidebar-button">
+                            <Link className="chart-of-accounts-link">Chart of Accounts</Link>
+                        </button>
+                    </a>
+                    <a>
+                        <button className="sidebar-button">
+                            <Link className="accounts-link">Accounts</Link>
+                        </button>
+                    </a>
+                    <a>
+                        <button className="sidebar-button">
+                            <Link className="users-link" to="users">
+                                Users
+                            </Link>
+                        </button>
+                    </a>
+                    <a>
+                        <button className="sidebar-button">
+                            <Link className="event-log-link">Event Log</Link>
+                        </button>
                     </a>
                     <a>
                         <button className="sidebar-button" id="logout-btn">
-                            Logout
+                            <Link className="logout-link" to="/">
+                                Logout
+                            </Link>
                         </button>
                     </a>
                 </ul>
@@ -81,42 +186,100 @@ const Users = () => {
 
             <main className="main-content">
                 <header className="header">
-                    <h1 className="header-title">Users</h1>
-                    <button className="action-button1" onClick={() => setIsRegisterVisible(true)}>
-                        + Add User
-                    </button>
-                    <button
-                        className="action-button"
-                        onClick={() => setIsExpiredPasswordsVisible(true)}
-                    >
-                        View Expired Passwords
-                    </button>
+                    <div className="header-main">
+                        <h1 className="header-title">Users</h1>
+                        <button
+                            className="action-button1"
+                            onClick={() => setIsRegisterVisible(true)}
+                        >
+                            + Add User
+                        </button>
+                        <button
+                            className="action-button1"
+                            onClick={() => setIsExpiredPasswordsVisible(true)}
+                        >
+                            View Expired Passwords
+                        </button>
+                        <button className="action-button1" onClick={handleChangeTable}>
+                            Requests
+                        </button>
+                    </div>
+                    <div className="header-search">
+                        <input type="text" className="search" placeholder="Search"></input>
+                        <button className="search-btn">Search</button>
+                    </div>
                 </header>
 
-                <table className="user-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Employee</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userArray.map((user, index) => (
-                            <tr key={index}>
-                                <td>
-                                    <button className="link-button" onClick={() => { setSelectedUser(user); setIsEditUserVisible(true); }}>
-                                    {user.username}
-                                    </button>
-                                </td>
-                                <td>{`${user.first_name} ${user.last_name}`}</td>
-                                <td>{user.role}</td>
-                                <td>{user.active ? "Active" : "Inactive"}</td>
+                {/* Main User Table */}
+                {userTable === 1 && (
+                    <table className="user-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Status</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {userArray
+                                .filter((user) => user.role !== "Employee")
+                                .map((user, index) => (
+                                    <tr key={index}>
+                                        <td id="username">
+                                            <button
+                                                className="link-button"
+                                                onClick={() => {
+                                                    setSelectedUser(user);
+                                                    setIsEditUserVisible(true);
+                                                }}
+                                            >
+                                                {user.username}
+                                            </button>
+                                        </td>
+                                        <td>{`${user.first_name} ${user.last_name}`}</td>
+                                        <td>{user.role}</td>
+                                        <td>{user.active ? "Active" : "Inactive"}</td>
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </table>
+                )}
+                {/* User Creation Request Table */}
+                {userTable === 2 && (
+                    <table className="user-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userArray
+                                .filter((user) => user.role === "Employee")
+                                .map((user, index) => (
+                                    <tr key={index}>
+                                        <td id="username">
+                                            <button
+                                                className="link-button"
+                                                onClick={() => {
+                                                    setSelectedUser(user);
+                                                    setIsEditUserVisible(true);
+                                                }}
+                                            >
+                                                {user.username}
+                                            </button>
+                                        </td>
+                                        <td>{`${user.first_name} ${user.last_name}`}</td>
+                                        <td>{user.role}</td>
+                                        <td>{user.active ? "Active" : "Inactive"}</td>
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </table>
+                )}
 
                 {/* Edit User Modal */}
                 {isEditUserVisible && (
@@ -129,27 +292,49 @@ const Users = () => {
                             <form>
                                 <label>
                                     Name:
-                                    <input type="text" defaultValue={selectedUser?.name} />
+                                    <input
+                                        type="text"
+                                        defaultValue={`${selectedUser.first_name} ${selectedUser.last_name}`}
+                                    />
                                 </label>
                                 <label>
                                     Role:
-                                    <select defaultValue={selectedUser?.status}>
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        value={role}
+                                        onChange={handleInputChange}
+                                        defaultValue={
+                                            selectedUser?.role === "Employee"
+                                                ? ""
+                                                : selectedUser?.role
+                                        }
+                                    >
+                                        <option value="" disabled>
+                                            Select a role
+                                        </option>
                                         <option value="Admin">Admin</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Accountant">Accountant</option>
                                     </select>
                                 </label>
                                 <label>
-                                    Status:
-                                    <select defaultValue={selectedUser?.status}>
-                                        <option value="Active">Active</option>
-                                        <option value="Not Active">Not Active</option>
+                                    Active:
+                                    <select
+                                        id="active"
+                                        name="active"
+                                        value={active}
+                                        onChange={handleInputChange}
+                                        defaultValue={selectedUser?.active}
+                                    >
+                                        <option value={true}>Active</option>
+                                        <option value={false}>Not Active</option>
                                     </select>
                                 </label>
                                 <button
                                     type="button"
                                     className="action-button2"
-                                    onClick={() => setIsEditUserVisible(false)}
+                                    onClick={handleEditUser}
                                 >
                                     Save Changes
                                 </button>

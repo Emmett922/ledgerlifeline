@@ -1,34 +1,10 @@
 /* CSS copied over from style.css with updated class names */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
-}
-
 /* New */
 .error-message {
     color: #ff0000;
     margin-bottom: 20px;
     text-align: center;
-}
-
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: linear-gradient(to bottom right, #283048, #859398);
-}
-
-.register {
-    padding-top: 10vh;
-}
-
-.top-of-page {
-    height: 10vh;
-    margin-bottom: 20px;
 }
 
 .logo {
@@ -38,12 +14,18 @@ body {
     padding: 10px;
 }
 
+.register {
+    height: 100vh;
+}
+
 .register .register-page-container {
     width: 400px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    margin-top: 20%;
+    margin-bottom: 20%;
 }
 
 .register h2 {
