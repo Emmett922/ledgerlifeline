@@ -136,7 +136,7 @@ body {
 }
   
 .dashboard .top-boxes .Current-Ratio, 
-.dashboard .top-boxes .Return-Assests, 
+.dashboard .top-boxes .Return-Assets, 
 .dashboard .top-boxes .Return-Equity,
 .dashboard .bottom-boxes .Net-Profit, 
 .dashboard .bottom-boxes .Asset-Turnover, 
@@ -154,7 +154,7 @@ body {
 }
   
 .dashboard .top-boxes:hover .Current-Ratio:hover, 
-.dashboard .top-boxes:hover .Return-Assests:hover, 
+.dashboard .top-boxes:hover .Return-Assets:hover, 
 .dashboard .top-boxes:hover .Return-Equity:hover,
 .dashboard .bottom-boxes:hover .Net-Profit:hover, 
 .dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
@@ -186,7 +186,7 @@ body {
     }
   
     .dashboard .top-boxes .Current-Ratio, 
-    .dashboard .top-boxes .Return-Assests, 
+    .dashboard .top-boxes .Return-Assets, 
     .dashboard .top-boxes .Return-Equity,
     .dashboard .bottom-boxes .Net-Profit, 
     .dashboard .bottom-boxes .Asset-Turnover, 

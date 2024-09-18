@@ -123,37 +123,39 @@ const Dashboard = () => {
                     <div className="top-boxes">
                         <div className="Current-Ratio">
                             <h1>Current Ratio</h1>
-                            <div>
+                            <div className="percentage">
                                 <h1>515.62%</h1>
                             </div>
                         </div>
                         <div className="Return-Assets">
                             <h1>Return on Assets</h1>
-                            <div>
+                            <div className="percentage">
                                 <h1>18.96%</h1>
                             </div>
                         </div>
-                        <div className="Rturn-Equity">
+                        <div className="Return-Equity">
                             <h1>Return on Equity</h1>
-                            <div>28.02%</div>
+                            <div>
+                                <h1>28.02%</h1>
+                            </div>
                         </div>
                     </div>
                     <div className="bottom-boxes">
                         <div className="Net-Profit">
                             <h1>Net Profit Margin</h1>
-                            <div>
+                            <div className="percentage">
                                 <h1>49.67%</h1>
                             </div>
                         </div>
                         <div className="Asset-Turnover">
                             <h1>Asset Turnover</h1>
-                            <div>
+                            <div className="percentage">
                                 <h1>38.18%</h1>
                             </div>
                         </div>
                         <div className="Quick-Ratio">
                             <h1>Quick Ratio</h1>
-                            <div>
+                            <div className="percentage">
                                 <h1>515.62%</h1>
                             </div>
                         </div>
