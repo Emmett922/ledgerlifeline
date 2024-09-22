@@ -92,23 +92,15 @@ const Dashboard = () => {
                         <span className="profile-name">{username}</span>
                     </div>
                     <ul className="sidebar-btns">
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="dashboard-link" to="dashboard">
-                                    Dashboard
-                                </Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="chart-of-accounts-link">Chart of Accounts</Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="accounts-link">Accounts</Link>
-                            </button>
-                        </a>
+                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                            Dashboard
+                        </Link>
+                        <Link className="sidebar-button" id="chart-of-accounts-link">
+                            Chart of Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="accounts-link">
+                            Accounts
+                        </Link>
                         <a>
                             <button className="sidebar-button">
                                 <Link className="journalize-link">Journalize</Link>
@@ -132,10 +124,8 @@ const Dashboard = () => {
                             </button>
                         </a>
                         <a>
-                            <button className="sidebar-button">
-                                <Link className="logout-link" to="/">
-                                    Logout
-                                </Link>
+                            <button className="sidebar-button logout-link" onClick={handleLogout}>
+                                Logout
                             </button>
                         </a>
                     </ul>
