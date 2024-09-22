@@ -18,7 +18,8 @@
     height: 100vh;
 }
 
-.register .register-page-container {
+.register .register-page-container,
+.accept-request-page-container {
     width: 400px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
@@ -33,18 +34,26 @@
     margin-bottom: 20px;
 }
 
-.register .register-input-group {
+.register .register-input-group,
+.formInputGroup {
     margin-bottom: 20px;
 }
 
-.register .register-input-group label {
+.request-form-subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.register .register-input-group label,
+.formInputGroup label {
     display: block;
     margin-bottom: 8px;
     color: #333;
 }
 
 .register .register-input-group input,
-.register .register-input-group select {
+.register .register-input-group select,
+.formInputGroup Select {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -55,7 +64,8 @@
 }
 
 .register .register-input-group input:focus,
-.register .register-input-group select:focus {
+.register .register-input-group select:focus,
+.formInputGroup Select:focus {
     border-color: #007bff;
 }
 
@@ -95,7 +105,8 @@
 }
 
 /* Submit button styling */
-.register .register-submit-btn {
+.register .register-submit-btn,
+.form-submit-btn {
     width: 100%;
     padding: 10px;
     background-color: #3d3d3d;
@@ -109,7 +120,8 @@
     display: inline-block;
 }
 
-.register .register-submit-btn:hover {
+.register .register-submit-btn:hover,
+.form-submit-btn:hover {
     background-color: #007bff;
 }
 
@@ -117,12 +129,14 @@
     cursor: not-allowed;
 }
 
-.register-submit-btn:disabled {
+.register-submit-btn:disabled,
+.form-submit-btn:disabled {
     background-color: #858484;
     cursor: not-allowed;
 }
 
-.register-submit-btn:disabled:hover {
+.register-submit-btn:disabled:hover,
+.form-submit-btn:disabled:hover {
     background-color: #858484;
 }
 

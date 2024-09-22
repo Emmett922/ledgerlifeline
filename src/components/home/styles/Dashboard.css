@@ -77,21 +77,23 @@ body {
     border-radius: 5px;
 }
 
-.sidebar-button .dashboard-link,
-.sidebar-button .chart-of-accounts-link,
-.sidebar-button .users-link,
-.sidebar-button .accounts-link,
-.sidebar-button .event-log-link,
-.sidebar-button .journalize-link,
-.sidebar-button .income-statement-link,
-.sidebar-button .balance-sheet-link,
-.sidebar-button .retained-earnings-link,
-.sidebar-button .logout-link {
+#dashboard-link,
+#chart-of-accounts-link,
+#users-link,
+#accounts-link,
+#event-log-link,
+#journalize-link,
+#income-statement-link,
+#balance-sheet-link,
+#retained-earnings-link,
+#logout-link {
     text-decoration: none;
     color: #fff;
 }
 
-.sidebar-button:hover {
+.sidebar-button:hover,
+.dashboard #dashboard-link,
+.users #users-link {
     background-color: #1c4a7c;
 }
 

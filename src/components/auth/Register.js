@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import "./styles/Register.css";
 
@@ -16,7 +16,7 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [securityQuestion, setSecurityQuestion] = useState("");
     const [securityAnswer, setSecurityAnswer] = useState("");
-    const [step, setStep] = useState(1);
+    const navigate = useNavigate();
 
     // Password validation states
     const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -140,7 +140,7 @@ const Register = () => {
 
             const result = await response.json();
             alert(`${result.message}`);
-            setStep(2);
+            navigate(-1);
         } catch (error) {
             console.error("Error submitting form:", error);
             alert("An error occurred. Please try again.");
@@ -168,7 +168,7 @@ const Register = () => {
         securityAnswer
     );
 
-    // Securit question options
+    // Security question options
     const securityQuestionOptions = [
         {
             value: "What is your mother's maiden name?",
@@ -247,248 +247,204 @@ const Register = () => {
             <img className="logo" src="" alt="LedgerLifeline Logo" />
             <div className="register-page-container">
                 <div className="step1-form">
-                    {/* Step 1: Create new user form */}
-                    {step === 1 && (
-                        <form id="registerForm" onSubmit={handleSubmit}>
-                            <h2>Create New Account</h2>
-                            <div className="register-input-group">
-                                <label htmlFor="firstName">First Name</label>
-                                <input
-                                    type="text"
-                                    id="firstName"
-                                    name="firstName"
-                                    value={firstName}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter your first name"
-                                />
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="lastName">Last Name</label>
-                                <input
-                                    type="text"
-                                    id="lastName"
-                                    name="lastName"
-                                    value={lastName}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter your last name"
-                                />
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="#address">Address</label>
-                                <div className="register-input-group" id="address">
-                                    <input
-                                        type="text"
-                                        id="street"
-                                        name="street"
-                                        value={street}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Street"
-                                    />
-                                </div>
-                                <div className="register-input-group" id="address">
-                                    <input
-                                        type="text"
-                                        id="city"
-                                        name="city"
-                                        value={city}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="City"
-                                    />
-                                </div>
-                                <div className="register-input-group" id="address">
-                                    <Select
-                                        id="state"
-                                        name="state"
-                                        value={state}
-                                        onChange={handleStateChange}
-                                        options={stateOptions}
-                                        isSearchable={true}
-                                        required
-                                        placeholder="State"
-                                    />
-                                </div>
-                                <div className="register-input-group" id="address">
-                                    <input
-                                        type="text"
-                                        id="postalCode"
-                                        name="postalCode"
-                                        value={postalCode}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Postal/Zip Code"
-                                    />
-                                </div>
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="dob">Date of Birth</label>
-                                <input
-                                    type="date"
-                                    id="dob"
-                                    name="dob"
-                                    value={dob}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="email">Email</label>
-                                <input
-                                    type="text"
-                                    id="email"
-                                    name="email"
-                                    value={email}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter your email"
-                                />
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    value={password}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter password"
-                                    className={
-                                        password ? (isPasswordValid ? "valid" : "invalid") : ""
-                                    }
-                                />
-                                <div className="password-requirements">
-                                    <p
-                                        className={
-                                            passwordRequirements.minLength ? "valid" : "invalid"
-                                        }
-                                    >
-                                        - Minmum 8 characters
-                                    </p>
-                                    <p
-                                        className={
-                                            passwordRequirements.startsWithLetter
-                                                ? "valid"
-                                                : "invalid"
-                                        }
-                                    >
-                                        - Starts with a letter
-                                    </p>
-                                    <p
-                                        className={
-                                            passwordRequirements.hasLetter ? "valid" : "invalid"
-                                        }
-                                    >
-                                        - Contains a letter
-                                    </p>
-                                    <p
-                                        className={
-                                            passwordRequirements.hasNumber ? "valid" : "invalid"
-                                        }
-                                    >
-                                        - Contains a number
-                                    </p>
-                                    <p
-                                        className={
-                                            passwordRequirements.hasSpecialChar
-                                                ? "valid"
-                                                : "invalid"
-                                        }
-                                    >
-                                        - Contains a special character
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="confirmPassword">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={confirmPassword}
-                                    onChange={handleInputChange}
-                                    onFocus={(event) => event.target.select()} // Selects entire value of field on focus
-                                    required
-                                    placeholder="Confirm password"
-                                    disabled={!isPasswordValid} // Disable until password is filled
-                                    // If user input does not match password, set classname to mismatch
-                                    // Else, set classname to match
-                                    className={
-                                        confirmPassword
-                                            ? passwordMatch
-                                                ? "match"
-                                                : "mismatch"
-                                            : ""
-                                    }
-                                />
-                                {confirmPassword && ( // Status message for confirmPassowrd
-                                    <p
-                                        className={`password-message ${
-                                            passwordMatch ? "match" : "mismatch"
-                                        }`}
-                                    >
-                                        {passwordMatch
-                                            ? "Matches password"
-                                            : "Does not match password"}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="register-input-group">
-                                <label htmlFor="securityQuestion">Security Question</label>
-                                <Select
-                                    id="securityQuestion"
-                                    name="securityQuestion"
-                                    value={securityQuestion}
-                                    onChange={handleSecurityQuestionChange}
-                                    options={securityQuestionOptions}
-                                    required
-                                    placeholder="Choose security question"
-                                />
-                            </div>
-                            {securityQuestion && (
-                                <div className="register-input-group">
-                                    <label htmlFor="securityAnswer">Answer</label>
-                                    <input
-                                        type="text"
-                                        id="securityAnswer"
-                                        name="securityAnswer"
-                                        value={securityAnswer}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter answer to security question"
-                                    />
-                                </div>
-                            )}
-                            <button
-                                type="submit"
-                                className="register-submit-btn"
-                                disabled={isButtonDisabled}
-                            >
-                                Submit
-                            </button>
-                        </form>
-                    )}
-                </div>
-
-                {/* Step 2: Confirmation Page & Redirection */}
-                {step === 2 && (
-                    <form id="registerForm">
-                        <h2>User Creation Successful</h2>
+                    <form id="registerForm" onSubmit={handleSubmit}>
+                        <h2>Create New Account</h2>
                         <div className="register-input-group">
-                            <p>
-                                You will receive an email from the admin confirming your user
-                                creation request. Until then, you will not be able to login to the
-                                system.
-                            </p>
+                            <label htmlFor="firstName">First Name</label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                value={firstName}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter your first name"
+                            />
                         </div>
-                        <Link to="/" className="register-submit-btn">
-                            Back
-                        </Link>
+                        <div className="register-input-group">
+                            <label htmlFor="lastName">Last Name</label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                value={lastName}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter your last name"
+                            />
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="#address">Address</label>
+                            <div className="register-input-group" id="address">
+                                <input
+                                    type="text"
+                                    id="street"
+                                    name="street"
+                                    value={street}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Street"
+                                />
+                            </div>
+                            <div className="register-input-group" id="address">
+                                <input
+                                    type="text"
+                                    id="city"
+                                    name="city"
+                                    value={city}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="City"
+                                />
+                            </div>
+                            <div className="register-input-group" id="address">
+                                <Select
+                                    id="state"
+                                    name="state"
+                                    value={state}
+                                    onChange={handleStateChange}
+                                    options={stateOptions}
+                                    isSearchable={true}
+                                    required
+                                    placeholder="State"
+                                />
+                            </div>
+                            <div className="register-input-group" id="address">
+                                <input
+                                    type="text"
+                                    id="postalCode"
+                                    name="postalCode"
+                                    value={postalCode}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Postal/Zip Code"
+                                />
+                            </div>
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="dob">Date of Birth</label>
+                            <input
+                                type="date"
+                                id="dob"
+                                name="dob"
+                                value={dob}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="email">Email</label>
+                            <input
+                                type="text"
+                                id="email"
+                                name="email"
+                                value={email}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter your email"
+                            />
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                value={password}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter password"
+                                className={password ? (isPasswordValid ? "valid" : "invalid") : ""}
+                            />
+                            <div className="password-requirements">
+                                <p className={passwordRequirements.minLength ? "valid" : "invalid"}>
+                                    - Minmum 8 characters
+                                </p>
+                                <p
+                                    className={
+                                        passwordRequirements.startsWithLetter ? "valid" : "invalid"
+                                    }
+                                >
+                                    - Starts with a letter
+                                </p>
+                                <p className={passwordRequirements.hasLetter ? "valid" : "invalid"}>
+                                    - Contains a letter
+                                </p>
+                                <p className={passwordRequirements.hasNumber ? "valid" : "invalid"}>
+                                    - Contains a number
+                                </p>
+                                <p
+                                    className={
+                                        passwordRequirements.hasSpecialChar ? "valid" : "invalid"
+                                    }
+                                >
+                                    - Contains a special character
+                                </p>
+                            </div>
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="confirmPassword">Confirm Password</label>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                value={confirmPassword}
+                                onChange={handleInputChange}
+                                onFocus={(event) => event.target.select()} // Selects entire value of field on focus
+                                required
+                                placeholder="Confirm password"
+                                disabled={!isPasswordValid} // Disable until password is filled
+                                // If user input does not match password, set classname to mismatch
+                                // Else, set classname to match
+                                className={
+                                    confirmPassword ? (passwordMatch ? "match" : "mismatch") : ""
+                                }
+                            />
+                            {confirmPassword && ( // Status message for confirmPassowrd
+                                <p
+                                    className={`password-message ${
+                                        passwordMatch ? "match" : "mismatch"
+                                    }`}
+                                >
+                                    {passwordMatch ? "Matches password" : "Does not match password"}
+                                </p>
+                            )}
+                        </div>
+                        <div className="register-input-group">
+                            <label htmlFor="securityQuestion">Security Question</label>
+                            <Select
+                                id="securityQuestion"
+                                name="securityQuestion"
+                                value={securityQuestion}
+                                onChange={handleSecurityQuestionChange}
+                                options={securityQuestionOptions}
+                                required
+                                placeholder="Choose security question"
+                            />
+                        </div>
+                        {securityQuestion && (
+                            <div className="register-input-group">
+                                <label htmlFor="securityAnswer">Answer</label>
+                                <input
+                                    type="text"
+                                    id="securityAnswer"
+                                    name="securityAnswer"
+                                    value={securityAnswer}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter answer to security question"
+                                />
+                            </div>
+                        )}
+                        <button
+                            type="submit"
+                            className="register-submit-btn"
+                            disabled={isButtonDisabled}
+                        >
+                            Submit
+                        </button>
                     </form>
-                )}
+                </div>
             </div>
         </section>
     );

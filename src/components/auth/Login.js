@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [user, setUser] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if the user is already logged in and has accidentally went to the login page
+        const storedUser = localStorage.getItem("user");
+
+        // If user is logged in, redirect to dashboard
+        if (storedUser) {
+            navigate("/dashboard", { replace: true });
+        } else {
+            // Make sure localStorage is clear for new login
+            localStorage.removeItem("user");
+        }
+    }, [navigate]);
 
     // Function to handle input changes
     const handleInputChange = (event) => {
@@ -41,21 +53,27 @@ const Login = () => {
             const result = await response.json();
 
             if (result.success) {
-                alert(`Welcome, ${result.user.first_name} ${result.user.last_name}!`);
+                if (result.user.role === "Employee") {
+                    alert(
+                        "Your user creation request has not yet been accepted. Please wait for an admin to accept your user request to login."
+                    );
+                } else if (!result.user.active) {
+                    alert("Your account is currently deactivated!");
+                } else {
+                    // Sotre user data in localStorage
+                    const userToStore = {
+                        first_name: result.user.first_name,
+                        last_name: result.user.last_name,
+                        username: result.user.username,
+                        role: result.user.role,
+                        active: result.user.active,
+                    };
 
-                // Sotre user data in localStorage
-                const userToStore = {
-                    first_name: result.user.first_name,
-                    last_name: result.user.last_name,
-                    username: result.user.username,
-                    role: result.user.role,
-                    active: result.user.active,
-                };
+                    localStorage.setItem("user", JSON.stringify(userToStore));
 
-                localStorage.setItem('user', JSON.stringify(userToStore));
-
-                // Redirect to the dashboard
-                navigate('/dashboard');
+                    // Redirect to the dashboard
+                    navigate("/dashboard", { replace: true });
+                }
             } else {
                 alert(result.message);
             }

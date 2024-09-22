@@ -72,6 +72,7 @@ body {
     cursor: pointer;
     text-transform: uppercase;
     border-radius: 5px;
+    text-decoration: none;
 }
 
 .users .action-button1:hover {
@@ -116,6 +117,18 @@ body {
     border-bottom: 2px solid #ddd;
 }
 
+.users .user-table .users-name {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.users .user-table .users-name #single-email {
+    margin-right: 5%;
+    font-size: 12px;
+    padding: 5px 12px;
+}
+
 .users .link-button {
     background: none;
     border: none;
@@ -123,6 +136,11 @@ body {
     cursor: pointer;
     text-decoration: none;
     font-size: 1em;
+}
+
+.users .user-role-link,
+.users .user-active-link {
+    color: black;
 }
 
 .users .link-button:hover {
@@ -143,14 +161,52 @@ body {
     z-index: 1000;
 }
 
-.users .modal-content {
+.users .modal-content,
+.users .modal-expired-content {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     width: 400px;
     max-width: 90%;
+    max-height: 90vh;
     position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.users .modal-expired-content {
+    width: 150vh;
+}
+
+.users .modal-expired-content .expired-table {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 60vh;
+    margin-bottom: 20px;
+}
+
+.users .modal-content form {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 60vh;
+    margin-bottom: 20px;
+}
+
+.users .modal-content form .form-sub-title{
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+}
+
+.users .modal-content form .form-sub-title .name {
+    text-decoration: underline;
+}
+
+.users .modal-content .modal-btns {
+    display: flex;
+    text-align: center;
+    gap: 10px;
 }
 
 .users .close {
@@ -185,6 +241,10 @@ body {
     margin-bottom: 10px;
 }
 
+.users .modal-content .state-select {
+    margin-bottom: 10px;
+}
+
 .users .modal-content input:focus,
 .users .modal-content select:focus {
     border-color: #007bff;
@@ -203,6 +263,10 @@ body {
 
 .users .expired-passwords-table th {
     background-color: #f4f4f4;
+}
+
+.users .expired-passwords-table li {
+    list-style: none;
 }
 
 /* Media queries for responsiveness */

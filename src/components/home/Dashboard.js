@@ -1,11 +1,51 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./styles/Dashboard.css";
 
 const profileImageUrl = "src/img/Default-pfp.svg.png";
-const userName = "John Doe";
-const userRole = "Accountant";
 
 const Dashboard = () => {
+    const [username, setUserName] = useState("");
+    const [userRole, setUserRole] = useState("");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Retrieve the user data from localStorage
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+
+        // If user is not logged in, redirect to login
+        if (!storedUser) {
+            navigate("/", { replace: true });
+        }
+
+        if (storedUser) {
+            setUserName(storedUser.username);
+            setUserRole(storedUser.role);
+        }
+
+        // Add listener for back button to prevent going back to login page
+        const handlePopState = () => {
+            const currentPath = window.location.pathname;
+
+            if (currentPath === "/dashboard" && document.referrer.endsWith("/")) {
+                // If the user navigated from login and tries to go back, prevent it
+                window.history.pushState(null, "", window.location.href);
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user"); // Clear user data
+        navigate("/"); // Redirect to login
+    };
+
     const content = (
         <section className="dashboard">
             {/* Side navbar for admin */}
@@ -15,43 +55,27 @@ const Dashboard = () => {
                         <img src={profileImageUrl} alt="Profile" className="profile-img" />
                     </div>
                     <div className="profile-name">
-                        <span className="profile-name">{userName}</span>
+                        <span className="profile-name">{username}</span>
                     </div>
                     <ul className="sidebar-btns">
+                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                            Dashboard
+                        </Link>
+                        <Link className="sidebar-button" id="chart-of-accounts-link">
+                            Chart of Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="accounts-link">
+                            Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="users-link" to="/users">
+                            Users
+                        </Link>
+                        <Link className="sidebar-button" id="event-log-link">
+                            Event Log
+                        </Link>
                         <a>
-                            <button className="sidebar-button">
-                                <Link className="dashboard-link" to="dashboard">
-                                    Dashboard
-                                </Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="chart-of-accounts-link">Chart of Accounts</Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="accounts-link">Accounts</Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="users-link" to="users">
-                                    Users
-                                </Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="event-log-link">Event Log</Link>
-                            </button>
-                        </a>
-                        <a>
-                            <button className="sidebar-button">
-                                <Link className="logout-link" to="/">
-                                    Logout
-                                </Link>
+                            <button className="sidebar-button logout-link" onClick={handleLogout}>
+                                Logout
                             </button>
                         </a>
                     </ul>
@@ -59,13 +83,13 @@ const Dashboard = () => {
             )}
 
             {/* Side navbar for accountant && manager*/}
-            {userRole === "Accountant" && (
+            {(userRole === "Accountant" || userRole === "Manager") && (
                 <aside className="sidebar">
                     <div className="profile-img">
                         <img src={profileImageUrl} alt="Profile" className="profile-img" />
                     </div>
                     <div className="profile-name">
-                        <span className="profile-name">{userName}</span>
+                        <span className="profile-name">{username}</span>
                     </div>
                     <ul className="sidebar-btns">
                         <a>
@@ -102,7 +126,9 @@ const Dashboard = () => {
                         </a>
                         <a>
                             <button className="sidebar-button">
-                                <Link className="retained-earnings-link">Statement of Retained Earnings</Link>
+                                <Link className="retained-earnings-link">
+                                    Statement of Retained Earnings
+                                </Link>
                             </button>
                         </a>
                         <a>

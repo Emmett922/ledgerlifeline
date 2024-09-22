@@ -6,6 +6,7 @@ import Register from "./components/auth/Register";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import Users from "./components/admin/Users";
 import Dashboard from "./components/home/Dashboard";
+import AcceptRequest from "./components/splash/AcceptRequest";
 
 function App() {
     const location = useLocation();
@@ -27,6 +28,9 @@ function App() {
             case "/dashboard":
                 document.title = "Dashboard - Ledger Lifeline";
                 break;
+            case "/accept-request":
+                document.title = "Accept User Request - Ledger Lifeline";
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -40,6 +44,7 @@ function App() {
                 <Route path="forgot-password" element={<ForgotPassword />} />
                 <Route path="users" element={<Users />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="accept-request/:username" element={<AcceptRequest />} />
             </Route>
         </Routes>
     );
