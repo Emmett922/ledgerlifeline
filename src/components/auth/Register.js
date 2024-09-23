@@ -96,18 +96,8 @@ const Register = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // -- username creation -- //
-        const now = new Date(); // Get current date when user was created
-        const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Get two-digit month
-        const year = now.getFullYear().toString().slice(-2); // Get last two digits of year
-        // Construct username
-        const username = `${firstName
-            .charAt(0)
-            .toLowerCase()}${lastName.toLowerCase()}${month}${year}`;
-
         // Prepare data to send
         const userData = {
-            username,
             password,
             first_name: firstName,
             last_name: lastName,

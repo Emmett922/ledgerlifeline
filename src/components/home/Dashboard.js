@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 import "./styles/Dashboard.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const profileImageUrl = "src/img/Default-pfp.svg.png";
 
@@ -9,6 +11,14 @@ const Dashboard = () => {
     const [username, setUserName] = useState("");
     const [userRole, setUserRole] = useState("");
     const navigate = useNavigate();
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     useEffect(() => {
         // Retrieve the user data from localStorage
@@ -22,6 +32,28 @@ const Dashboard = () => {
         if (storedUser) {
             setUserName(storedUser.username);
             setUserRole(storedUser.role);
+
+            const now = Date.now();
+            const threeDaysFromNow = 3 * 24 * 60 * 60 * 1000;
+            const passwordExpirationDate = new Date(storedUser.passwordExpiration).getTime();
+
+            if (passwordExpirationDate - now <= threeDaysFromNow) {
+                setTimeout(() => {
+                    toast("Your password is set to expire soon! Please change your password!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }, 500);
+            }
         }
 
         // Add listener for back button to prevent going back to login page
@@ -48,6 +80,7 @@ const Dashboard = () => {
 
     const content = (
         <section className="dashboard">
+            <ToastContainer />
             {/* Side navbar for admin */}
             {userRole === "Admin" && (
                 <aside className="sidebar">

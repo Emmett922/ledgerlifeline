@@ -18,6 +18,11 @@ const Login = () => {
             // Make sure localStorage is clear for new login
             localStorage.removeItem("user");
         }
+
+        // Initialize failedLoginCounter if it doesn't exist
+        if (localStorage.getItem("failedLoginCounter") === null) {
+            localStorage.setItem("failedLoginCounter", 0);
+        }
     }, [navigate]);
 
     // Function to handle input changes
@@ -30,17 +35,13 @@ const Login = () => {
         }
     };
 
-    // Function to handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         // Prepare data to send
         const userData = { username, password };
-
-        // Get API url
         const API_URL = process.env.REACT_APP_API_URL;
 
-        // Handle form submission here
         try {
             const response = await fetch(`${API_URL}/users/login`, {
                 method: "POST",
@@ -51,35 +52,103 @@ const Login = () => {
             });
 
             const result = await response.json();
+            console.log("Login Result:", result); // Log the result for debugging
 
-            if (result.success) {
-                if (result.user.role === "Employee") {
+            // Check if the username is correct
+            if (!result.success) {
+                if (result.type === 1) {
+                    // Increment the failedLoginCounter if username doesn't exist
+                    let failedLoginCounter =
+                        parseInt(localStorage.getItem("failedLoginCounter"), 10) || 0;
+
+                    failedLoginCounter++;
+                    localStorage.setItem("failedLoginCounter", failedLoginCounter);
+
+                    if (failedLoginCounter >= 3) {
+                        // Set suspension for the user
+                        const suspensionEnd = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+                        const updateResponse = await fetch(`${API_URL}/users/suspended`, {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                username: userData.username,
+                                isSuspended: true,
+                                start: Date.now(),
+                                end: suspensionEnd,
+                            }),
+                        });
+
+                        const updateResult = await updateResponse.json();
+                        alert(updateResult.message);
+                    }
+                }
+                alert(result.message);
+                return;
+            } else {
+                // Successful login actions
+                // Now fetch the user details including password expiration
+                const userResponse = await fetch(
+                    `${API_URL}/users/user-by-username?username=${username}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                const userDetails = await userResponse.json();
+                console.log("User Details:", userDetails); // Log user details for debugging
+
+                if (!userResponse.ok || !userDetails) {
+                    alert("Failed to retrieve user details.");
+                    return;
+                }
+
+                const userToStore = {
+                    first_name: userDetails.first_name,
+                    last_name: userDetails.last_name,
+                    username: userDetails.username,
+                    role: userDetails.role,
+                    active: userDetails.active,
+                    passwordExpiration: userDetails.password
+                        ? userDetails.password.expiresAt
+                        : null,
+                };
+
+                localStorage.setItem("user", JSON.stringify(userToStore));
+
+                console.log(userDetails.active);
+
+                // Check user status
+                if (userDetails.role === "Employee" && !userDetails.active) {
                     alert(
                         "Your user creation request has not yet been accepted. Please wait for an admin to accept your user request to login."
                     );
-                } else if (!result.user.active) {
+                    return;
+                } else if (!userDetails.active) {
                     alert("Your account is currently deactivated!");
-                } else {
-                    // Sotre user data in localStorage
-                    const userToStore = {
-                        first_name: result.user.first_name,
-                        last_name: result.user.last_name,
-                        username: result.user.username,
-                        role: result.user.role,
-                        active: result.user.active,
-                    };
-
-                    localStorage.setItem("user", JSON.stringify(userToStore));
-
-                    // Redirect to the dashboard
-                    navigate("/dashboard", { replace: true });
+                    return;
+                } else if (
+                    userDetails.suspended &&
+                    userDetails.suspended.start_date &&
+                    userDetails.suspended.end_date
+                ) {
+                    const now = Date.now();
+                    if (now < userDetails.suspended.end_date) {
+                        alert("Your account is currently suspended. Please try again later.");
+                        return;
+                    }
                 }
-            } else {
-                alert(result.message);
+
+                // Redirect to the dashboard
+                navigate("/dashboard", { replace: true });
             }
         } catch (error) {
             console.error("Error submitting form:", error);
-            alert("An error occured. Please try again.");
+            alert("An error occurred. Please try again.");
         }
     };
 

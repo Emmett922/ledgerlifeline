@@ -167,7 +167,7 @@ body {
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    width: 400px;
+    width: 500px;
     max-width: 90%;
     max-height: 90vh;
     position: relative;
@@ -203,10 +203,65 @@ body {
     text-decoration: underline;
 }
 
+.users .modal-content .form-group {
+    margin-bottom: 20px;
+}
+
+.users .modal-content .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.users .modal-content .form-group input,
+.users .modal-content .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+.users .modal-content .form-group input:focus,
+.users .modal-content .form-group textarea:focus {
+    border-color: #007bff;
+}
+
+.users .modal-content .form-group textarea {
+    height: 150px;
+    resize: none;
+}
+
 .users .modal-content .modal-btns {
     display: flex;
     text-align: center;
     gap: 10px;
+}
+
+.users .modal-btns .send-button,
+.users .modal-btns .cancel-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.users .modal-btns .send-button:hover,
+.users .modal-btns .cancel-button:hover {
+    background-color: #1c4a7c;
+}
+
+.users .modal-btns .cancel-button {
+    background-color: #dc3545;
+}
+
+.users .modal-btns .cancel-button:hover {
+    background-color: #a52a2a;
 }
 
 .users .close {

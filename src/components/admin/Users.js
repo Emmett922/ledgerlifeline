@@ -13,6 +13,8 @@ const Users = () => {
     const [isExpiredPasswordsVisible, setIsExpiredPasswordsVisible] = useState(false);
     const [isEditUserRoleVisible, setIsEditUserRoleVisible] = useState(false);
     const [isEditUserActiveVisible, setIsEditUserActiveVisible] = useState(false);
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailMessage, setEmailMessage] = useState("");
     const [isEmailUserVisible, setIsEmailUserVisible] = useState(false);
     const [isEmailAllVisible, setIsEmailAllVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -339,65 +341,108 @@ const Users = () => {
     };
 
     const handleUserSuspension = async () => {
-        if (startDate !== null && endDate !== null) {
-            const userData = {
-                username: selectedUser.username,
-                isSuspended: true,
-                start: new Date(startDate).toISOString(),
-                end: new Date(endDate).toISOString(),
-            };
+        const userData = {
+            username: selectedUser.username,
+            isSuspended: true,
+            start: new Date(startDate).toISOString(),
+            end: new Date(endDate).toISOString(),
+        };
 
-            try {
-                const response = await fetch(`${API_URL}/users/suspended`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(userData),
-                });
+        try {
+            const response = await fetch(`${API_URL}/users/suspended`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
 
-                const result = await response.json();
-                alert(`${result.message}`);
-            } catch (error) {
-                console.error("Error submitting edit:", error);
-            }
-        } else {
-            const userData = {
-                username: selectedUser.username,
-                isSuspended: false,
-                start: null,
-                end: null,
-            };
-
-            try {
-                const response = await fetch(`${API_URL}/users/suspended`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(userData),
-                });
-
-                const result = await response.json();
-                alert(`${result.message}`);
-            } catch (error) {
-                console.error("Error submitting edit:", error);
-            }
+            const result = await response.json();
+            alert(`${result.message}`);
+        } catch (error) {
+            console.error("Error submitting edit:", error);
         }
 
-        setIsSuspendUserVisible(false);
+        window.location.reload();
     };
 
-    const disableSuspension = () => {
-        setStartDate(null);
-        setEndDate(null);
-        handleUserSuspension();
+    const disableSuspension = async () => {
+        const userData = {
+            username: selectedUser.username,
+            isSuspended: false,
+            start: null,
+            end: null,
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/users/suspended`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const result = await response.json();
+            alert(`${result.message}`);
+        } catch (error) {
+            console.error("Error submitting edit:", error);
+        }
+
+        window.location.reload();
     };
 
-    const handleSendEmail = () => {
-        if (selectedUser) {
-            // Add your email sending logic here
-            alert(`Sending email to ${selectedUser.name}`);
+    const handleEmailToUser = async () => {
+        // Replace newlines with <br> tags for HTML formatting
+        const formattedMessage = emailMessage.replace(/\n/g, "<br>");
+
+        try {
+            const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user: selectedUser,
+                    subject: emailSubject,
+                    message: formattedMessage,
+                }),
+            });
+
+            const result = await response.json();
+            alert(`${result.message}`);
+        } catch (error) {
+            console.error("Error sending email:", error);
+            alert("Failed to send email.");
+        }
+
+        setIsEmailUserVisible(false);
+    };
+
+    const handleEmailToAll = async () => {
+        const formattedMessage = emailMessage.replace(/\n/g, "<br>");
+        const subject = emailSubject;
+
+        const emailInfo = {
+            users: userArray,
+            subject: subject,
+            message: formattedMessage,
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/email/send-email-to-all-users`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(emailInfo),
+            });
+
+            const result = await response.json();
+            alert(`${result.message}`);
+        } catch (error) {
+            console.error("Error sending email:", error);
+            alert("Failed to send email.");
         }
     };
 
@@ -405,19 +450,6 @@ const Users = () => {
         localStorage.removeItem("user"); // Clear user data
         navigate("/"); // Redirect to login
     };
-
-    const showUserArray = () => {
-        userArray.forEach((user) => {
-            user.passwordHistory.forEach((password) => {
-                const expiresAt = new Date(password.expiresAt);
-                console.log(
-                    "Formatted Expires At:",
-                    isNaN(expiresAt.getTime()) ? "Invalid Date" : expiresAt.toLocaleString()
-                );
-            });
-        });
-    };
-    showUserArray();
 
     const content = (
         <section className="users">
@@ -471,13 +503,13 @@ const Users = () => {
                         >
                             View Expired Passwords
                         </button>
-                        <button className="action-button1" onClick={handleChangeTable}>
+                        {/*<button className="action-button1" onClick={handleChangeTable}>
                             Requests
-                        </button>
+                        </button>  */}
                     </div>
                     <div className="header-search">
-                        <input type="text" className="search" placeholder="Search"></input>
-                        <button className="search-btn">Search</button>
+                        {/*<input type="text" className="search" placeholder="Search"></input>
+                        <button className="search-btn">Search</button>*/}
                     </div>
                 </header>
 
@@ -522,33 +554,33 @@ const Users = () => {
                                                     );
                                                     setSecurityAnswer(user.securityQuestion.answer);
 
-                                                    // Check and convert suspension start and end dates to 'YYYY-MM-DD' format
-                                                    if (
-                                                        user.suspended !== null &&
-                                                        user.suspended.start_date
-                                                    ) {
-                                                        const formattedStart = new Date(
-                                                            user.suspended.start_date
-                                                        )
-                                                            .toISOString()
-                                                            .split("T")[0];
-                                                        setStartDate(formattedStart);
-                                                    } else {
-                                                        setStartDate(""); // Clear start date if not suspended or date is invalid
-                                                    }
+                                                    // Safely handle user.suspended and its properties
+                                                    if (user.suspended) {
+                                                        // Check and convert suspension start and end dates to 'YYYY-MM-DD' format
+                                                        if (user.suspended.start_date !== null) {
+                                                            const formattedStart = new Date(
+                                                                user.suspended.start_date
+                                                            )
+                                                                .toISOString()
+                                                                .split("T")[0];
+                                                            setStartDate(formattedStart);
+                                                        } else {
+                                                            setStartDate(""); // Clear start date if not suspended or date is invalid
+                                                        }
 
-                                                    if (
-                                                        user.suspended !== null &&
-                                                        user.suspended.end_date
-                                                    ) {
-                                                        const formattedEnd = new Date(
-                                                            user.suspended.end_date
-                                                        )
-                                                            .toISOString()
-                                                            .split("T")[0];
-                                                        setEndDate(formattedEnd);
+                                                        if (user.suspended.end_date !== null) {
+                                                            const formattedEnd = new Date(
+                                                                user.suspended.end_date
+                                                            )
+                                                                .toISOString()
+                                                                .split("T")[0];
+                                                            setEndDate(formattedEnd);
+                                                        } else {
+                                                            setEndDate(""); // Clear end date if not suspended or date is invalid
+                                                        }
                                                     } else {
-                                                        setEndDate(""); // Clear end date if not suspended or date is invalid
+                                                        setStartDate(""); // Clear both dates if user is not suspended
+                                                        setEndDate("");
                                                     }
 
                                                     setIsEditUserVisible(true);
@@ -563,7 +595,9 @@ const Users = () => {
                                                 className="action-button1"
                                                 id="single-email"
                                                 onClick={() => {
+                                                    setSelectedUser(user);
                                                     setIsEmailUserVisible(true);
+                                                    setEmail(user.email);
                                                 }}
                                             >
                                                 <FontAwesomeIcon icon={faEnvelope} size="lg" />
@@ -968,6 +1002,106 @@ const Users = () => {
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={() => setIsEmailUserVisible(false)}>
+                                &times;
+                            </span>
+                            <h2>
+                                Send Email to {selectedUser?.first_name} {selectedUser?.last_name}
+                            </h2>
+                            <form onSubmit={handleEmailToUser}>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div className="modal-btns">
+                                    <button type="submit" className="send-button">
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email all users */}
+                {isEmailAllVisible && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={() => setIsEmailAllVisible(false)}>
+                                &times;
+                            </span>
+                            <h2>Send Email to All Users</h2>
+                            <form onSubmit={handleEmailToAll}>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div className="modal-btns">
+                                    <button type="submit" className="send-button">
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        onClick={() => setIsEmailAllVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 )}
