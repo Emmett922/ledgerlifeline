@@ -35,6 +35,8 @@ body {
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    max-height: 90vh;
+    overflow-y: hidden;
 }
 
 .users .header {
@@ -97,6 +99,7 @@ body {
 
 
 /* Table styles */
+
 .users .user-table {
     width: 100%;
     border-collapse: collapse;
@@ -237,6 +240,11 @@ body {
     display: flex;
     text-align: center;
     gap: 10px;
+}
+
+.users .modal-content .modal-btns:disabled {
+    background-color: #858484;
+    cursor: not-allowed;
 }
 
 .users .modal-btns .send-button,

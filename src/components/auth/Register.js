@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import "./styles/Register.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
     const [firstName, setFirstName] = useState("");
@@ -17,6 +19,14 @@ const Register = () => {
     const [securityQuestion, setSecurityQuestion] = useState("");
     const [securityAnswer, setSecurityAnswer] = useState("");
     const navigate = useNavigate();
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     // Password validation states
     const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -129,7 +139,22 @@ const Register = () => {
             });
 
             const result = await response.json();
-            alert(`${result.message}`);
+            toast(`${result.message}`, {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
+
+            localStorage.setItem("userCreated", true)
+
             navigate(-1);
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -233,8 +258,9 @@ const Register = () => {
     // Page content
     const content = (
         <section className="register">
+            <ToastContainer />
             <div className="top-of-page"></div>
-            <img className="logo" src="" alt="LedgerLifeline Logo" />
+            <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="register-page-container">
                 <div className="step1-form">
                     <form id="registerForm" onSubmit={handleSubmit}>

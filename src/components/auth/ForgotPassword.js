@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./styles/ForgotPassword.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ForgotPassword = () => {
     const [user, setUser] = useState("");
@@ -13,6 +15,14 @@ const ForgotPassword = () => {
     const [passwordHistory, setPasswordHistory] = useState([]);
     const [step, setStep] = useState(1);
     const API_URL = process.env.REACT_APP_API_URL;
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     // Password validation states
     const [isPasswordValid, setIsPasswordValid] = useState("");
@@ -72,44 +82,73 @@ const ForgotPassword = () => {
     const handleSubmitStep1 = async (event) => {
         event.preventDefault();
 
-        // Handle form submission
+        const userData = {
+            username: username,
+            type: 0, // Ensure this is passed as a query parameter
+        };
+
         try {
             const response = await fetch(
-                `${API_URL}/users/user-by-username?username=${encodeURIComponent(username)}`,
+                `${API_URL}/users/user-by-username?username=${encodeURIComponent(username)}&type=${
+                    userData.type
+                }`, // Passing both username and type as query params
                 {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                     },
+                    // Remove the body, GET requests shouldn't have a body
                 }
             );
 
-            // Gather the result
             const result = await response.json();
 
-            // If non error is returned, setUser with the gathered user
-            // Else, alert the user with the error message
             if (response.ok && result.email === email) {
                 setUser(result);
                 setPasswordHistory(result.passwordHistory);
-                const fetchedSecurityQuestion = result.securityQuestion.question;
+                const fetchedSecurityQuestion = result.question;
                 setSecurityQuestion(fetchedSecurityQuestion);
                 setStep(2); // Move to step 2
             } else {
-                alert("Incorrect username or email!");
+                toast("Incorrect username or email!", {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
             }
         } catch (error) {
             console.error("Error submitting form:", error);
-            alert("An error occured. Please try again.");
+            alert("An error occurred. Please try again.");
         }
     };
+
     const handleSubmitStep2 = (event) => {
         event.preventDefault();
 
-        if (user.securityQuestion.answer === securityAnswer) {
+        if (user.answer === securityAnswer) {
             setStep(3);
         } else {
-            alert("Incorrect answer!");
+            toast("Incorrect answer!", {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
         }
     };
     const handleSubmitStep3 = async (event) => {
@@ -133,7 +172,19 @@ const ForgotPassword = () => {
             if (response.status === 200) {
                 setStep(4);
             } else {
-                alert(`${result.message}` || "Error!");
+                toast(`${result.message}`, {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
             }
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -151,6 +202,8 @@ const ForgotPassword = () => {
 
     const content = (
         <section className="forgotPassword">
+            <ToastContainer />
+            <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="forgot-password-container">
                 {/* Step 1: Email and Username*/}
                 {step === 1 && (

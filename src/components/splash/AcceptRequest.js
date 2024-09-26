@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AcceptRequest = () => {
     const { username } = useParams();
     const [role, setRole] = useState("");
     const navigate = useNavigate();
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -25,7 +35,19 @@ const AcceptRequest = () => {
             }
 
             const result = await response.json();
-            alert(`${result.message}`);
+            toast(`${result.message}`, {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
             navigate("/dashboard");
         } catch (error) {
             console.error("Error:", error);
@@ -44,6 +66,8 @@ const AcceptRequest = () => {
 
     const content = (
         <section className="acceptRequest">
+            <ToastContainer />
+            <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="accept-request-page-container">
                 <form id="acceptRequestForm" onSubmit={handleSubmit}>
                     <h2>Accept User Request</h2>

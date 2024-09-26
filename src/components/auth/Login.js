@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     useEffect(() => {
         // Check if the user is already logged in and has accidentally went to the login page
@@ -19,10 +29,31 @@ const Login = () => {
             localStorage.removeItem("user");
         }
 
-        // Initialize failedLoginCounter if it doesn't exist
-        if (localStorage.getItem("failedLoginCounter") === null) {
-            localStorage.setItem("failedLoginCounter", 0);
+        const userCreationResult = localStorage.getItem("userCreated");
+        if (userCreationResult) {
+            toast(
+                "User creation successful! Please wait for an admin to view your user creation request! If accepted, you will be emailed with your username and a link to login.",
+                {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                }
+            );
+            setTimeout(() => {
+                localStorage.removeItem("userCreated");
+            }, 500);
         }
+
+        // Initialize failedLoginCounter if it doesn't exist
+        localStorage.setItem("failedLoginCounter", 0);
     }, [navigate]);
 
     // Function to handle input changes
@@ -81,10 +112,34 @@ const Login = () => {
                         });
 
                         const updateResult = await updateResponse.json();
-                        alert(updateResult.message);
+                        toast(`${updateResult.message}`, {
+                            style: {
+                                backgroundColor: "#333",
+                                color: "white",
+                                fontSize: "16px",
+                                fontWeight: "bold",
+                            },
+                            progressStyle: {
+                                backgroundColor: "#2196f3", // Solid blue color for progress bar
+                                backgroundImage: "none",
+                            },
+                            closeButton: <CustomCloseButton />,
+                        });
                     }
                 }
-                alert(result.message);
+                toast(`${result.message}`, {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
                 return;
             } else {
                 // Successful login actions
@@ -120,16 +175,45 @@ const Login = () => {
 
                 localStorage.setItem("user", JSON.stringify(userToStore));
 
-                console.log(userDetails.active);
+                // Store a success message in localStorage
+                localStorage.setItem(
+                    "toastMessage",
+                    `Login successful! Welcome ${userDetails.username}`
+                );
 
                 // Check user status
                 if (userDetails.role === "Employee" && !userDetails.active) {
-                    alert(
-                        "Your user creation request has not yet been accepted. Please wait for an admin to accept your user request to login."
+                    toast(
+                        "Your user creation request has not yet been accepted. Please wait for an admin to accept your user request to login.",
+                        {
+                            style: {
+                                backgroundColor: "#333",
+                                color: "white",
+                                fontSize: "16px",
+                                fontWeight: "bold",
+                            },
+                            progressStyle: {
+                                backgroundColor: "#2196f3", // Solid blue color for progress bar
+                                backgroundImage: "none",
+                            },
+                            closeButton: <CustomCloseButton />,
+                        }
                     );
                     return;
                 } else if (!userDetails.active) {
-                    alert("Your account is currently deactivated!");
+                    toast("Your account is currently deactivated!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
                     return;
                 } else if (
                     userDetails.suspended &&
@@ -139,6 +223,19 @@ const Login = () => {
                     const now = Date.now();
                     if (now < userDetails.suspended.end_date) {
                         alert("Your account is currently suspended. Please try again later.");
+                        toast("Your account is currently suspended. Please try again later.", {
+                            style: {
+                                backgroundColor: "#333",
+                                color: "white",
+                                fontSize: "16px",
+                                fontWeight: "bold",
+                            },
+                            progressStyle: {
+                                backgroundColor: "#2196f3", // Solid blue color for progress bar
+                                backgroundImage: "none",
+                            },
+                            closeButton: <CustomCloseButton />,
+                        });
                         return;
                     }
                 }
@@ -157,7 +254,10 @@ const Login = () => {
 
     const content = (
         <section className="login">
-            <img className="logo" src="" alt="LedgerLifeline Logo" />
+            <ToastContainer />
+            <header className="img-heading">
+                <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+            </header>
             <div className="login-container">
                 <form id="loginForm" onSubmit={handleSubmit}>
                     <div className="input-group">

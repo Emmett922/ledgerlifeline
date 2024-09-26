@@ -18,11 +18,29 @@ body {
     margin: 0;
 }
 
-.logo {
-  position: fixed;
+/* Center the header with absolute positioning */
+.img-heading {
+  position: absolute;
   top: 0;
-  left: 0;
-  padding: 10px;
+  left: 42.25%;
+  transform: translateX(-50%); /* Center horizontally */
+  text-align: center;
+  z-index: 1; /* Ensure it's above other content */
+}
+
+/* Style the logo with a white, rounded background */
+.logo {
+  padding: 20px;
+  height: 212px;
+  width: 250px;
+  background-color: rgba(255, 255, 255, 0.9); /* White background */
+  border-radius: 60%; /* Rounded background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard .logo,
+.users .logo {
+  position: relative;
 }
 
 .login-container, .register-link {
@@ -44,8 +62,8 @@ body {
 
 .register-link {
   position: absolute;
-  top: 585px;
   left: 50%;
+  top: 65%;
   transform: translateX(-50%);
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;

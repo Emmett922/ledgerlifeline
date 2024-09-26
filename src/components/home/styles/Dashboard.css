@@ -42,25 +42,40 @@ body {
     margin-bottom: 20px;
 }
 
-.profile-img {
+.app-logo {
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin-bottom: 10px;
+    text-align: center;
+    margin-bottom: 50px;
+    margin-left: -12px;
+    margin-top: -15%;
 }
 
-.profile-img img {
-    width: 100px;
-    height: 100px;
+.app-logo img {
+    height: 132px;
+    width: 170px;
     border-radius: 50%;
+}
+
+.pfp {
+    height: 45px;
+    width: 45px;
+}
+
+.user-profile {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    text-align: center;
+    align-items: center;
+    margin: auto;
+    gap: 10px;
 }
 
 .profile-name {
     text-align: center;
     font-size: 1em;
     font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 25px;
 }
 
 .sidebar-button {

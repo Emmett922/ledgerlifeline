@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Users = () => {
     // Function variables
@@ -41,6 +43,14 @@ const Users = () => {
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
     const navigate = useNavigate();
+    const CustomCloseButton = ({ closeToast }) => (
+        <button
+            onClick={closeToast}
+            style={{ color: "white", background: "transparent", border: "none", fontSize: "16px" }}
+        >
+            X
+        </button>
+    );
 
     useEffect(() => {
         // Retrieve the user data from localStorage
@@ -89,15 +99,54 @@ const Users = () => {
         };
 
         fetchUsers();
+
+        // Show toast message if present in localStorage
+        const toastMessage = localStorage.getItem("toastMessage");
+        if (toastMessage !== null) {
+            // Show toast message
+            toast(toastMessage, {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
+
+            // Delay removal of the message from localStorage
+            setTimeout(() => {
+                localStorage.removeItem("toastMessage");
+            }, 500); // Delay by 500ms (can be adjusted as needed)
+        }
+
+        const userCreationResult = localStorage.getItem("userCreated");
+        if (userCreationResult) {
+            toast(
+                "New user created! Please accept accept the request in your email!",
+                {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                }
+            );
+            setTimeout(() => {
+                localStorage.removeItem("userCreated");
+            }, 500);
+        }
     }, [API_URL]);
-
-    // example profile image URL and name
-    const profileImageUrl = "src/img/Default_pfp.svg.png"; // This needs to be fixed with "Profile-img.png"
-
-    const expiredPasswords = [
-        { name: "John Doe", lastChange: "2024-01-15" },
-        { name: "Jane Smith", lastChange: "2023-12-01" },
-    ];
 
     // Handle the switch between tables
     const handleChangeTable = (event) => {
@@ -268,7 +317,9 @@ const Users = () => {
             });
 
             const result = await response.json();
-            alert(`${result.message}`);
+
+            //Store message locally to deliver on page reload
+            localStorage.setItem("toastMessage", result.message);
         } catch (error) {
             console.error("Error submitting edit:", error);
             alert("An error occurred. Please try again.");
@@ -297,15 +348,28 @@ const Users = () => {
                 });
 
                 const result = await response.json();
-                alert(`${result.message}`);
+
+                //Store message locally to deliver on page reload
+                localStorage.setItem("toastMessage", result.message);
             } catch (error) {
                 console.error("Error submitting edit:", error);
                 alert("An error occurred. Please try again.");
             }
-            setIsEditUserVisible(false);
             window.location.reload();
         } else {
-            alert("No new role chosen!");
+            toast("No new role chosen!", {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
         }
     };
 
@@ -328,7 +392,9 @@ const Users = () => {
                 });
 
                 const result = await response.json();
-                alert(`${result.message}`);
+
+                //Store message locally to deliver on page reload
+                localStorage.setItem("toastMessage", result.message);
             } catch (error) {
                 console.error("Error submitting edit:", error);
                 alert("An error occurred. Please try again.");
@@ -336,7 +402,19 @@ const Users = () => {
             setIsEditUserVisible(false);
             window.location.reload();
         } else {
-            alert("No new active status chosen!");
+            toast("No new active status chosen!", {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
         }
     };
 
@@ -358,7 +436,9 @@ const Users = () => {
             });
 
             const result = await response.json();
-            alert(`${result.message}`);
+
+            //Store message locally to deliver on page reload
+            localStorage.setItem("toastMessage", result.message);
         } catch (error) {
             console.error("Error submitting edit:", error);
         }
@@ -384,7 +464,9 @@ const Users = () => {
             });
 
             const result = await response.json();
-            alert(`${result.message}`);
+
+            //Store message locally to deliver on page reload
+            localStorage.setItem("toastMessage", result.message);
         } catch (error) {
             console.error("Error submitting edit:", error);
         }
@@ -393,28 +475,44 @@ const Users = () => {
     };
 
     const handleEmailToUser = async () => {
-        // Replace newlines with <br> tags for HTML formatting
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
 
-        try {
-            const response = await fetch(`${API_URL}/email/send-custom-email`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    user: selectedUser,
-                    subject: emailSubject,
-                    message: formattedMessage,
-                }),
-            });
+        console.log("Selected User for Email:", selectedUser);
+        console.log("Email Subject:", emailSubject);
+        console.log("Formatted Message:", formattedMessage);
 
-            const result = await response.json();
-            alert(`${result.message}`);
-        } catch (error) {
-            console.error("Error sending email:", error);
-            alert("Failed to send email.");
-        }
+        setTimeout(async () => {
+            try {
+                const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        user: selectedUser,
+                        subject: emailSubject,
+                        message: formattedMessage,
+                    }),
+                });
+
+                console.log("Response Status:", response.status);
+                const result = await response.json();
+                console.log("Response Result:", result);
+
+                if (response.ok) {
+                    // Store the message in localStorage
+                    localStorage.setItem("toastMessage", result.message);
+
+                    // Reload the page after storing the message
+                    window.location.reload();
+                } else {
+                    alert(`Failed to send email: ${result.message}`);
+                }
+            } catch (error) {
+                console.error("Error sending email:", error);
+                alert("Failed to send email.");
+            }
+        }, 0); // Delay execution of the fetch request
 
         setIsEmailUserVisible(false);
     };
@@ -438,11 +536,28 @@ const Users = () => {
                 body: JSON.stringify(emailInfo),
             });
 
-            const result = await response.json();
-            alert(`${result.message}`);
+            console.log("Response Status:", response.status);
+
+            // Handle response directly based on status
+            if (response.ok) {
+                // Parse the response JSON
+                const result = await response.json();
+
+                // Store the result message locally to deliver on page reload
+                localStorage.setItem("toastMessage", result.message || "Emails sent successfully");
+
+                // Reload the page after storing the message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300); // Small delay for page reload
+            } else {
+                // Parse error message if response is not OK
+                const errorResult = await response.json();
+                throw new Error(errorResult.message || "Failed to send emails");
+            }
         } catch (error) {
             console.error("Error sending email:", error);
-            alert("Failed to send email.");
+            alert("Failed to send email: " + error.message);
         }
     };
 
@@ -451,14 +566,14 @@ const Users = () => {
         navigate("/"); // Redirect to login
     };
 
+    const isSuspendedBtnsDisabled = !(startDate && endDate);
+
     const content = (
         <section className="users">
+            <ToastContainer />
             <aside className="sidebar">
-                <div className="profile-img">
-                    <img src={profileImageUrl} alt="Profile" className="profile-img" />
-                </div>
-                <div className="profile-name">
-                    <span className="profile-name">{storedUserName}</span>
+                <div className="app-logo">
+                    <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
                 </div>
                 <ul className="sidebar-btns">
                     <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
@@ -485,18 +600,22 @@ const Users = () => {
             </aside>
 
             <main className="main-content">
+                <header className="user-profile">
+                    <span className="profile-name">{storedUserName}</span>
+                    <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                </header>
                 <header className="header">
                     <div className="header-main">
                         <h1 className="header-title">Users</h1>
                         <Link className="action-button1" to="/register">
                             + Add User
                         </Link>
-                        <button
+                        {/*<button
                             className="action-button1"
                             onClick={() => setIsEmailAllVisible(true)}
                         >
                             <FontAwesomeIcon icon={faEnvelope} size="lg" /> Email All
-                        </button>
+                        </button>*/}
                         <button
                             className="action-button1"
                             onClick={() => setIsExpiredPasswordsVisible(true)}
@@ -935,6 +1054,7 @@ const Users = () => {
                                         type="button"
                                         className="action-button1"
                                         onClick={handleUserSuspension}
+                                        disabled={isSuspendedBtnsDisabled}
                                     >
                                         Suspend User
                                     </button>
@@ -942,6 +1062,7 @@ const Users = () => {
                                         type="button"
                                         className="action-button1"
                                         onClick={disableSuspension}
+                                        disabled={isSuspendedBtnsDisabled}
                                     >
                                         Remove Suspension
                                     </button>
