@@ -19,23 +19,42 @@ body {
 }
 
 /* Center the header with absolute positioning */
-.img-heading {
+.login .img-heading,
+.forgotPassword .img-heading {
   position: absolute;
+  margin-top: 73px;
   top: 0;
-  left: 42.25%;
+  left: 50%;
+  height: 135px;
+  width: 180px;
   transform: translateX(-50%); /* Center horizontally */
+  background-color: rgba(255, 255, 255, 0.9);;
   text-align: center;
+  border-radius: 10%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
   z-index: 1; /* Ensure it's above other content */
 }
 
+.forgotPassword .img-heading {
+  margin-top: 19.8px;
+}
+
 /* Style the logo with a white, rounded background */
-.logo {
-  padding: 20px;
+.login .logo,
+.forgotPassword .logo {
+  position: absolute;
+  margin-left: 651.5px;
   height: 212px;
   width: 250px;
-  background-color: rgba(255, 255, 255, 0.9); /* White background */
-  border-radius: 60%; /* Rounded background */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+  z-index: 2;
+}
+
+.forgotPassword .logo {
+  margin-top: -50px;
 }
 
 .dashboard .logo,

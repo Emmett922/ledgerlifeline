@@ -72,6 +72,10 @@ body {
     gap: 10px;
 }
 
+.user-profile a {
+    margin-top: 5px;
+}
+
 .profile-name {
     text-align: center;
     font-size: 1em;

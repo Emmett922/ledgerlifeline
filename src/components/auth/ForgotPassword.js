@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./styles/ForgotPassword.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -23,6 +23,11 @@ const ForgotPassword = () => {
             X
         </button>
     );
+
+    useEffect(() => {
+        localStorage.setItem("failedEmailCounter", 0);
+        localStorage.setItem("failedSecurityAnswer", 0);
+    }, []);
 
     // Password validation states
     const [isPasswordValid, setIsPasswordValid] = useState("");
@@ -108,9 +113,112 @@ const ForgotPassword = () => {
                 setPasswordHistory(result.passwordHistory);
                 const fetchedSecurityQuestion = result.question;
                 setSecurityQuestion(fetchedSecurityQuestion);
+                localStorage.setItem("failedEmailCounter", 0);
                 setStep(2); // Move to step 2
             } else {
-                toast("Incorrect username or email!", {
+                let failedEmailCounter =
+                    parseInt(localStorage.getItem("failedEmailCounter"), 10) || 0;
+
+                failedEmailCounter++;
+                localStorage.setItem("failedEmailCounter", failedEmailCounter);
+
+                if (failedEmailCounter >= 3) {
+                    // Set suspension for the user
+                    const suspensionEnd = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+                    const updateResponse = await fetch(`${API_URL}/users/suspended`, {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            isSuspended: true,
+                            start: Date.now(),
+                            end: suspensionEnd,
+                        }),
+                    });
+
+                    const updateResult = await updateResponse.json();
+                    toast(`${updateResult.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                } else {
+                    toast("Incorrect username or email!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            alert("An error occurred. Please try again.");
+        }
+    };
+
+    const handleSubmitStep2 = async (event) => {
+        event.preventDefault();
+
+        if (user.answer === securityAnswer) {
+            localStorage.setItem("failedSecurityAnswer", 0);
+            setStep(3);
+        } else {
+            let failedSecurityAnswer =
+                parseInt(localStorage.getItem("failedSecurityAnswer"), 10) || 0;
+
+            failedSecurityAnswer++;
+            localStorage.setItem("failedSecurityAnswer", failedSecurityAnswer);
+
+            if (failedSecurityAnswer >= 3) {
+                // Set suspension for the user
+                const suspensionEnd = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+                const updateResponse = await fetch(`${API_URL}/users/suspended`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        isSuspended: true,
+                        start: Date.now(),
+                        end: suspensionEnd,
+                    }),
+                });
+
+                const updateResult = await updateResponse.json();
+                toast(`${updateResult.message}`, {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
+            } else {
+                toast("Incorrect answer!", {
                     style: {
                         backgroundColor: "#333",
                         color: "white",
@@ -124,31 +232,6 @@ const ForgotPassword = () => {
                     closeButton: <CustomCloseButton />,
                 });
             }
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            alert("An error occurred. Please try again.");
-        }
-    };
-
-    const handleSubmitStep2 = (event) => {
-        event.preventDefault();
-
-        if (user.answer === securityAnswer) {
-            setStep(3);
-        } else {
-            toast("Incorrect answer!", {
-                style: {
-                    backgroundColor: "#333",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                },
-                progressStyle: {
-                    backgroundColor: "#2196f3", // Solid blue color for progress bar
-                    backgroundImage: "none",
-                },
-                closeButton: <CustomCloseButton />,
-            });
         }
     };
     const handleSubmitStep3 = async (event) => {
@@ -204,6 +287,7 @@ const ForgotPassword = () => {
         <section className="forgotPassword">
             <ToastContainer />
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+            <div className="img-heading"></div>
             <div className="forgot-password-container">
                 {/* Step 1: Email and Username*/}
                 {step === 1 && (

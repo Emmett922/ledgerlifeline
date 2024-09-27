@@ -129,11 +129,6 @@ const Dashboard = () => {
                         <Link className="sidebar-button" id="event-log-link">
                             Event Log
                         </Link>
-                        <a>
-                            <button className="sidebar-button logout-link" onClick={handleLogout}>
-                                Logout
-                            </button>
-                        </a>
                     </ul>
                 </aside>
             )}
@@ -170,11 +165,6 @@ const Dashboard = () => {
                         <Link className="sidebar-button" id="retained-earnings-link">
                             Statement of Retained Earnings
                         </Link>
-                        <a>
-                            <button className="sidebar-button logout-link" onClick={handleLogout}>
-                                Logout
-                            </button>
-                        </a>
                     </ul>
                 </aside>
             )}
@@ -184,6 +174,14 @@ const Dashboard = () => {
                 <header className="user-profile">
                     <span className="profile-name">{username}</span>
                     <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                    <a>
+                        <button
+                            className="sidebar-button logout-link"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    </a>
                 </header>
                 <div className="Dashboard1">
                     <h1>Dashboard</h1>

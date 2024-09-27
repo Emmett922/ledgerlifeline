@@ -255,9 +255,8 @@ const Login = () => {
     const content = (
         <section className="login">
             <ToastContainer />
-            <header className="img-heading">
-                <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
-            </header>
+            <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+            <div className="img-heading"></div>
             <div className="login-container">
                 <form id="loginForm" onSubmit={handleSubmit}>
                     <div className="input-group">

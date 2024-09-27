@@ -151,7 +151,7 @@ body {
 }
 
 /* Modal styles */
-.users .modal {
+.modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -164,8 +164,8 @@ body {
     z-index: 1000;
 }
 
-.users .modal-content,
-.users .modal-expired-content {
+.modal-content,
+.modal-expired-content {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -189,7 +189,7 @@ body {
     margin-bottom: 20px;
 }
 
-.users .modal-content form {
+.modal-content form {
     overflow-y: auto;
     flex-grow: 1;
     max-height: 60vh;
@@ -236,19 +236,19 @@ body {
     resize: none;
 }
 
-.users .modal-content .modal-btns {
+.modal-content .modal-btns {
     display: flex;
     text-align: center;
     gap: 10px;
 }
 
-.users .modal-content .modal-btns:disabled {
+.modal-content .modal-btns:disabled {
     background-color: #858484;
     cursor: not-allowed;
 }
 
-.users .modal-btns .send-button,
-.users .modal-btns .cancel-button {
+.modal-btns .send-button,
+.modal-btns .cancel-button {
     padding: 10px 20px;
     background-color: #007bff;
     color: #fff;
@@ -284,17 +284,17 @@ body {
     color: #ff0000;
 }
 
-.users .modal-content h2 {
+.modal-content h2 {
     margin-bottom: 20px;
 }
 
-.users .modal-content label {
+.modal-content label {
     display: block;
     margin-bottom: 10px;
 }
 
-.users .modal-content input,
-.users .modal-content select {
+.modal-content input,
+.modal-content select {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -308,8 +308,8 @@ body {
     margin-bottom: 10px;
 }
 
-.users .modal-content input:focus,
-.users .modal-content select:focus {
+.modal-content input:focus,
+.modal-content select:focus {
     border-color: #007bff;
 }
 
