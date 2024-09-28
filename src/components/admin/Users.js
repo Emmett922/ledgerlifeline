@@ -126,22 +126,19 @@ const Users = () => {
 
         const userCreationResult = localStorage.getItem("userCreated");
         if (userCreationResult) {
-            toast(
-                "New user created! Please accept accept the request in your email!",
-                {
-                    style: {
-                        backgroundColor: "#333",
-                        color: "white",
-                        fontSize: "16px",
-                        fontWeight: "bold",
-                    },
-                    progressStyle: {
-                        backgroundColor: "#2196f3", // Solid blue color for progress bar
-                        backgroundImage: "none",
-                    },
-                    closeButton: <CustomCloseButton />,
-                }
-            );
+            toast("New user created! Please accept accept the request in your email!", {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
             setTimeout(() => {
                 localStorage.removeItem("userCreated");
             }, 500);
@@ -591,11 +588,6 @@ const Users = () => {
                     <Link className="sidebar-button" id="event-log-link">
                         Event Log
                     </Link>
-                    <a>
-                        <button className="sidebar-button logout-link" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </a>
                 </ul>
             </aside>
 
@@ -603,6 +595,11 @@ const Users = () => {
                 <header className="user-profile">
                     <span className="profile-name">{storedUserName}</span>
                     <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                    <a>
+                        <button className="sidebar-button logout-link" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </a>
                 </header>
                 <header className="header">
                     <div className="header-main">

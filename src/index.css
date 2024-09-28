@@ -60,6 +60,7 @@ body {
 .dashboard .logo,
 .users .logo {
   position: relative;
+  border-radius: none;
 }
 
 .login-container, .register-link {
