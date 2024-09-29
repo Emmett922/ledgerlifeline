@@ -576,10 +576,10 @@ const Users = () => {
                     <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
                         Dashboard
                     </Link>
-                    <Link className="sidebar-button" id="chart-of-accounts-link">
+                    <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
                         Chart of Accounts
                     </Link>
-                    <Link className="sidebar-button" id="accounts-link">
+                    <Link className="sidebar-button" id="accounts-link" to="/accounts">
                         Accounts
                     </Link>
                     <Link className="sidebar-button" id="users-link" to="/users">

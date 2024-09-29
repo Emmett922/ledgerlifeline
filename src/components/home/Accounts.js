@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
@@ -29,6 +29,10 @@ const Accounts = () => {
   const [changeIsActive, setChangeIsActive] = useState(false);
   const [accountArray, setAccountArray] = useState([]);
   const [accountTable, setAccountTable] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredAccounts, setFilteredAccounts] = useState([]);
+  const [ChartOfAccounts, setChartOfAccounts] = useState([]);
+  const searchContainerRef = useRef(null);      // Reference to the search container
   const API_URL = process.env.REACT_APP_API_URL;
   const [storedUserName, setStoredUserName] = useState("");
   const navigate = useNavigate();
@@ -59,7 +63,25 @@ const Accounts = () => {
     if (storedUser) {
         setStoredUserName(storedUser.username);
     }
+    
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+            setFilteredAccounts([]); // Hide results when clicking outside
+        }
+    };
+
+    // Add event listener for clicks
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup event listener on component unmount
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+    }, []);
+
 
   // Fetch accounts from the database
   useEffect(() => {
@@ -88,6 +110,33 @@ const Accounts = () => {
     };
 
     fetchAccounts();
+
+    const fetchChartOfAccounts = async () => {
+        try {
+            const response = await fetch(`${API_URL}/accounts`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            const data = await response.json();
+    
+            // Check if the response data is an array
+            if (Array.isArray(data)) {
+                setChartOfAccounts(data);
+            } else {
+                console.error("Expected an array, but received:", data);
+                setChartOfAccounts([]);
+            }
+        } catch (error) {
+            console.error("Error fetching ChartOfAccounts:", error);
+            setChartOfAccounts([]);
+        }
+    };
+    
+    // Call the function to fetch the accounts
+    fetchChartOfAccounts();
 
     // Show toast message if present in localStorage
     const toastMessage = localStorage.getItem("toastMessage");
@@ -144,6 +193,67 @@ const Accounts = () => {
         event.target.innerHTML = "Requests";
     }
   };
+
+    // Handle input changes
+    const handleInputSearches = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    // Handle search button click
+    const handleSearch = () => {
+        const filteredAccounts = Accounts.filter((account) => {
+            // Ensure the search term is not empty
+            if (!searchTerm) return true;
+    
+            // Convert both accountNumber and searchTerm to strings for comparison
+            const accountNumberStr = String(account.accountNumber);
+    
+            // Check if the account number includes or starts with the search term
+            return (
+                accountNumberStr.includes(searchTerm) || accountNumberStr.startsWith(searchTerm)
+            );
+        });
+    
+        // Update the state with the filtered accounts
+        setFilteredAccounts(filteredAccounts);
+    };
+
+    const handleSearchResultClick = (selectedAccount) => {
+        // Reorder accounts: Set selectedAccount's order to 1, increment others
+        const reorderedAccounts = accountArray.map((account) => {
+            if (account.id === selectedAccount.id) {
+                return { ...account, order: 1 }; // Move selected account to top
+            }
+            return { ...account, order: account.order + 1 }; // Increment order of others
+        });
+    
+        // Sort accounts by the order
+        reorderedAccounts.sort((a, b) => a.order - b.order);
+    
+        // Update the state with reordered accounts
+        setAccountArray(reorderedAccounts);
+    
+        // Set the selected account details
+        setSelectedAccount(selectedAccount);
+        setAccountNumber(selectedAccount.accountNumber);
+        setAccountName(selectedAccount.accountName);
+        setAccountDescription(selectedAccount.accountDescription);
+        setNormalSide(selectedAccount.normalSide);
+        setAccountCatagory(selectedAccount.accountCatagory);
+        setAccountSubcatagory(selectedAccount.accountSubcatagory);
+        setInitialBalance(selectedAccount.initialBalance);
+        setDebit(selectedAccount.debit);
+        setCredit(selectedAccount.credit);
+        setBalance(selectedAccount.balance);
+        setDateAccountAdded(selectedAccount.dateAccountAdded);
+        setUserID(selectedAccount.UserID);
+        setOrder(selectedAccount.order);
+        setStatement(selectedAccount.statement);
+        setComment(selectedAccount.comment);
+        setIsActive(selectedAccount.isActive);
+    
+        setIsEditAccountVisible(true);
+    };
 
   // Handle the input changes from editing the account
   const handleInputChange = (event) => {
@@ -234,7 +344,7 @@ const Accounts = () => {
     if (changeIsActive) {
         const accountData = {
             accountName: selectedAccount.accountName,
-            isActive: isActive,
+            Active: isActive,
         };
 
         try {
@@ -279,7 +389,7 @@ const Accounts = () => {
   };
 
   const content = (
-    <section className="users">
+    <section className="account">
         <ToastContainer />
         <aside className="sidebar">
             <div className="app-logo">
@@ -292,7 +402,7 @@ const Accounts = () => {
                 <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
                     Chart of Accounts
                 </Link>
-                <Link className="sidebar-button" id="accounts-link" to="/accouunts">
+                <Link className="sidebar-button" id="accounts-link" to="/accounts">
                     Accounts
                 </Link>
                 <Link className="sidebar-button" id="users-link" to="/users">
@@ -321,9 +431,26 @@ const Accounts = () => {
                         + Add Account
                     </Link>
                 </div>
-                <div className="header-search">
-                    <input type="text" className="search" placeholder="Search"></input>
-                    <button className="search-btn">Search</button>
+                <div className="header-search" ref={searchContainerRef}>
+                    <input 
+                        type="text" 
+                        className="search" 
+                        placeholder="Search by Account Number"
+                        value={searchTerm}
+                        onChange={handleInputSearches}
+                    />
+                    <button className="search-btn" onClick={handleSearch}>Search</button>
+                    {filteredAccounts.length > 0 && (
+                        <div className="search-results">
+                            <ul>
+                                {filteredAccounts.map(account => (
+                                    <li key={account.id} onClick={() => handleSearchResultClick(account)}>
+                                        Account Number: {account.accountNumber}, {account.accountName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </header>
 
@@ -340,13 +467,12 @@ const Accounts = () => {
                             <th>Created By</th>     {/*name of the admin's username*/}
                             <th>Date Created</th>
                             <th>Comments</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-
-                      {/*THIS IS NOT CORRECT*/}
                         {accountArray
-                            .filter((account) => account.accountNumber !== "")
+                            .filter((account) => account.accountNumber !== "accountNumber")
                             .map((account, index) => (
                                 <tr key={index}>
                                     <td id="accountNumber">
@@ -377,6 +503,13 @@ const Accounts = () => {
                                             {account.accountNumber}
                                         </button>
                                     </td>
+                                    <td>{account.accountName}</td>    {/* Account name */}
+                                    <td>{account.accountCatagory}</td> {/* Account type */}
+                                    <td>{account.accountSubcatagory}</td> {/* Term (current/long term) */}
+                                    <td>${account.balance}</td>         {/* Account balance with dollar sign */}
+                                    <td>{account.createdBy}</td>        {/* Created by admin username */}
+                                    <td>{new Date(account.dateAccountAdded).toLocaleDateString("en-US")}</td> {/* Date in MM/dd/yyyy */}
+                                    <td>{account.comment}</td>          {/* Comments */}
                                     <td>
                                         <Link
                                             className="account-active-link"
@@ -407,11 +540,12 @@ const Accounts = () => {
                             <th>Created By</th>     {/*name of the admin's username*/}
                             <th>Date Created</th>
                             <th>Comments</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {accountArray
-                            .filter((account) => account.accountNumber !== "")
+                            .filter((account) => account.accountNumber !== "accountNumber")
                             .map((account, index) => (
                                 <tr key={index}>
                                     <td id="accountNumber">
@@ -425,6 +559,13 @@ const Accounts = () => {
                                             {account.accountNumber}
                                         </button>
                                     </td>
+                                    <td>{account.accountName}</td>    {/* Account name */}
+                                    <td>{account.accountCatagory}</td> {/* Account type */}
+                                    <td>{account.accountSubcatagory}</td> {/* Term (current/long term) */}
+                                    <td>${account.balance}</td>         {/* Account balance with dollar sign */}
+                                    <td>{account.createdBy}</td>        {/* Created by admin username */}
+                                    <td>{new Date(account.dateAccountAdded).toLocaleDateString("en-US")}</td> {/* Date in MM/dd/yyyy */}
+                                    <td>{account.comment}</td>          {/* Comments */}
                                     <td>{account.isActive ? "Active" : "Inactive"}</td>
                                 </tr>
                             ))}
@@ -441,6 +582,17 @@ const Accounts = () => {
                         </span>
                         <h2>Edit Account</h2>
                         <form>
+                        <label>
+                                Account Number:
+                                <input
+                                    type="text"
+                                    id="accountNumber"
+                                    name="accountNumber"
+                                    value={accountNumber}
+                                    onChange={handleInputChange}
+                                    placeholder="Account Number"
+                                />
+                            </label>
                             <label>
                                 Account Name:
                                 <input
@@ -450,17 +602,6 @@ const Accounts = () => {
                                     value={accountName}
                                     onChange={handleInputChange}
                                     placeholder="Account Name"
-                                />
-                            </label>
-                            <label>
-                                Account Number:
-                                <input
-                                    type="text"
-                                    id="accountNumber"
-                                    name="accountNumber"
-                                    value={accountNumber}
-                                    onChange={handleInputChange}
-                                    placeholder="Account Number"
                                 />
                             </label>
                             <label>
@@ -554,11 +695,14 @@ const Accounts = () => {
                             <label>
                                 Date Account Added:
                                 <input
-                                    type="text"
+                                    type="date"
                                     id="dateAccountAddedn"
                                     name="dateAccountAdded"
-                                    value={dateAccountAdded}
-                                    onChange={handleInputChange}
+                                    value={new Date(dateAccountAdded).toISOString().substring(0, 10)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setDateAccountAdded(new Date(value).toISOString());
+                                    }}
                                     placeholder="Date Account Added"
                                 />
                             </label>
@@ -634,8 +778,12 @@ const Accounts = () => {
                         <form>
                             <h3 className="form-sub-title">
                                 Account:{" "}
+                                 <p className="name">
+                                    {selectedAccount.accountName}
+                                </p>
+                                Account Balance: {" "}
                                 <p className="name">
-                                    {selectedAccount.accountName} {selectedAccount.AccountNumber}
+                                    ${selectedAccount.balance}
                                 </p>
                             </h3>
                             <label>

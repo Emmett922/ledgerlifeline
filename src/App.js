@@ -37,7 +37,7 @@ function App() {
                 document.title = "Accounts - Ledger Lifeline";
                 break;
             case "/chart-of-accounts":
-                document.title = "Accounts - Ledger Lifeline";
+                document.title = "Chart of Accounts - Ledger Lifeline";
                 break;
             default:
                 document.title = "Ledger Lifeline";

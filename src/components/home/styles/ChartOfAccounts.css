@@ -1,0 +1,380 @@
+/* General resets and styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Page background and container */
+body {
+    background-image: linear-gradient(to bottom right, #283048, #859398);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+/* Dashboard layout */
+.account {
+    display: flex;
+    width: 100%;
+    max-width: 1550px;
+}
+
+/* Main content styles */
+.account .main-content {
+    width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
+    margin-left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    max-height: 90vh;
+    overflow-y: hidden;
+}
+
+.account .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.account .header-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.account .header-search {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Flexbox alignment for header and button */
+.account .header-title {
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+}
+
+/* Search box*/
+.header-search {
+    display: flex;
+    align-items: center; /* Center items vertically */
+    margin: 20px 0; /* Add some spacing around the search bar */
+    position: relative; /* Position relative for the search results */
+}
+
+.search {
+    flex: 1; /* Allow input to take available space */
+    padding: 10px; /* Add padding for better touch targets */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Increase font size for readability */
+    margin-right: 10px; /* Space between input and button */
+}
+
+.search-btn {
+    padding: 10px 15px; /* Padding for button */
+    border: none; /* Remove default border */
+    border-radius: 4px; /* Match rounded corners with the input */
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    font-size: 16px; /* Increase font size */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.search-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.search-results {
+    position: absolute; /* Absolute positioning within the header-search container */
+    top: 100%; /* Place the search results just below the search box */
+    left: 0; /* Align to the left of the container */
+    width: 100%; /* Make results take full width of the container */
+    margin-top: 5px; /* Space above results */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    background-color: white; /* Light background */
+    padding: 10px; /* Padding around results */
+    z-index: 10; /* Ensure results are above other elements */
+    max-height: 200px; /* Limit height of the results */
+    overflow-y: auto; /* Add scroll for large result sets */
+    cursor: pointer;
+}
+
+.search-results ul {
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.search-results li {
+    padding: 5px 0; /* Space between list items */
+    border-bottom: 1px solid #eee; /* Light border between items */
+}
+
+.search-results li:last-child {
+    border-bottom: none; /* Remove border for the last item */
+}
+
+
+
+
+.account .action-button1 {
+    padding: 10px 5px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    font-size: 11px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.account .action-button1:hover {
+    background-color: #1c4a7c;
+}
+
+.account .action-button2 {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+
+.account .action-button2:hover {
+    background-color: #1c4a7c;
+}
+
+
+/* Table styles */
+
+.account .account-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.account .account-table th, .account-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.account .account-table th {
+    background-color: #f4f4f4;
+    border-bottom: 2px solid #ddd;
+}
+
+.account .account-table .account-name {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.account .account-table .account-name #single-email {
+    margin-right: 5%;
+    font-size: 12px;
+    padding: 5px 12px;
+}
+
+.account .link-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.account .account-role-link,
+.account .account-active-link {
+    color: #000000;
+    text-decoration: underline;
+}
+
+.account .account-active-link:hover,
+.account .link-button:hover {
+    color: #0056b3;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content form {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 60vh;
+    margin-bottom: 20px;
+}
+
+.account .modal-content form .form-sub-title{
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+    flex-direction: column;
+}
+
+.account .modal-content form .form-sub-title .name {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: lighter;
+}
+
+.account .modal-content .form-group {
+    margin-bottom: 20px;
+}
+
+.account .modal-content .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.account .modal-content .form-group input,
+.account .modal-content .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+.account .modal-content .form-group input:focus,
+.account .modal-content .form-group textarea:focus {
+    border-color: #007bff;
+}
+
+.account .modal-content .form-group textarea {
+    height: 150px;
+    resize: none;
+}
+
+.modal-content .modal-btns {
+    display: flex;
+    text-align: center;
+    gap: 10px;
+}
+
+.modal-content .modal-btns:disabled {
+    background-color: #858484;
+    cursor: not-allowed;
+}
+
+.modal-btns .send-button,
+.modal-btns .cancel-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.account .modal-btns .send-button:hover,
+.account .modal-btns .cancel-button:hover {
+    background-color: #1c4a7c;
+}
+
+.account .modal-btns .cancel-button {
+    background-color: #dc3545;
+}
+
+.account .modal-btns .cancel-button:hover {
+    background-color: #a52a2a;
+}
+
+.account .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.account .close:hover {
+    color: #ff0000;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: #007bff;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .users .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .users .main-content {
+        margin-left: 0;
+    }
+}
