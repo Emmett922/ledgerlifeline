@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./styles/AcceptRequest.css";
 
 const AcceptRequest = () => {
     const { username } = useParams();
@@ -68,6 +69,7 @@ const AcceptRequest = () => {
         <section className="acceptRequest">
             <ToastContainer />
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+            <div className="img-heading"></div>
             <div className="accept-request-page-container">
                 <form id="acceptRequestForm" onSubmit={handleSubmit}>
                     <h2>Accept User Request</h2>

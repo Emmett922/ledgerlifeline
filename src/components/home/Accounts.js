@@ -234,7 +234,7 @@ const Accounts = () => {
     if (changeIsActive) {
         const accountData = {
             accountName: selectedAccount.accountName,
-            isActive: active,
+            isActive: isActive,
         };
 
         try {
@@ -243,7 +243,7 @@ const Accounts = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify(accountData),
             });
 
             const result = await response.json();
@@ -381,7 +381,7 @@ const Accounts = () => {
                                         <Link
                                             className="account-active-link"
                                             onClick={() => {
-                                                setSelectedAcocunt(account);
+                                                setSelectedAccount(account);
                                                 setIsActive(account.isActive);
                                                 setIsEditAccountActiveVisible(true);
                                             }}
@@ -643,7 +643,7 @@ const Accounts = () => {
                                 <select
                                     id="active"
                                     name="active"
-                                    value={active ? "true" : "false"}
+                                    value={isActive ? "true" : "false"}
                                     onChange={handleChangeIsActive}
                                 >
                                     <option value="" disabled>

@@ -20,7 +20,9 @@ body {
 
 /* Center the header with absolute positioning */
 .login .img-heading,
-.forgotPassword .img-heading {
+.register .img-heading,
+.forgotPassword .img-heading,
+.acceptRequest .img-heading {
   position: absolute;
   margin-top: 73px;
   top: 0;
@@ -38,13 +40,16 @@ body {
   z-index: 1; /* Ensure it's above other content */
 }
 
-.forgotPassword .img-heading {
+.forgotPassword .img-heading,
+.register .img-heading {
   margin-top: 19.8px;
 }
 
 /* Style the logo with a white, rounded background */
 .login .logo,
-.forgotPassword .logo {
+.register .logo,
+.forgotPassword .logo,
+.acceptRequest .logo {
   position: absolute;
   margin-left: 651.5px;
   height: 212px;
@@ -53,8 +58,13 @@ body {
   z-index: 2;
 }
 
-.forgotPassword .logo {
+.forgotPassword .logo,
+.register .logo {
   margin-top: -50px;
+}
+
+.register .logo {
+  margin-left: 643px;
 }
 
 .dashboard .logo,

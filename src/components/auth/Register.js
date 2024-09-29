@@ -261,6 +261,7 @@ const Register = () => {
             <ToastContainer />
             <div className="top-of-page"></div>
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+            <div className="img-heading"></div>
             <div className="register-page-container">
                 <div className="step1-form">
                     <form id="registerForm" onSubmit={handleSubmit}>
