@@ -181,7 +181,7 @@ const Accounts = () => {
       setComment(value);
     } else if (name === "isActive") {
       setIsActive(value === "true");
-      setChangedIsActive(true);
+      setChangeIsActive(true);
     }
   };
 
