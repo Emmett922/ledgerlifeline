@@ -596,7 +596,7 @@ const Users = () => {
                     <span className="profile-name">{storedUserName}</span>
                     <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                     <a>
-                        <button className="sidebar-button logout-link" onClick={handleLogout}>
+                        <button className="action-button1" onClick={handleLogout}>
                             Logout
                         </button>
                     </a>

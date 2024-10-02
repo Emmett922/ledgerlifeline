@@ -52,6 +52,7 @@ body {
 }
 
 .app-logo img {
+    position: relative;
     height: 132px;
     width: 170px;
 }
@@ -111,7 +112,9 @@ body {
 
 .sidebar-button:hover,
 .dashboard #dashboard-link,
-.users #users-link {
+.users #users-link,
+.account #accounts-link,
+.chartOfAccount #chart-of-accounts-link {
     background-color: #1c4a7c;
 }
 

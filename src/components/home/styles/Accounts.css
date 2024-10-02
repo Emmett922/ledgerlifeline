@@ -21,14 +21,16 @@ body {
 }
 
 /* Dashboard layout */
-.account {
+.account,
+.chartOfAccount {
     display: flex;
     width: 100%;
     max-width: 1550px;
 }
 
 /* Main content styles */
-.account .main-content {
+.account .main-content,
+.chartOfAccount .main-content {
     width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
@@ -39,33 +41,38 @@ body {
     overflow-y: hidden;
 }
 
-.account .header {
+.account .header,
+.chartOfAccount .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.account .header-main {
+.account .header-main,
+.chartOfAccount .header-main {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.account .header-search {
+.account .header-search,
+.chartOfAccount .header-search {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
 }
 
 /* Flexbox alignment for header and button */
-.account .header-title {
+.account .header-title,
+.chartOfAccount .header-title {
     font-size: 2em;
     display: flex;
     align-items: center;
 }
 
-.account .action-button1 {
+.account .action-button1,
+.chartOfAccount .action-button1 {
     padding: 10px 5px;
     background-color: #007bff;
     color: #fff;
@@ -77,11 +84,13 @@ body {
     text-decoration: none;
 }
 
-.account .action-button1:hover {
+.account .action-button1:hover,
+.chartOfAccount .action-button1:hover {
     background-color: #1c4a7c;
 }
 
-.account .action-button2 {
+.account .action-button2,
+.chartOfAccount .action-button2 {
     padding: 10px;
     background-color: #007bff;
     color: #fff;
@@ -93,21 +102,24 @@ body {
     transition: background-color 0.3s;
   }
 
-.account .action-button2:hover {
+.account .action-button2:hover,
+.chartOfAccount .action-button2:hover {
     background-color: #1c4a7c;
 }
 
 
 /* Table styles */
 
-.account .account-table {
+.account .account-table,
+.chartOfAccount .account-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     text-align: left;
 }
 
-.account .account-table th, .account-table td {
+.account .account-table th, .account .account-table td,
+.chartOfAccount .account-table th, .chartOfAccount .account-table td {
     padding: 10px;
     border: 1px solid #ddd;
     border-top: none;
@@ -115,24 +127,21 @@ body {
     border-right: none;
 }
 
-.account .account-table th {
+.account .account-table th,
+.chartOfAccount .account-table th {
     background-color: #f4f4f4;
     border-bottom: 2px solid #ddd;
 }
 
-.account .account-table .account-name {
+.account .account-table .account-name,
+.chartOfAccount .account-table .account-name {
     display: flex;
     justify-content: space-between;
     text-align: center;
 }
 
-.account .account-table .account-name #single-email {
-    margin-right: 5%;
-    font-size: 12px;
-    padding: 5px 12px;
-}
-
-.account .link-button {
+.account .link-button,
+.chartOfAccount .link-button {
     background: none;
     border: none;
     color: #007bff;
@@ -142,13 +151,17 @@ body {
 }
 
 .account .account-role-link,
-.account .account-active-link {
+.account .account-active-link,
+.chartOfAccount .account-role-link,
+.chartOfAccount .account-active-link {
     color: #000000;
     text-decoration: underline;
 }
 
 .account .account-active-link:hover,
-.account .link-button:hover {
+.account .link-button:hover,
+.chartOfAccount .account-active-link:hover,
+.chartOfAccount .link-button:hover {
     color: #0056b3;
 }
 

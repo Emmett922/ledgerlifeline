@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/AcceptRequest.css";
 
 const AcceptRequest = () => {
     const { username } = useParams();
     const [role, setRole] = useState("");
+    const [initialRole, setInitialRole] = useState("");
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -16,6 +18,41 @@ const AcceptRequest = () => {
             X
         </button>
     );
+
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const userResponse = await fetch(
+                    `${API_URL}/users/user-by-username?username=${username}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-type": "application/json",
+                        },
+                    }
+                );
+
+                const userDetails = await userResponse.json();
+                setInitialRole(userDetails.role);
+
+                if (!userResponse.ok) {
+                    alert("Failed to retrieve user details.");
+                    return;
+                }
+
+                if (!userDetails) {
+                    setInitialRole("DELETED");
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("An error occurred getting user details. Please try again.");
+            }
+        };
+
+        fetchUser();
+    }, [API_URL]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -70,34 +107,57 @@ const AcceptRequest = () => {
             <ToastContainer />
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="img-heading"></div>
-            <div className="accept-request-page-container">
-                <form id="acceptRequestForm" onSubmit={handleSubmit}>
-                    <h2>Accept User Request</h2>
-                    <div className="request-form-subtitle">
-                        <p>Assign the user an appropriate role</p>
-                    </div>
-                    <div className="formInputGroup">
-                        <label htmlFor="role">Role</label>
-                        <select
-                            id="role"
-                            name="role"
-                            value={role}
-                            onChange={handleInputChange}
-                            required
+
+            {/* Content for updating user to an appropriate role */}
+            {initialRole === "Employee" && (
+                <div className="accept-request-page-container">
+                    <form id="acceptRequestForm" onSubmit={handleSubmit}>
+                        <h2>Accept User Request</h2>
+                        <div className="request-form-subtitle">
+                            <p>Assign the user an appropriate role</p>
+                        </div>
+                        <div className="formInputGroup">
+                            <label htmlFor="role">Role</label>
+                            <select
+                                id="role"
+                                name="role"
+                                value={role}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="" disabled>
+                                    Select a role
+                                </option>
+                                <option value="Admin">Admin</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Accountant">Accountant</option>
+                            </select>
+                        </div>
+                        <button
+                            type="submit"
+                            className="form-submit-btn"
+                            disabled={isButtonDisabled}
                         >
-                            <option value="" disabled>
-                                Select a role
-                            </option>
-                            <option value="Admin">Admin</option>
-                            <option value="Manager">Manager</option>
-                            <option value="Accountant">Accountant</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="form-submit-btn" disabled={isButtonDisabled}>
-                        Accept
-                    </button>
-                </form>
-            </div>
+                            Accept
+                        </button>
+                    </form>
+                </div>
+            )}
+
+            {/* Content for letting  */}
+            {initialRole !== "Employee" && (
+                <div className="accept-request-page-container">
+                    <form id="acceptRequestForm">
+                        <h2>User Request Has Been Handled</h2>
+                        <div className="request-form-subtitle">
+                            <p>Click below to return to the app</p>
+                        </div>
+                        <Link type="submit" className="form-submit-btn" to="/dashboard">
+                            Return
+                        </Link>
+                    </form>
+                </div>
+            )}
         </section>
     );
 
