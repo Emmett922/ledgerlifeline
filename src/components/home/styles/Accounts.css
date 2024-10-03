@@ -44,7 +44,6 @@ body {
 .account .header,
 .chartOfAccount .header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
 }
 
@@ -53,13 +52,6 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
-}
-
-.account .header-search,
-.chartOfAccount .header-search {
-    display: flex;
-    align-items: center;
     margin-bottom: 20px;
 }
 
@@ -107,9 +99,20 @@ body {
     background-color: #1c4a7c;
 }
 
+/* Table filter styles */
+.account .table-filter,
+.chartOfAccount .table-filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.account .table-filter .search-filter,
+.chartOfAccount .table-filter .search-filter {
+    margin-bottom: 0.5%;
+}
 
 /* Table styles */
-
 .account .account-table,
 .chartOfAccount .account-table {
     width: 100%;
@@ -223,7 +226,9 @@ body {
 }
 
 .account .modal-content .form-group input,
-.account .modal-content .form-group textarea {
+.account .modal-content .form-group textarea,
+.account .table-filter .search-filter input,
+.chartOfAccount .table-filter .search-filter input {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -233,7 +238,9 @@ body {
 }
 
 .account .modal-content .form-group input:focus,
-.account .modal-content .form-group textarea:focus {
+.account .modal-content .form-group textarea:focus,
+.account .table-filter .search-filter input:focus,
+.chartOfAccount .table-filter .search-filter input:focus {
     border-color: #007bff;
 }
 

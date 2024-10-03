@@ -63,9 +63,7 @@ body {
 }
 
 .user-profile {
-    position: relative;
     display: flex;
-    justify-content: flex-end;
     text-align: center;
     align-items: center;
     margin: auto;

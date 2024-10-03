@@ -23,6 +23,7 @@ const Accounts = () => {
     const [accountCatagory, setAccountCatagory] = useState("");
     const [newAccountCatagory, setNewAccountCatagory] = useState("");
     const [accountSubcatagory, setAccountSubcatagory] = useState("");
+    const [isSubcategoryDisabled, setIsSubcategoryDisabled] = useState("");
     const [newAccountSubcatagory, setNewAccountSubcatagory] = useState("");
     const [accountTerm, setAccountTerm] = useState("");
     const [newAccountTerm, setNewAccountTerm] = useState("");
@@ -35,11 +36,8 @@ const Accounts = () => {
     const [balance, setBalance] = useState("0.00");
     const [newBalance, setNewBalance] = useState("0.00");
     const [dateAccountAdded, setDateAccountAdded] = useState("");
-    const [newDateAccountAdded, setNewDateAccountAdded] = useState("");
     const [dateAccountUpdated, setDateAccountUpdated] = useState("");
-    const [newDateAccountUpdated, setNewDateAccountUpdated] = useState("");
     const [userID, setUserID] = useState("");
-    const [newUserID, setNewUserID] = useState("");
     const [order, setOrder] = useState("");
     const [newOrder, setNewOrder] = useState("");
     const [statement, setStatement] = useState("");
@@ -47,14 +45,10 @@ const Accounts = () => {
     const [comment, setComment] = useState("");
     const [newComment, setNewComment] = useState("");
     const [isActive, setIsActive] = useState(false);
-    const [newIsActive, setNewIsActive] = useState(true);
     const [changeIsActive, setChangeIsActive] = useState(false);
     const [accountArray, setAccountArray] = useState([]);
     const [accountTable, setAccountTable] = useState(1);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filteredAccounts, setFilteredAccounts] = useState([]);
-    const [ChartOfAccounts, setChartOfAccounts] = useState([]);
-    const searchContainerRef = useRef(null); // Reference to the search container
+    const [searchQuery, setSearchQuery] = useState("");
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
     const navigate = useNavigate();
@@ -87,22 +81,6 @@ const Accounts = () => {
         }
     });
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-                setFilteredAccounts([]); // Hide results when clicking outside
-            }
-        };
-
-        // Add event listener for clicks
-        document.addEventListener("mousedown", handleClickOutside);
-
-        // Cleanup event listener on component unmount
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
     // Fetch accounts from the database
     useEffect(() => {
         // Get all accounts from database
@@ -122,41 +100,26 @@ const Accounts = () => {
                 if (response.ok) {
                     setAccountArray(result);
                 } else {
-                    alert("Failed to retrieve accounts!");
+                    // Show toast message
+                    toast(`${result.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
                 }
             } catch (error) {
                 alert("An error occured. Failed to retrieve account!");
             }
         };
-
         fetchAccounts();
-
-        const fetchChartOfAccounts = async () => {
-            try {
-                const response = await fetch(`${API_URL}/accounts`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                const data = await response.json();
-
-                // Check if the response data is an array
-                if (Array.isArray(data)) {
-                    setChartOfAccounts(data);
-                } else {
-                    console.error("Expected an array, but received:", data);
-                    setChartOfAccounts([]);
-                }
-            } catch (error) {
-                console.error("Error fetching ChartOfAccounts:", error);
-                setChartOfAccounts([]);
-            }
-        };
-
-        // Call the function to fetch the accounts
-        fetchChartOfAccounts();
 
         // Show toast message if present in localStorage
         const toastMessage = localStorage.getItem("toastMessage");
@@ -203,76 +166,6 @@ const Accounts = () => {
         }
     }, [API_URL]);
 
-    // Handle the switch between tables
-    const handleChangeTable = (event) => {
-        if (accountTable === 1) {
-            setAccountTable(2);
-            event.target.innerHTML = "Back";
-        } else {
-            setAccountTable(1);
-            event.target.innerHTML = "Requests";
-        }
-    };
-
-    // Handle input changes
-    const handleInputSearches = (event) => {
-        setSearchTerm(event.target.value);
-    };
-
-    // Handle search button click
-    const handleSearch = () => {
-        const filteredAccounts = Accounts.filter((account) => {
-            // Ensure the search term is not empty
-            if (!searchTerm) return true;
-
-            // Convert both accountNumber and searchTerm to strings for comparison
-            const accountNumberStr = String(account.accountNumber);
-
-            // Check if the account number includes or starts with the search term
-            return accountNumberStr.includes(searchTerm) || accountNumberStr.startsWith(searchTerm);
-        });
-
-        // Update the state with the filtered accounts
-        setFilteredAccounts(filteredAccounts);
-    };
-
-    const handleSearchResultClick = (selectedAccount) => {
-        // Reorder accounts: Set selectedAccount's order to 1, increment others
-        const reorderedAccounts = accountArray.map((account) => {
-            if (account.id === selectedAccount.id) {
-                return { ...account, order: 1 }; // Move selected account to top
-            }
-            return { ...account, order: account.order + 1 }; // Increment order of others
-        });
-
-        // Sort accounts by the order
-        reorderedAccounts.sort((a, b) => a.order - b.order);
-
-        // Update the state with reordered accounts
-        setAccountArray(reorderedAccounts);
-
-        // Set the selected account details
-        setSelectedAccount(selectedAccount);
-        setAccountNumber(selectedAccount.accountNumber);
-        setAccountName(selectedAccount.accountName);
-        setAccountDescription(selectedAccount.accountDescription);
-        setNormalSide(selectedAccount.normalSide);
-        setAccountCatagory(selectedAccount.accountCatagory);
-        setAccountSubcatagory(selectedAccount.accountSubcatagory);
-        setInitialBalance(selectedAccount.initialBalance);
-        setDebit(selectedAccount.debit);
-        setCredit(selectedAccount.credit);
-        setBalance(selectedAccount.balance);
-        setDateAccountAdded(selectedAccount.dateAccountAdded);
-        setUserID(selectedAccount.UserID);
-        setOrder(selectedAccount.order);
-        setStatement(selectedAccount.statement);
-        setComment(selectedAccount.comment);
-        setIsActive(selectedAccount.isActive);
-
-        setIsEditAccountVisible(true);
-    };
-
     // Handle the input changes from editing the account
     const handleEditInputChange = (event) => {
         const { name, value } = event.target;
@@ -285,16 +178,10 @@ const Accounts = () => {
             setAccountDescription(value);
         } else if (name === "accountSubcatagory") {
             setAccountSubcatagory(value);
-        } else if (name === "accountTerm") {
-            setAccountTerm(value);
         } else if (name === "debit") {
             setDebit(value);
         } else if (name === "credit") {
             setCredit(value);
-        } else if (name === "dateAccountAdded") {
-            setDateAccountAdded(value);
-        } else if (name === "userID") {
-            setUserID(value);
         } else if (name === "order") {
             setOrder(value);
         } else if (name === "statement") {
@@ -324,10 +211,6 @@ const Accounts = () => {
             setNewDebit(value);
         } else if (name === "newCredit") {
             setNewCredit(value);
-        } else if (name === "newDateAccountAdded") {
-            setNewDateAccountAdded(value);
-        } else if (name === "newUserID") {
-            setNewUserID(value);
         } else if (name === "newOrder") {
             setNewOrder(value);
         } else if (name === "newStatement") {
@@ -344,17 +227,19 @@ const Accounts = () => {
             setNewAccountCatagory(value);
             if (value === "Asset" || value === "Expense") {
                 if (newNormalSide === "Credit") {
+                    const newValue = (newDebit - newCredit).toFixed(2);
                     setNewNormalSide("Debit");
-                    setNewInitialBalance(newDebit - newCredit);
-                    setNewBalance(newDebit - newCredit);
+                    setNewInitialBalance(newValue);
+                    setNewBalance(newValue);
                 } else {
                     setNewNormalSide("Debit");
                 }
             } else if (value === "Liability" || value === "Equity" || value === "Revenue") {
                 if (newNormalSide === "Debit") {
+                    const newValue = (newCredit - newDebit).toFixed(2);
                     setNewNormalSide("Credit");
-                    setNewInitialBalance(newCredit - newDebit);
-                    setNewBalance(newCredit - newDebit);
+                    setNewInitialBalance(newValue);
+                    setNewBalance(newValue);
                 } else {
                     setNewNormalSide("Credit");
                 }
@@ -362,14 +247,37 @@ const Accounts = () => {
         } else if (name === "accountCatagory") {
             setAccountCatagory(value);
             if (value === "Asset" || value === "Expense") {
-                setNormalSide("Debit");
+                if (normalSide === "Credit") {
+                    const newValue = (debit - credit).toFixed(2);
+                    setNormalSide("Debit");
+                    setBalance(newValue);
+                } else {
+                    setNormalSide("Debit");
+                }
             } else if (value === "Liability" || value === "Equity" || value === "Revenue") {
-                setNormalSide("Credit");
+                if (normalSide === "Debit") {
+                    const newValue = (credit - debit).toFixed(2);
+                    setNormalSide("Credit");
+                    setBalance(newValue);
+                } else {
+                    setNormalSide("Credit");
+                }
             }
         }
     };
 
     const isDisabled2 = !newAccountCatagory;
+
+    const isAddNewDisabled = !(
+        newAccountName &&
+        newAccountNumber &&
+        newAccountCatagory &&
+        newAccountDescription &&
+        newAccountSubcatagory &&
+        newAccountTerm &&
+        newOrder &&
+        newComment
+    );
 
     const handleDebitChange = (event) => {
         const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
@@ -458,23 +366,20 @@ const Accounts = () => {
             accountName,
             accountNumber,
             accountDescription,
-            normalSide,
+            normalSide: normalSide === "Debit" ? "L" : "R",
             accountCatagory,
             accountSubcatagory,
-            initialBalance,
             debit,
             credit,
             balance,
-            dateAccountAdded,
-            userID,
             order,
             statement,
             comment,
-            isActive,
+            updatedBy: storedUserName,
         };
 
         try {
-            const response = await fetch(`${API_URL}/accounts/edit-account`, {
+            const response = await fetch(`${API_URL}/accounts/`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -501,8 +406,12 @@ const Accounts = () => {
         if (changeIsActive) {
             const accountData = {
                 accountName: selectedAccount.accountName,
-                Active: isActive,
+                balance: selectedAccount.balance,
+                isActive: isActive,
+                updatedBy: storedUserName,
             };
+
+            console.log(accountData);
 
             try {
                 const response = await fetch(`${API_URL}/accounts/active`, {
@@ -585,6 +494,29 @@ const Accounts = () => {
         navigate("/"); // Redirect to login
     };
 
+    const handleSearch = (query) => {
+        const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
+
+        return accountArray.filter((account) => {
+            const isActiveStatus = account.isActive ? "active" : "inactive"; // Determine status text
+
+            // Check if any search term matches the relevant fields
+            return searchTerms.every(
+                (term) =>
+                    account.accountNumber.toString().includes(term) ||
+                    account.accountName.toLowerCase().includes(term) ||
+                    account.accountCatagory.toLowerCase().includes(term) ||
+                    account.accountSubcatagory.toLowerCase().includes(term) ||
+                    account.term.toLowerCase().includes(term) ||
+                    account.balance.toFixed(2).includes(term) ||
+                    account.accountDescription.toLowerCase().includes(term) ||
+                    isActiveStatus.includes(term)
+            );
+        });
+    };
+
+    const filteredAccounts = handleSearch(searchQuery);
+
     const content = (
         <section className="account">
             <ToastContainer />
@@ -616,199 +548,122 @@ const Accounts = () => {
             </aside>
 
             <main className="main-content">
-                <header className="user-profile">
-                    <span className="profile-name">{storedUserName}</span>
-                    <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
-                    <a>
-                        <button className="action-button1" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </a>
-                </header>
                 <header className="header">
                     <div className="header-main">
                         <h1 className="header-title">Accounts</h1>
-                        <Link
+                        <button
                             className="action-button1"
+                            title="Add a new account"
                             onClick={() => setIsAddAccountVisible(true)}
                         >
                             + Add Account
-                        </Link>
-                    </div>
-                    <div className="header-search" ref={searchContainerRef}>
-                        <input
-                            type="text"
-                            className="search"
-                            placeholder="Search"
-                            value={searchTerm}
-                            onChange={handleInputSearches}
-                        />
-                        <button className="search-btn" onClick={handleSearch}>
-                            Search
                         </button>
-                        {filteredAccounts.length > 0 && (
-                            <div className="search-results">
-                                <ul>
-                                    {filteredAccounts.map((account) => (
-                                        <li
-                                            key={account.id}
-                                            onClick={() => handleSearchResultClick(account)}
-                                        >
-                                            Account Number: {account.accountNumber},{" "}
-                                            {account.accountName}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                    </div>
+                    <div className="user-profile">
+                        <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                        <span className="profile-name">{storedUserName}</span>
+                        <a>
+                            <button className="action-button1" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </a>
                     </div>
                 </header>
 
-                {/* Main Account Table */}
-                {accountTable === 1 && (
-                    <table className="account-table">
-                        <thead>
-                            <tr>
-                                <th>Account Number</th>
-                                <th>Name</th>{" "}
-                                {/*name of the account (cash, accounts receivable, etc.)*/}
-                                <th>Type</th>{" "}
-                                {/*type of the account (asset, liability, equity, et.)*/}
-                                <th>Sub-Type</th> {/*current/long term*/}
-                                <th>Term</th> {/*account balance*/}
-                                <th>Balance</th> {/*name of the admin's username*/}
-                                <th>Description</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {accountArray
-                                .filter((account) => account.accountNumber !== "accountNumber")
-                                .map((account, index) => (
-                                    <tr key={index}>
-                                        <td id="accountNumber">
-                                            <button
-                                                className="link-button"
-                                                onClick={() => {
-                                                    setSelectedAccount(account);
-                                                    setAccountNumber(account.accountNumber);
-                                                    setAccountName(account.accountName);
-                                                    setAccountDescription(
-                                                        account.accountDescription
-                                                    );
-                                                    if (account.normalSide === "L") {
-                                                        setNormalSide("Debit");
-                                                    } else if (account.normalSide === "R") {
-                                                        setNormalSide("Credit");
-                                                    }
-                                                    setAccountCatagory(account.accountCatagory);
-                                                    setAccountSubcatagory(
-                                                        account.accountSubcatagory
-                                                    );
-                                                    setAccountTerm(account.term);
-                                                    setInitialBalance(
-                                                        account.initialBalance.toFixed(2)
-                                                    );
-                                                    setDebit(account.debit.toFixed(2));
-                                                    setCredit(account.credit.toFixed(2));
-                                                    setBalance(account.balance.toFixed(2));
+                <div className="table-filter">
+                    <div className="date-filter">
+                        From:
+                        <input type="date" id="from" name="from" />
+                        To:
+                        <input type="date" id="to" name="to" />
+                    </div>
+                    <div className="search-filter">
+                        <input
+                            type="text"
+                            className="search"
+                            placeholder="Search accounts..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                </div>
 
-                                                    setDateAccountAdded(account.createdAt);
-                                                    setDateAccountUpdated(account.updatedAt);
-                                                    setUserID(account.createdBy);
-                                                    setOrder(account.order);
-                                                    setStatement(account.statement);
-                                                    setComment(account.comment);
-                                                    setIsActive(account.isActive);
+                <table className="account-table">
+                    <thead>
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Name</th>{" "}
+                            {/*name of the account (cash, accounts receivable, etc.)*/}
+                            <th>Type</th> {/*type of the account (asset, liability, equity, et.)*/}
+                            <th>Sub-Type</th> {/*current/long term*/}
+                            <th>Term</th> {/*account balance*/}
+                            <th>Balance</th> {/*name of the admin's username*/}
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredAccounts.map((account, index) => (
+                            <tr key={index}>
+                                <td id="accountNumber">
+                                    <button
+                                        className="link-button"
+                                        onClick={() => {
+                                            setSelectedAccount(account);
+                                            setAccountNumber(account.accountNumber);
+                                            setAccountName(account.accountName);
+                                            setAccountDescription(account.accountDescription);
+                                            if (account.normalSide === "L") {
+                                                setNormalSide("Debit");
+                                            } else if (account.normalSide === "R") {
+                                                setNormalSide("Credit");
+                                            }
+                                            setAccountCatagory(account.accountCatagory);
+                                            setAccountSubcatagory(account.accountSubcatagory);
+                                            setAccountTerm(account.term);
+                                            setInitialBalance(account.initialBalance.toFixed(2));
+                                            setDebit(account.debit.toFixed(2));
+                                            setCredit(account.credit.toFixed(2));
+                                            setBalance(account.balance.toFixed(2));
 
-                                                    setViewAccountDetails(true);
-                                                }}
-                                            >
-                                                {account.accountNumber}
-                                            </button>
-                                        </td>
-                                        <td>{account.accountName}</td> {/* Account name */}
-                                        <td>{account.accountCatagory}</td> {/* Account type */}
-                                        <td>{account.accountSubcatagory}</td>{" "}
-                                        {/* Term (current/long term) */}
-                                        <td>{account.term}</td>{" "}
-                                        <td>
-                                            ${account.balance ? account.balance.toFixed(2) : "0.00"}
-                                        </td>{" "}
-                                        {/* Account balance with dollar sign */}
-                                        <td>{account.accountDescription}</td> {/* Comments */}
-                                        <td>
-                                            <Link
-                                                className="account-active-link"
-                                                onClick={() => {
-                                                    setSelectedAccount(account);
-                                                    setIsActive(account.isActive);
-                                                    setIsEditAccountActiveVisible(true);
-                                                }}
-                                            >
-                                                {account.isActive ? "Active" : "Inactive"}
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                )}
-                {/* Account Creation Request Table */}
-                {accountTable === 2 && (
-                    <table className="account-table">
-                        <thead>
-                            <tr>
-                                <th>Account Number</th>
-                                <th>Name</th>{" "}
-                                {/*name of the account (cash, accounts receivable, etc.)*/}
-                                <th>Type</th>{" "}
-                                {/*type of the account (asset, liability, equity, et.)*/}
-                                <th>Term</th> {/*current/long term*/}
-                                <th>Balance</th> {/*account balance*/}
-                                <th>Created By</th> {/*name of the admin's username*/}
-                                <th>Date Created</th>
-                                <th>Description</th>
-                                <th>Status</th>
+                                            setDateAccountAdded(account.createdAt);
+                                            setDateAccountUpdated(account.updatedAt);
+                                            setUserID(account.createdBy);
+                                            setOrder(account.order);
+                                            setStatement(account.statement);
+                                            setComment(account.comment);
+                                            setIsActive(account.isActive);
+
+                                            setViewAccountDetails(true);
+                                        }}
+                                    >
+                                        {account.accountNumber}
+                                    </button>
+                                </td>
+                                <td>{account.accountName}</td> {/* Account name */}
+                                <td>{account.accountCatagory}</td> {/* Account type */}
+                                <td>{account.accountSubcatagory}</td>{" "}
+                                {/* Term (current/long term) */}
+                                <td>{account.term}</td>{" "}
+                                <td>${account.balance ? account.balance.toFixed(2) : "0.00"}</td>{" "}
+                                {/* Account balance with dollar sign */}
+                                <td>{account.accountDescription}</td> {/* Comments */}
+                                <td>
+                                    <Link
+                                        className="account-active-link"
+                                        onClick={() => {
+                                            setSelectedAccount(account);
+                                            setIsActive(account.isActive);
+                                            setIsEditAccountActiveVisible(true);
+                                        }}
+                                    >
+                                        {account.isActive ? "Active" : "Inactive"}
+                                    </Link>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {accountArray
-                                .filter((account) => account.accountNumber !== "accountNumber")
-                                .map((account, index) => (
-                                    <tr key={index}>
-                                        <td id="accountNumber">
-                                            <button
-                                                className="link-button"
-                                                onClick={() => {
-                                                    setSelectedAccount(account);
-                                                    setViewAccountDetails(true);
-                                                }}
-                                            >
-                                                {account.accountNumber}
-                                            </button>
-                                        </td>
-                                        <td>{account.accountName}</td> {/* Account name */}
-                                        <td>{account.accountCatagory}</td> {/* Account type */}
-                                        <td>{account.accountTerm}</td>{" "}
-                                        {/* Term (current/long term) */}
-                                        <td>${account.balance}</td>{" "}
-                                        {/* Account balance with dollar sign */}
-                                        <td>{account.createdBy}</td>{" "}
-                                        {/* Created by admin username */}
-                                        <td>
-                                            {new Date(account.dateAccountAdded).toLocaleDateString(
-                                                "en-US"
-                                            )}
-                                        </td>{" "}
-                                        {/* Date in MM/dd/yyyy */}
-                                        <td>{account.accountDescription}</td> {/* Comments */}
-                                        <td>{account.isActive ? "Active" : "Inactive"}</td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                )}
+                        ))}
+                    </tbody>
+                </table>
 
                 {/* View Account Details Modal */}
                 {viewAccountDetails && (
@@ -850,22 +705,22 @@ const Accounts = () => {
                                     />
                                 </label>
                                 <label>
-                                    Normal Side:
-                                    <input
-                                        type="text"
-                                        id="normalSide"
-                                        name="normalSide"
-                                        value={normalSide}
-                                        disabled
-                                    />
-                                </label>
-                                <label>
                                     Account Catagory:
                                     <input
                                         type="text"
                                         id="accountCatagory"
                                         name="accountCatagory"
                                         value={accountCatagory}
+                                        disabled
+                                    />
+                                </label>
+                                <label>
+                                    Normal Side:
+                                    <input
+                                        type="text"
+                                        id="normalSide"
+                                        name="normalSide"
+                                        value={normalSide}
                                         disabled
                                     />
                                 </label>
@@ -1004,6 +859,7 @@ const Accounts = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Edit account details"
                                     onClick={() => {
                                         setIsEditAccountVisible(true);
                                         setViewAccountDetails(false);
@@ -1059,16 +915,6 @@ const Accounts = () => {
                                     />
                                 </label>
                                 <label>
-                                    Normal Side:
-                                    <input
-                                        type="text"
-                                        id="normalSide"
-                                        name="normalSide"
-                                        value={normalSide}
-                                        placeholder="Normal Side"
-                                    />
-                                </label>
-                                <label>
                                     Account Catagory:
                                     <select
                                         id="accountCatagory"
@@ -1087,26 +933,26 @@ const Accounts = () => {
                                     </select>
                                 </label>
                                 <label>
-                                    Account Subcatagory:
+                                    Normal Side:
                                     <input
                                         type="text"
+                                        id="normalSide"
+                                        name="normalSide"
+                                        value={normalSide}
+                                        placeholder="Normal Side"
+                                        disabled
+                                    />
+                                </label>
+                                <label>
+                                    Account Subcatagory:
+                                    <select
                                         id="accountSubcatagory"
                                         name="accountSubcatagory"
                                         value={accountSubcatagory}
                                         onChange={handleEditInputChange}
-                                        placeholder="Account Subcatagory"
-                                    />
-                                </label>
-                                <label>
-                                    Account Term:
-                                    <select
-                                        id="accountTerm"
-                                        name="accountTerm"
-                                        value={accountTerm}
-                                        onChange={handleEditInputChange}
                                     >
                                         <option value="" disabled>
-                                            Select a term
+                                            Select a subcategory
                                         </option>
                                         <option value="Current">Current</option>
                                         <option value="Long-Term">Long-Term</option>
@@ -1213,13 +1059,13 @@ const Accounts = () => {
                                 <h3 className="form-sub-title">
                                     Account: <p className="name">{selectedAccount.accountName}</p>
                                     Account Balance:{" "}
-                                    <p className="name">${selectedAccount.balance}</p>
+                                    <p className="name">${selectedAccount.balance.toFixed(2)}</p>
                                 </h3>
                                 <label>
                                     Active:
                                     <select
-                                        id="active"
-                                        name="active"
+                                        id="isActive"
+                                        name="isActive"
                                         value={isActive ? "true" : "false"}
                                         onChange={handleEditInputChange}
                                     >
@@ -1438,6 +1284,7 @@ const Accounts = () => {
                                     type="button"
                                     className="action-button2"
                                     onClick={handleAddNewAccount}
+                                    disabled={isAddNewDisabled}
                                 >
                                     Submit
                                 </button>

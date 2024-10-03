@@ -51,7 +51,7 @@ body {
 .forgotPassword .logo,
 .acceptRequest .logo {
   position: absolute;
-  margin-left: 651.5px;
+  left: 43.5%;
   height: 212px;
   width: 250px;
   object-fit: contain;
@@ -182,9 +182,14 @@ h2 {
   background-color: #858484;
 }
 
-button:disabled {
+button:disabled,
+.modal button:disabled{
   background-color: #858484;
   cursor: not-allowed;
+}
+
+.modal button:disabled:hover {
+  background-color: #858484;
 }
 
 .actions {

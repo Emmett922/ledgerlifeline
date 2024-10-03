@@ -172,8 +172,8 @@ const Dashboard = () => {
             {/* Main dashboard content */}
             <main className="main-content">
                 <header className="user-profile">
-                    <span className="profile-name">{username}</span>
-                    <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                <span className="profile-name">{username}</span>
                     <a>
                         <button
                             className="sidebar-button logout-link"

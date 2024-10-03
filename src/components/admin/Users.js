@@ -576,7 +576,11 @@ const Users = () => {
                     <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
                         Dashboard
                     </Link>
-                    <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
+                    <Link
+                        className="sidebar-button"
+                        id="chart-of-accounts-link"
+                        to="/chart-of-accounts"
+                    >
                         Chart of Accounts
                     </Link>
                     <Link className="sidebar-button" id="accounts-link" to="/accounts">
@@ -592,15 +596,6 @@ const Users = () => {
             </aside>
 
             <main className="main-content">
-                <header className="user-profile">
-                    <span className="profile-name">{storedUserName}</span>
-                    <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
-                    <a>
-                        <button className="action-button1" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </a>
-                </header>
                 <header className="header">
                     <div className="header-main">
                         <h1 className="header-title">Users</h1>
@@ -622,6 +617,15 @@ const Users = () => {
                         {/*<button className="action-button1" onClick={handleChangeTable}>
                             Requests
                         </button>  */}
+                    </div>
+                    <div className="user-profile">
+                        <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                        <span className="profile-name">{storedUserName}</span>
+                        <a>
+                            <button className="action-button1" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </a>
                     </div>
                     <div className="header-search">
                         {/*<input type="text" className="search" placeholder="Search"></input>
