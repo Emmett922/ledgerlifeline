@@ -589,8 +589,8 @@ const Users = () => {
                     <Link className="sidebar-button" id="users-link" to="/users">
                         Users
                     </Link>
-                    <Link className="sidebar-button" id="event-log-link">
-                        Event Log
+                    <Link className="sidebar-button" id="event-logs-link" to="/event-logs">
+                        Event Logs
                     </Link>
                 </ul>
             </aside>
@@ -880,7 +880,7 @@ const Users = () => {
                                     />
                                 </label>
                                 <label>
-                                    Secuirty Question:
+                                    Security Question:
                                     <Select
                                         id="securityQuestion"
                                         name="securityQuestion"
@@ -896,7 +896,7 @@ const Users = () => {
                                     Security Answer:
                                     <input
                                         type="text"
-                                        id="secuirtyAnswer"
+                                        id="securityAnswer"
                                         name="securityAnswer"
                                         value={securityAnswer}
                                         onChange={handleInputChange}

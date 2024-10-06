@@ -20,6 +20,10 @@ body {
     margin: 0;
 }
 
+.sidebar-button {
+    text-underline-offset: -100000px;
+}
+
 /* Dashboard layout */
 .users {
     display: flex;

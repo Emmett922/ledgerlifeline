@@ -9,6 +9,7 @@ import Dashboard from "./components/home/Dashboard";
 import AcceptRequest from "./components/splash/AcceptRequest";
 import Accounts from "./components/home/Accounts";
 import ChartOfAccounts from "./components/home/ChartOfAccounts";
+import EventLogs from "./components/home/EventLogs";
 
 function App() {
     const location = useLocation();
@@ -39,6 +40,9 @@ function App() {
             case "/chart-of-accounts":
                 document.title = "Chart of Accounts - Ledger Lifeline";
                 break;
+            case "/event-logs":
+                document.title = "Event Logs - Ledger Lifeline"
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -55,6 +59,7 @@ function App() {
                 <Route path="accept-request/:username" element={<AcceptRequest />} />
                 <Route path="accounts" element={<Accounts />} />
                 <Route path="chart-of-accounts" element={<ChartOfAccounts />} />
+                <Route path="event-logs" element={<EventLogs/>} />
             </Route>
         </Routes>
     );

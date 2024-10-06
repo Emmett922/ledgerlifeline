@@ -126,8 +126,8 @@ const Dashboard = () => {
                         <Link className="sidebar-button" id="users-link" to="/users">
                             Users
                         </Link>
-                        <Link className="sidebar-button" id="event-log-link">
-                            Event Log
+                        <Link className="sidebar-button" id="event-log-link" to="/event-logs">
+                        Event Logs
                         </Link>
                     </ul>
                 </aside>
