@@ -117,7 +117,11 @@ const Dashboard = () => {
                         <Link className="sidebar-button" id="dashboard-link" to="dashboard">
                             Dashboard
                         </Link>
-                        <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="chart-of-accounts-link"
+                            to="/chart-of-accounts"
+                        >
                             Chart of Accounts
                         </Link>
                         <Link className="sidebar-button" id="accounts-link" to="/accounts">
@@ -127,7 +131,7 @@ const Dashboard = () => {
                             Users
                         </Link>
                         <Link className="sidebar-button" id="event-log-link" to="/event-logs">
-                        Event Logs
+                            Event Logs
                         </Link>
                     </ul>
                 </aside>
@@ -147,10 +151,10 @@ const Dashboard = () => {
                         <Link className="sidebar-button" id="dashboard-link" to="dashboard">
                             Dashboard
                         </Link>
-                        <Link className="sidebar-button" id="chart-of-accounts-link">
+                        <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
                             Chart of Accounts
                         </Link>
-                        <Link className="sidebar-button" id="accounts-link">
+                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
                             Accounts
                         </Link>
                         <Link className="sidebar-button" id="journalize-link">
@@ -171,20 +175,21 @@ const Dashboard = () => {
 
             {/* Main dashboard content */}
             <main className="main-content">
-                <header className="user-profile">
-                <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
-                <span className="profile-name">{username}</span>
-                    <a>
-                        <button
-                            className="sidebar-button logout-link"
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
-                    </a>
+                <header className="header">
+                    <div className="header-main">
+                        <h1 className="header-title">Dashboard</h1>
+                    </div>
+                    <div className="user-profile">
+                        <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
+                        <span className="profile-name">{username}</span>
+                        <a>
+                            <button className="action-button1" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </a>
+                    </div>
                 </header>
                 <div className="Dashboard1">
-                    <h1>Dashboard</h1>
                     <div className="top-boxes">
                         <div className="Current-Ratio">
                             <h1>Current Ratio</h1>

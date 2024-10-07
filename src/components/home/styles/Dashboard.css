@@ -68,10 +68,8 @@ body {
     align-items: center;
     margin: auto;
     gap: 10px;
-}
-
-.user-profile a {
-    margin-top: 5px;
+    margin-top: -1%;
+    margin-right: -1%;
 }
 
 .profile-name {
@@ -112,7 +110,8 @@ body {
 .dashboard #dashboard-link,
 .users #users-link,
 .account #accounts-link,
-.chartOfAccount #chart-of-accounts-link {
+.chartOfAccount #chart-of-accounts-link,
+.eventLogs #event-log-link {
     background-color: #1c4a7c;
 }
 
@@ -134,7 +133,7 @@ body {
 }
 
 /* Flexbox alignment for header and button */
-.dashboard .header-title {
+.header-title {
     font-size: 2em;
     display: flex;
     align-items: center;

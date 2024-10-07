@@ -20,6 +20,11 @@ body {
     margin: 0;
 }
 
+input:disabled,
+select:disabled {
+    cursor: not-allowed;
+}
+
 /* Dashboard layout */
 .account,
 .chartOfAccount {
@@ -41,30 +46,43 @@ body {
     overflow-y: hidden;
 }
 
-.account .header,
-.chartOfAccount .header {
+.header {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* This should already be here */
+    align-items: center; /* Ensure vertical alignment */
+    width: 100%;
+    margin-bottom: 40px;
+    flex-grow: 1;
 }
 
-.account .header-main,
-.chartOfAccount .header-main {
+.header-main {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
+    flex-grow: 1;
 }
 
-/* Flexbox alignment for header and button */
-.account .header-title,
-.chartOfAccount .header-title {
-    font-size: 2em;
+/* Align user profile section with filters */
+.user-profile {
     display: flex;
-    align-items: center;
+    align-items: center; /* Align items vertically */
+    gap: 10px;
+}
+
+/* Make sure the profile image and name are properly aligned */
+.pfp {
+    width: 40px;  /* Set a consistent width for profile picture */
+    height: 40px; /* Set a consistent height for profile picture */
+    border-radius: 50%; /* Make it circular */
+}
+
+.profile-name {
+    font-size: 16px; /* Adjust font size if necessary */
 }
 
 .account .action-button1,
-.chartOfAccount .action-button1 {
+.chartOfAccount .action-button1,
+.dashboard .action-button1 {
     padding: 10px 5px;
     background-color: #007bff;
     color: #fff;
@@ -105,11 +123,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-}
-
-.account .table-filter .search-filter,
-.chartOfAccount .table-filter .search-filter {
-    margin-bottom: 0.5%;
 }
 
 /* Table styles */
@@ -228,13 +241,21 @@ body {
 .account .modal-content .form-group input,
 .account .modal-content .form-group textarea,
 .account .table-filter .search-filter input,
-.chartOfAccount .table-filter .search-filter input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
+.chartOfAccount .table-filter .search-filter input,
+.eventLogs .table-filter .search-filter input {
+    height: 35px;
+    width: 100%; /* Adjust width as needed */
+    margin-left: 10px; /* Spacing between label and input */
+    margin-right: 10px;
+    border: none;
     border-radius: 5px;
+    padding: 5px;
+    background-color: white; /* Transparent background */
+    border: none;
+    border-bottom: 2px solid #3d3d3d; /* Dark border at the bottom */
     outline: none;
+    transition: border-color 0.3s ease;
+    font-size: 15px;
 }
 
 .account .modal-content .form-group input:focus,
@@ -242,6 +263,52 @@ body {
 .account .table-filter .search-filter input:focus,
 .chartOfAccount .table-filter .search-filter input:focus {
     border-color: #007bff;
+}
+
+
+.date-filter,
+.balance-filter {
+    display: flex;
+    align-items: center;
+}
+
+.date-filter input[type="date"],
+.balance-filter input[type="tel"] {
+    height: 30px;
+    width: 105px; /* Adjust width as needed */
+    margin-left: 10px; /* Spacing between label and input */
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: white; /* Transparent background */
+    border: none;
+    border-bottom: 2px solid #3d3d3d; /* Dark border at the bottom */
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.balance-filter input[type="tel"] {
+    width: 100px;
+}
+
+.date-filter input[type="date"]:focus,
+.balance-filter input[type="tel"]:focus {
+    border-bottom-color: #007bff; /* Background color change on focus */
+}
+
+.table-filter input:focus {
+    box-shadow: none;
+}
+
+.date-filter label,
+.balance-filter label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.balance-filter input {
+    width: 80px; /* Slightly narrower for balance inputs */
 }
 
 .account .modal-content .form-group textarea {
@@ -285,7 +352,8 @@ body {
     background-color: #a52a2a;
 }
 
-.account .close {
+.account .close,
+.chartOfAccount .close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -293,7 +361,8 @@ body {
     cursor: pointer;
 }
 
-.account .close:hover {
+.account .close:hover,
+.chartOfAccount .close:hover {
     color: #ff0000;
 }
 

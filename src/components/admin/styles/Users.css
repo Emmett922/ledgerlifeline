@@ -43,19 +43,6 @@ body {
     overflow-y: hidden;
 }
 
-.users .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.users .header-main {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
 .users .header-search {
     display: flex;
     align-items: center;
@@ -104,14 +91,14 @@ body {
 
 /* Table styles */
 
-.users .user-table {
+table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     text-align: left;
 }
 
-.users .user-table th, .user-table td {
+table th, table td {
     padding: 10px;
     border: 1px solid #ddd;
     border-top: none;
@@ -119,7 +106,7 @@ body {
     border-right: none;
 }
 
-.users .user-table th {
+table th {
     background-color: #f4f4f4;
     border-bottom: 2px solid #ddd;
 }

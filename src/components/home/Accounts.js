@@ -23,10 +23,9 @@ const Accounts = () => {
     const [accountCatagory, setAccountCatagory] = useState("");
     const [newAccountCatagory, setNewAccountCatagory] = useState("");
     const [accountSubcatagory, setAccountSubcatagory] = useState("");
-    const [isSubcategoryDisabled, setIsSubcategoryDisabled] = useState("");
+    const [isSubcategoryDisabled, setIsSubcategoryDisabled] = useState(true);
+    const [isNewSubcategoryDisabled, setIsNewSubcategoryDisabled] = useState(true);
     const [newAccountSubcatagory, setNewAccountSubcatagory] = useState("");
-    const [accountTerm, setAccountTerm] = useState("");
-    const [newAccountTerm, setNewAccountTerm] = useState("");
     const [initialBalance, setInitialBalance] = useState("0.00");
     const [newInitialBalance, setNewInitialBalance] = useState("0.00");
     const [debit, setDebit] = useState("0.00");
@@ -47,10 +46,14 @@ const Accounts = () => {
     const [isActive, setIsActive] = useState(false);
     const [changeIsActive, setChangeIsActive] = useState(false);
     const [accountArray, setAccountArray] = useState([]);
-    const [accountTable, setAccountTable] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
+    const [storedUserRole, setStoredUserRole] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [minBalance, setMinBalance] = useState("0.00");
+    const [maxBalance, setMaxBalance] = useState("0.00");
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -70,14 +73,10 @@ const Accounts = () => {
             navigate("/", { replace: true });
         }
 
-        // Ensure that the user has the proper role to view this page
-        if (storedUser.role !== "Admin") {
-            navigate("/dashboard", { replace: true });
-        }
-
         // If all other checks are met, get the storedUser's username
         if (storedUser) {
             setStoredUserName(storedUser.username);
+            setStoredUserRole(storedUser.role);
         }
     });
 
@@ -205,8 +204,6 @@ const Accounts = () => {
             setNewAccountDescription(value);
         } else if (name === "newAccountSubcatagory") {
             setNewAccountSubcatagory(value);
-        } else if (name === "newAccountTerm") {
-            setNewAccountTerm(value);
         } else if (name === "newDebit") {
             setNewDebit(value);
         } else if (name === "newCredit") {
@@ -220,11 +217,48 @@ const Accounts = () => {
         }
     };
 
-    const handleAccountType = (event) => {
+    const handleAccountType = (event, isEdit = false, selectedAccount = null) => {
         const { name, value } = event.target;
 
+        // Function to generate the account number based on category and existing accounts
+        const generateAccountNumber = (category, accountArray) => {
+            let prefix = ""; // Prefix based on the category
+            switch (category) {
+                case "Asset":
+                    prefix = "1";
+                    break;
+                case "Liability":
+                    prefix = "2";
+                    break;
+                case "Equity":
+                    prefix = "3";
+                    break;
+                case "Expense":
+                    prefix = "4";
+                    break;
+                case "Revenue":
+                    prefix = "5";
+                    break;
+                default:
+                    return null;
+            }
+
+            // Filter existing accounts by the same category
+            const categoryAccounts = accountArray.filter((acc) => acc.accountCatagory === category);
+
+            // Get the sequence number for this category
+            const sequenceNumber = categoryAccounts.length + 1;
+
+            // Generate account number with padding and increment logic
+            const accountNumber = prefix + sequenceNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
+
+            return accountNumber;
+        };
+
+        // Check for new account creation
         if (name === "newAccountCatagory") {
             setNewAccountCatagory(value);
+
             if (value === "Asset" || value === "Expense") {
                 if (newNormalSide === "Credit") {
                     const newValue = (newDebit - newCredit).toFixed(2);
@@ -233,6 +267,12 @@ const Accounts = () => {
                     setNewBalance(newValue);
                 } else {
                     setNewNormalSide("Debit");
+                }
+
+                if (value === "Asset") {
+                    setIsNewSubcategoryDisabled(false);
+                } else if (value === "Expense") {
+                    setIsNewSubcategoryDisabled(true);
                 }
             } else if (value === "Liability" || value === "Equity" || value === "Revenue") {
                 if (newNormalSide === "Debit") {
@@ -243,9 +283,27 @@ const Accounts = () => {
                 } else {
                     setNewNormalSide("Credit");
                 }
+
+                if (value === "Liability") {
+                    setIsNewSubcategoryDisabled(false);
+                } else if (value === "Equity" || value === "Revenue") {
+                    setIsNewSubcategoryDisabled(true);
+                }
             }
-        } else if (name === "accountCatagory") {
+
+            // Generate the account number for new accounts
+            const newAccountNumber = generateAccountNumber(value, accountArray);
+            setNewAccountNumber(newAccountNumber);
+        }
+        // Handle changes for existing accounts (editing scenario)
+        else if (name === "accountCatagory" && isEdit && selectedAccount) {
+            const originalCategory = selectedAccount.accountCatagory;
+            const originalAccountNumber = selectedAccount.accountNumber;
+
+            // Update the account category when editing
             setAccountCatagory(value);
+
+            // Update the normal side and subcategory handling
             if (value === "Asset" || value === "Expense") {
                 if (normalSide === "Credit") {
                     const newValue = (debit - credit).toFixed(2);
@@ -253,6 +311,12 @@ const Accounts = () => {
                     setBalance(newValue);
                 } else {
                     setNormalSide("Debit");
+                }
+
+                if (value === "Asset") {
+                    setIsSubcategoryDisabled(false);
+                } else if (value === "Expense") {
+                    setIsSubcategoryDisabled(true);
                 }
             } else if (value === "Liability" || value === "Equity" || value === "Revenue") {
                 if (normalSide === "Debit") {
@@ -262,6 +326,22 @@ const Accounts = () => {
                 } else {
                     setNormalSide("Credit");
                 }
+
+                if (value === "Liability") {
+                    setIsSubcategoryDisabled(false);
+                } else if (value === "Equity" || value === "Revenue") {
+                    setIsSubcategoryDisabled(true);
+                }
+            }
+
+            // Handle category change for existing account
+            if (value !== originalCategory) {
+                // Category changed, generate new account number
+                const newAccountNumber = generateAccountNumber(value, accountArray);
+                setAccountNumber(newAccountNumber);
+            } else {
+                // Category is switched back, restore original account number
+                setAccountNumber(originalAccountNumber);
             }
         }
     };
@@ -273,11 +353,19 @@ const Accounts = () => {
         newAccountNumber &&
         newAccountCatagory &&
         newAccountDescription &&
-        newAccountSubcatagory &&
-        newAccountTerm &&
         newOrder &&
         newComment
     );
+
+    const formatWithCommas = (value) => {
+        const [integerPart, decimalPart] = value.split(".");
+
+        // Format the integer part with commas
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        // Return formatted value with the decimal part
+        return `${formattedInteger}.${decimalPart}`;
+    };
 
     const handleDebitChange = (event) => {
         const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
@@ -361,8 +449,23 @@ const Accounts = () => {
         }
     };
 
+    const handleMinBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const minValue = parseFloat(input) / 100;
+
+        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
+    };
+
+    const handleMaxBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const maxValue = parseFloat(input) / 100;
+
+        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
+    };
+
     const handleEditAccount = async () => {
         const editAccountData = {
+            id: selectedAccount._id,
             accountName,
             accountNumber,
             accountDescription,
@@ -457,7 +560,6 @@ const Accounts = () => {
             normalSide: newNormalSide === "Debit" ? "L" : "R",
             accountCatagory: newAccountCatagory,
             accountSubcatagory: newAccountSubcatagory,
-            term: newAccountTerm,
             initialBalance: newInitialBalance,
             debit: newDebit,
             credit: newCredit,
@@ -490,7 +592,7 @@ const Accounts = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem("account"); // Clear account data
+        localStorage.removeItem("user");
         navigate("/"); // Redirect to login
     };
 
@@ -498,19 +600,67 @@ const Accounts = () => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
         return accountArray.filter((account) => {
+            // Extract and convert the account creation date to YYYY-MM-DD string
+            const accountCreatedDate = new Date(account.createdAt);
+            const accountCreatedDateString = accountCreatedDate.toISOString().split("T")[0]; // Get date in 'YYYY-MM-DD' format
+
+            // Convert fromDate and toDate to YYYY-MM-DD strings (if they exist)
+            const fromDateString = fromDate ? new Date(fromDate).toISOString().split("T")[0] : null;
+            const toDateString = toDate ? new Date(toDate).toISOString().split("T")[0] : null;
+
+            // Apply date filter if fromDate or toDate are set
+            const isWithinDateRange = (() => {
+                if (!fromDateString && !toDateString) return true; // If no date filters, include all accounts
+
+                if (fromDateString && toDateString) {
+                    // Include accounts created between fromDate and toDate (inclusive)
+                    return (
+                        accountCreatedDateString >= fromDateString &&
+                        accountCreatedDateString <= toDateString
+                    );
+                } else if (fromDateString) {
+                    // Include accounts created on or after fromDate
+                    return accountCreatedDateString >= fromDateString;
+                } else if (toDateString) {
+                    // Include accounts created on or before toDate
+                    return accountCreatedDateString <= toDateString;
+                }
+                return true;
+            })();
+
+            // Balance filter logic
+            const isWithinBalanceRange = (() => {
+                const min = parseFloat(minBalance) || null;
+                const max = parseFloat(maxBalance) || null;
+
+                if (!min && !max) return true; // If no balance filters, include all accounts
+
+                if (min !== null && max !== null) {
+                    return account.balance >= min && account.balance <= max;
+                } else if (min !== null) {
+                    return account.balance >= min;
+                } else if (max !== null) {
+                    return account.balance <= max;
+                }
+                return true;
+            })();
+
             const isActiveStatus = account.isActive ? "active" : "inactive"; // Determine status text
 
-            // Check if any search term matches the relevant fields
-            return searchTerms.every(
-                (term) =>
-                    account.accountNumber.toString().includes(term) ||
-                    account.accountName.toLowerCase().includes(term) ||
-                    account.accountCatagory.toLowerCase().includes(term) ||
-                    account.accountSubcatagory.toLowerCase().includes(term) ||
-                    account.term.toLowerCase().includes(term) ||
-                    account.balance.toFixed(2).includes(term) ||
-                    account.accountDescription.toLowerCase().includes(term) ||
-                    isActiveStatus.includes(term)
+            // Check if any search term matches the relevant fields AND the account is within the date and balance range
+            return (
+                isWithinDateRange &&
+                isWithinBalanceRange &&
+                searchTerms.every(
+                    (term) =>
+                        account.accountNumber.toString().includes(term) ||
+                        account.accountName.toLowerCase().includes(term) ||
+                        account.accountCatagory.toLowerCase().includes(term) ||
+                        account.accountSubcatagory.toLowerCase().includes(term) ||
+                        account.balance.toFixed(2).includes(term) ||
+                        account.accountDescription.toLowerCase().includes(term) ||
+                        isActiveStatus.includes(term)
+                )
             );
         });
     };
@@ -520,45 +670,101 @@ const Accounts = () => {
     const content = (
         <section className="account">
             <ToastContainer />
-            <aside className="sidebar">
-                <div className="app-logo">
-                    <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
-                </div>
-                <ul className="sidebar-btns">
-                    <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
-                        Dashboard
-                    </Link>
-                    <Link
-                        className="sidebar-button"
-                        id="chart-of-accounts-link"
-                        to="/chart-of-accounts"
-                    >
-                        Chart of Accounts
-                    </Link>
-                    <Link className="sidebar-button" id="accounts-link" to="/accounts">
-                        Accounts
-                    </Link>
-                    <Link className="sidebar-button" id="users-link" to="/users">
-                        Users
-                    </Link>
-                    <Link className="sidebar-button" id="event-log-link" to="/event-logs">
-                        Event Logs
-                    </Link>
-                </ul>
-            </aside>
+            {/* Side nav for admin */}
+            {storedUserRole === "Admin" && (
+                <aside className="sidebar">
+                    <div className="app-logo">
+                        <img
+                            className="logo"
+                            src="/ledgerlifelinelogo.png"
+                            alt="LedgerLifeline Logo"
+                        />
+                    </div>
+                    <ul className="sidebar-btns">
+                        <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
+                            Dashboard
+                        </Link>
+                        <Link
+                            className="sidebar-button"
+                            id="chart-of-accounts-link"
+                            to="/chart-of-accounts"
+                        >
+                            Chart of Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                            Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="users-link" to="/users">
+                            Users
+                        </Link>
+                        <Link className="sidebar-button" id="event-log-link" to="/event-logs">
+                            Event Logs
+                        </Link>
+                    </ul>
+                </aside>
+            )}
+
+            {/* Side nav for accountand && manager */}
+            {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
+                <aside className="sidebar">
+                    <div className="app-logo">
+                        <img
+                            className="logo"
+                            src="/ledgerlifelinelogo.png"
+                            alt="LedgerLifeline Logo"
+                        />
+                    </div>
+                    <ul className="sidebar-btns">
+                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                            Dashboard
+                        </Link>
+                        <Link
+                            className="sidebar-button"
+                            id="chart-of-accounts-link"
+                            to="/chart-of-accounts"
+                        >
+                            Chart of Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                            Accounts
+                        </Link>
+                        <Link className="sidebar-button" id="journalize-link">
+                            Journalize
+                        </Link>
+                        <Link className="sidebar-button" id="income-statement-link">
+                            Income Statement
+                        </Link>
+                        <Link className="sidebar-button" id="balance-sheet-link">
+                            Balance Sheet
+                        </Link>
+                        <Link className="sidebar-button" id="retained-earnings-link">
+                            Statement of Retained Earnings
+                        </Link>
+                    </ul>
+                </aside>
+            )}
 
             <main className="main-content">
                 <header className="header">
-                    <div className="header-main">
-                        <h1 className="header-title">Accounts</h1>
-                        <button
-                            className="action-button1"
-                            title="Add a new account"
-                            onClick={() => setIsAddAccountVisible(true)}
-                        >
-                            + Add Account
-                        </button>
-                    </div>
+                    {/* Main heading for admin users to allow new account creation */}
+                    {storedUserRole === "Admin" && (
+                        <div className="header-main">
+                            <h1 className="header-title">Accounts</h1>
+                            <button
+                                className="action-button1"
+                                title="Add a new account"
+                                onClick={() => setIsAddAccountVisible(true)}
+                            >
+                                + Add Account
+                            </button>
+                        </div>
+                    )}
+                    {/* Default main heading */}
+                    {(storedUserRole === "Manager" || storedUserRole === "Accountant") && (
+                        <div className="header-main">
+                            <h1 className="header-title">Accounts</h1>
+                        </div>
+                    )}
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
@@ -573,9 +779,43 @@ const Accounts = () => {
                 <div className="table-filter">
                     <div className="date-filter">
                         From:
-                        <input type="date" id="from" name="from" />
+                        <input
+                            type="date"
+                            id="from"
+                            name="from"
+                            value={fromDate}
+                            onChange={(e) => setFromDate(e.target.value)}
+                        />
                         To:
-                        <input type="date" id="to" name="to" />
+                        <input
+                            type="date"
+                            id="to"
+                            name="to"
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="balance-filter">
+                        Min:
+                        <input
+                            type="tel"
+                            id="minBalance"
+                            name="minBalance"
+                            value={minBalance}
+                            onChange={handleMinBalanceChange}
+                            placeholder="0.00"
+                            inputMode="numeric"
+                        />
+                        Max:
+                        <input
+                            type="tel"
+                            id="maxBalance"
+                            name="maxBalance"
+                            value={maxBalance}
+                            onChange={handleMaxBalanceChange}
+                            placeholder="0.00"
+                            inputMode="numeric"
+                        />
                     </div>
                     <div className="search-filter">
                         <input
@@ -591,82 +831,99 @@ const Accounts = () => {
                 <table className="account-table">
                     <thead>
                         <tr>
-                            <th>Account Number</th>
+                            <th>Number</th>
                             <th>Name</th>{" "}
                             {/*name of the account (cash, accounts receivable, etc.)*/}
                             <th>Type</th> {/*type of the account (asset, liability, equity, et.)*/}
                             <th>Sub-Type</th> {/*current/long term*/}
-                            <th>Term</th> {/*account balance*/}
                             <th>Balance</th> {/*name of the admin's username*/}
                             <th>Description</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredAccounts.map((account, index) => (
-                            <tr key={index}>
-                                <td id="accountNumber">
-                                    <button
-                                        className="link-button"
-                                        onClick={() => {
-                                            setSelectedAccount(account);
-                                            setAccountNumber(account.accountNumber);
-                                            setAccountName(account.accountName);
-                                            setAccountDescription(account.accountDescription);
-                                            if (account.normalSide === "L") {
-                                                setNormalSide("Debit");
-                                            } else if (account.normalSide === "R") {
-                                                setNormalSide("Credit");
-                                            }
-                                            setAccountCatagory(account.accountCatagory);
-                                            setAccountSubcatagory(account.accountSubcatagory);
-                                            setAccountTerm(account.term);
-                                            setInitialBalance(account.initialBalance.toFixed(2));
-                                            setDebit(account.debit.toFixed(2));
-                                            setCredit(account.credit.toFixed(2));
-                                            setBalance(account.balance.toFixed(2));
+                        {filteredAccounts
+                            .sort((a, b) => a.accountNumber - b.accountNumber)
+                            .map((account, index) => (
+                                <tr key={index}>
+                                    <td id="accountNumber">
+                                        <button
+                                            className="link-button"
+                                            onClick={() => {
+                                                setSelectedAccount(account);
+                                                setAccountNumber(account.accountNumber);
+                                                setAccountName(account.accountName);
+                                                setAccountDescription(account.accountDescription);
+                                                if (account.normalSide === "L") {
+                                                    setNormalSide("Debit");
+                                                } else if (account.normalSide === "R") {
+                                                    setNormalSide("Credit");
+                                                }
+                                                setAccountCatagory(account.accountCatagory);
+                                                if (
+                                                    account.accountCatagory === "Asset" ||
+                                                    account.accountCatagory === "Liability"
+                                                ) {
+                                                    setIsSubcategoryDisabled(false);
+                                                }
+                                                setAccountSubcatagory(account.accountSubcatagory);
+                                                setInitialBalance(
+                                                    account.initialBalance.toFixed(2)
+                                                );
+                                                setDebit(account.debit.toFixed(2));
+                                                setCredit(account.credit.toFixed(2));
+                                                setBalance(account.balance.toFixed(2));
+                                                setDateAccountAdded(account.createdAt);
+                                                setDateAccountUpdated(account.updatedAt);
+                                                setUserID(account.createdBy);
+                                                setOrder(account.order);
+                                                setStatement(account.statement);
+                                                setComment(account.comment);
+                                                setIsActive(account.isActive);
 
-                                            setDateAccountAdded(account.createdAt);
-                                            setDateAccountUpdated(account.updatedAt);
-                                            setUserID(account.createdBy);
-                                            setOrder(account.order);
-                                            setStatement(account.statement);
-                                            setComment(account.comment);
-                                            setIsActive(account.isActive);
-
-                                            setViewAccountDetails(true);
-                                        }}
-                                    >
-                                        {account.accountNumber}
-                                    </button>
-                                </td>
-                                <td>{account.accountName}</td> {/* Account name */}
-                                <td>{account.accountCatagory}</td> {/* Account type */}
-                                <td>{account.accountSubcatagory}</td>{" "}
-                                {/* Term (current/long term) */}
-                                <td>{account.term}</td>{" "}
-                                <td>${account.balance ? account.balance.toFixed(2) : "0.00"}</td>{" "}
-                                {/* Account balance with dollar sign */}
-                                <td>{account.accountDescription}</td> {/* Comments */}
-                                <td>
-                                    <Link
-                                        className="account-active-link"
-                                        onClick={() => {
-                                            setSelectedAccount(account);
-                                            setIsActive(account.isActive);
-                                            setIsEditAccountActiveVisible(true);
-                                        }}
-                                    >
-                                        {account.isActive ? "Active" : "Inactive"}
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
+                                                setViewAccountDetails(true);
+                                            }}
+                                        >
+                                            {account.accountNumber}
+                                        </button>
+                                    </td>
+                                    <td>{account.accountName}</td> {/* Account name */}
+                                    <td>{account.accountCatagory}</td> {/* Account type */}
+                                    <td>{account.accountSubcatagory}</td>{" "}
+                                    {/* Term (current/long term) */}
+                                    <td>
+                                        {account.balance
+                                            ? `$${formatWithCommas(account.balance.toFixed(2))}`
+                                            : "$0.00"}
+                                    </td>{" "}
+                                    {/* Account balance with dollar sign */}
+                                    <td>{account.accountDescription}</td> {/* Comments */}
+                                    {/* Treat active status cell as link only for admin users */}
+                                    {storedUserRole === "Admin" && (
+                                        <td>
+                                            <Link
+                                                className="account-active-link"
+                                                onClick={() => {
+                                                    setSelectedAccount(account);
+                                                    setIsActive(account.isActive);
+                                                    setIsEditAccountActiveVisible(true);
+                                                }}
+                                            >
+                                                {account.isActive ? "Active" : "Inactive"}
+                                            </Link>
+                                        </td>
+                                    )}
+                                    {(storedUserRole === "Manager" ||
+                                        storedUserRole === "Accountant") && (
+                                        <td>{account.isActive ? "Active" : "Inactive"}</td>
+                                    )}
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
 
-                {/* View Account Details Modal */}
-                {viewAccountDetails && (
+                {/* View Account Details Modal FOr Admin User */}
+                {viewAccountDetails && storedUserRole === "Admin" && (
                     <div className="modal">
                         <div className="modal-content">
                             <span className="close" onClick={() => setViewAccountDetails(false)}>
@@ -731,16 +988,6 @@ const Accounts = () => {
                                         id="accountSubcatagory"
                                         name="accountSubcatagory"
                                         value={accountSubcatagory}
-                                        disabled
-                                    />
-                                </label>
-                                <label>
-                                    Account Term:
-                                    <input
-                                        type="text"
-                                        id="accountTerm"
-                                        name="accountTerm"
-                                        value={accountTerm}
                                         disabled
                                     />
                                 </label>
@@ -872,6 +1119,198 @@ const Accounts = () => {
                     </div>
                 )}
 
+                {/* View account detials for Manager and Accountant */}
+                {viewAccountDetails &&
+                    (storedUserRole === "Accountant" || storedUserRole === "Manager") && (
+                        <div className="modal">
+                            <div className="modal-content">
+                                <span
+                                    className="close"
+                                    onClick={() => setViewAccountDetails(false)}
+                                >
+                                    &times;
+                                </span>
+                                <h2>Account Details</h2>
+                                <form>
+                                    <label>
+                                        Account Number:
+                                        <input
+                                            type="text"
+                                            id="accountNumber"
+                                            name="accountNumber"
+                                            value={accountNumber}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Account Name:
+                                        <input
+                                            type="text"
+                                            id="accountName"
+                                            name="accountName"
+                                            value={accountName}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Account Desciption:
+                                        <input
+                                            type="text"
+                                            id="accountDescription"
+                                            name="accountDescription"
+                                            value={accountDescription}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Account Catagory:
+                                        <input
+                                            type="text"
+                                            id="accountCatagory"
+                                            name="accountCatagory"
+                                            value={accountCatagory}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Normal Side:
+                                        <input
+                                            type="text"
+                                            id="normalSide"
+                                            name="normalSide"
+                                            value={normalSide}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Account Subcatagory:
+                                        <input
+                                            type="text"
+                                            id="accountSubcatagory"
+                                            name="accountSubcatagory"
+                                            value={accountSubcatagory}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Debit:
+                                        <input
+                                            type="tel"
+                                            id="debit"
+                                            name="debit"
+                                            value={debit}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Credit:
+                                        <input
+                                            type="tel"
+                                            id="credit"
+                                            name="credit"
+                                            value={credit}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Initial Balance:
+                                        <input
+                                            type="text"
+                                            id="initialBalance"
+                                            name="initialBalance"
+                                            value={initialBalance}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Balance:
+                                        <input
+                                            type="text"
+                                            id="balance"
+                                            name="balance"
+                                            value={balance}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Order:
+                                        <input
+                                            type="text"
+                                            id="order"
+                                            name="order"
+                                            value={order}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Statement:
+                                        <input
+                                            type="text"
+                                            id="statement"
+                                            name="statement"
+                                            value={statement}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Comment:
+                                        <input
+                                            type="text"
+                                            id="comment"
+                                            name="comment"
+                                            value={comment}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Status:
+                                        <input
+                                            type="text"
+                                            id="status"
+                                            name="status"
+                                            value={isActive ? "Active" : "Inactive"}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Created By:
+                                        <input
+                                            type="text"
+                                            id="createdBy"
+                                            name="createdBy"
+                                            value={userID}
+                                            disabled
+                                        />
+                                    </label>
+                                    <label>
+                                        Time of Account Creation:
+                                        <input
+                                            type="text"
+                                            id="createdAt"
+                                            name="createdAt"
+                                            value={new Date(dateAccountAdded).toLocaleString(
+                                                "en-US"
+                                            )}
+                                            disabled
+                                        ></input>
+                                    </label>
+                                    <label>
+                                        Time of Most Recent Update:
+                                        <input
+                                            type="text"
+                                            id="updatedAt"
+                                            name="updatedAt"
+                                            value={new Date(dateAccountUpdated).toLocaleString(
+                                                "en-US"
+                                            )}
+                                            disabled
+                                        ></input>
+                                    </label>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
                 {/* Edit Account Modal */}
                 {isEditAccountVisible && (
                     <div className="modal">
@@ -881,17 +1320,6 @@ const Accounts = () => {
                             </span>
                             <h2>Edit Account</h2>
                             <form>
-                                <label>
-                                    Account Number:
-                                    <input
-                                        type="text"
-                                        id="accountNumber"
-                                        name="accountNumber"
-                                        value={accountNumber}
-                                        onChange={handleEditInputChange}
-                                        placeholder="Account Number"
-                                    />
-                                </label>
                                 <label>
                                     Account Name:
                                     <input
@@ -920,7 +1348,9 @@ const Accounts = () => {
                                         id="accountCatagory"
                                         name="accountCatagory"
                                         value={accountCatagory}
-                                        onChange={handleAccountType}
+                                        onChange={(event) =>
+                                            handleAccountType(event, true, selectedAccount)
+                                        }
                                     >
                                         <option value="" disabled>
                                             Select a catagory
@@ -931,6 +1361,18 @@ const Accounts = () => {
                                         <option value="Equity">Equity</option>
                                         <option value="Revenue">Revenue</option>
                                     </select>
+                                </label>
+                                <label>
+                                    Account Number:
+                                    <input
+                                        type="text"
+                                        id="accountNumber"
+                                        name="accountNumber"
+                                        value={accountNumber}
+                                        onChange={handleEditInputChange}
+                                        placeholder="Account Number"
+                                        disabled
+                                    />
                                 </label>
                                 <label>
                                     Normal Side:
@@ -950,6 +1392,7 @@ const Accounts = () => {
                                         name="accountSubcatagory"
                                         value={accountSubcatagory}
                                         onChange={handleEditInputChange}
+                                        disabled={isSubcategoryDisabled}
                                     >
                                         <option value="" disabled>
                                             Select a subcategory
@@ -1100,17 +1543,6 @@ const Accounts = () => {
                             <h2>Add New Account</h2>
                             <form>
                                 <label>
-                                    Account Number:
-                                    <input
-                                        type="text"
-                                        id="newAccountNumber"
-                                        name="newAccountNumber"
-                                        value={newAccountNumber}
-                                        onChange={handleNewInputChange}
-                                        placeholder="Account Number"
-                                    />
-                                </label>
-                                <label>
                                     Account Name:
                                     <input
                                         type="text"
@@ -1151,6 +1583,18 @@ const Accounts = () => {
                                     </select>
                                 </label>
                                 <label>
+                                    Account Number:
+                                    <input
+                                        type="text"
+                                        id="newAccountNumber"
+                                        name="newAccountNumber"
+                                        value={newAccountNumber}
+                                        onChange={handleNewInputChange}
+                                        placeholder="Account Number"
+                                        disabled
+                                    />
+                                </label>
+                                <label>
                                     Normal Side:
                                     <input
                                         type="text"
@@ -1163,27 +1607,15 @@ const Accounts = () => {
                                 </label>
                                 <label>
                                     Account Subcatagory:
-                                    <input
-                                        type="text"
+                                    <select
                                         id="newAccountSubcatagory"
                                         name="newAccountSubcatagory"
                                         value={newAccountSubcatagory}
                                         onChange={handleNewInputChange}
-                                        placeholder="Account Subcatagory"
-                                        disabled={isDisabled2}
-                                    />
-                                </label>
-                                <label>
-                                    Account Term:
-                                    <select
-                                        id="newAccountTerm"
-                                        name="newAccountTerm"
-                                        value={newAccountTerm}
-                                        onChange={handleNewInputChange}
-                                        disabled={isDisabled2}
+                                        disabled={isNewSubcategoryDisabled}
                                     >
                                         <option value="" disabled>
-                                            Select a term
+                                            Select a subcategory
                                         </option>
                                         <option value="Current">Current</option>
                                         <option value="Long-Term">Long-Term</option>

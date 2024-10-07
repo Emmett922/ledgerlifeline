@@ -91,10 +91,35 @@ const Users = () => {
                 if (response.ok) {
                     setUserArray(result);
                 } else {
-                    alert("Failed to retrieve users!");
+                    toast("Failed to retrieve users!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
                 }
             } catch (error) {
-                alert("An error occured. Failed to retrieve users!");
+                console.log(error);
+                toast("An error occured. Failed to retrieve users!", {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
             }
         };
 
@@ -126,7 +151,7 @@ const Users = () => {
 
         const userCreationResult = localStorage.getItem("userCreated");
         if (userCreationResult) {
-            toast("New user created! Please accept accept the request in your email!", {
+            toast("New user created! Please accept the request in your email!", {
                 style: {
                     backgroundColor: "#333",
                     color: "white",
@@ -302,6 +327,7 @@ const Users = () => {
                 question: updatedSecurityQuestion,
                 answer: securityAnswer,
             },
+            adminUser: storedUserName,
         };
 
         try {
@@ -333,6 +359,7 @@ const Users = () => {
             const userData = {
                 username: selectedUser.username,
                 role: role,
+                adminUser: storedUserName,
             };
 
             try {
@@ -377,6 +404,7 @@ const Users = () => {
             const userData = {
                 username: selectedUser.username,
                 isActive: active,
+                adminUser: storedUserName,
             };
 
             try {
@@ -589,7 +617,7 @@ const Users = () => {
                     <Link className="sidebar-button" id="users-link" to="/users">
                         Users
                     </Link>
-                    <Link className="sidebar-button" id="event-logs-link" to="/event-logs">
+                    <Link className="sidebar-button" id="event-log-link" to="/event-logs">
                         Event Logs
                     </Link>
                 </ul>
@@ -614,9 +642,6 @@ const Users = () => {
                         >
                             View Expired Passwords
                         </button>
-                        {/*<button className="action-button1" onClick={handleChangeTable}>
-                            Requests
-                        </button>  */}
                     </div>
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
@@ -626,10 +651,6 @@ const Users = () => {
                                 Logout
                             </button>
                         </a>
-                    </div>
-                    <div className="header-search">
-                        {/*<input type="text" className="search" placeholder="Search"></input>
-                        <button className="search-btn">Search</button>*/}
                     </div>
                 </header>
 
@@ -880,7 +901,7 @@ const Users = () => {
                                     />
                                 </label>
                                 <label>
-                                    Security Question:
+                                    Secuirty Question:
                                     <Select
                                         id="securityQuestion"
                                         name="securityQuestion"
@@ -896,7 +917,7 @@ const Users = () => {
                                     Security Answer:
                                     <input
                                         type="text"
-                                        id="securityAnswer"
+                                        id="secuirtyAnswer"
                                         name="securityAnswer"
                                         value={securityAnswer}
                                         onChange={handleInputChange}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,6 +9,9 @@ const AcceptRequest = () => {
     const { username } = useParams();
     const [role, setRole] = useState("");
     const [initialRole, setInitialRole] = useState("");
+    const [searchParams] = useSearchParams();
+    const adminEmail = searchParams.get("adminEmail");
+    const [adminUser, setAdminUser] = useState("");
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -51,7 +54,32 @@ const AcceptRequest = () => {
             }
         };
 
+        const fetchAdmin = async () => {
+            try {
+                const adminResponse = await fetch(
+                    `${API_URL}/users/user-by-email?email=${adminEmail}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-type": "application/json",
+                        },
+                    }
+                );
+
+                const userDetails = await adminResponse.json();
+                setAdminUser(userDetails.username);
+                if (!adminResponse.ok) {
+                    alert("Failed to retrieve user details.");
+                    return;
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("An error occured getting admin details. Please try again.");
+            }
+        };
+
         fetchUser();
+        fetchAdmin();
     }, [API_URL]);
 
     const handleSubmit = async (event) => {
@@ -65,7 +93,7 @@ const AcceptRequest = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ username, role }),
+                body: JSON.stringify({ username, role, adminUser }),
             });
 
             if (!response.ok) {
