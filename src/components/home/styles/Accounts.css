@@ -46,6 +46,22 @@ select:disabled {
     overflow-y: hidden;
 }
 
+.help-btn {
+    padding-top: 400px;
+    display: flex; /* Enable flexbox for alignment */
+    justify-content: flex-end; /* Aligns content to the right */
+    align-items: flex-end; /* Aligns content to the bottom */
+    margin-top: auto; /* Pushes the help button to the bottom of the sidebar */
+    padding: 10px; /* Adds padding around the image */
+    height: 53%; /* Ensures the help button takes the full height available */
+}
+
+.pfp2 {
+    width: 30px;  /* Set a consistent width for profile picture */
+    height: 30px; /* Set a consistent height for profile picture */
+    border-radius: 50%; /* Make it circular */
+}
+
 .header {
     display: flex;
     justify-content: space-between; /* This should already be here */
@@ -78,6 +94,11 @@ select:disabled {
 
 .profile-name {
     font-size: 16px; /* Adjust font size if necessary */
+}
+
+/* This was added for the Account Ledger Button/Link*/
+.action-button2 {
+    text-decoration: none;
 }
 
 .account .action-button1,

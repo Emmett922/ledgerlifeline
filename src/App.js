@@ -10,6 +10,8 @@ import AcceptRequest from "./components/splash/AcceptRequest";
 import Accounts from "./components/home/Accounts";
 import ChartOfAccounts from "./components/home/ChartOfAccounts";
 import EventLogs from "./components/home/EventLogs";
+import AccountLedger from "./components/home/AccountLedger";
+import Help from "./components/home/Help";
 
 function App() {
     const location = useLocation();
@@ -43,6 +45,12 @@ function App() {
             case "/event-logs":
                 document.title = "Event Logs - Ledger Lifeline"
                 break;
+            case "/account-ledger":
+                document.title = "Account Ledger - Ledger Lifeline"
+                break;
+            case "/help":
+                document.title = "Help - Ledger Lifeline"
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -60,6 +68,8 @@ function App() {
                 <Route path="accounts" element={<Accounts />} />
                 <Route path="chart-of-accounts" element={<ChartOfAccounts />} />
                 <Route path="event-logs" element={<EventLogs/>} />
+                <Route path="account-ledger" element={<AccountLedger/>} />
+                <Route path="help" element={<Help/>} />
             </Route>
         </Routes>
     );

@@ -132,14 +132,57 @@ body {
     background-color: #1c4a7c;
 }
 
-/* Main content styles */
-.dashboard .main-content {
-    width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
-    margin-left: 20px;
-    background: rgba(255, 255, 255, 0.9);
+.scroll {
+    max-height: 750px; /* Set a maximum height for the scrollable area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px; /* Add some padding for spacing */
+    border-radius: 5px; /* Rounded corners */
+    background: rgba(255, 255, 255, 0);
+}
+
+/* Optional: Add some styling for the scrollbar for better aesthetics */
+.scroll::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    background-color: #007bff; /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+.scroll::-webkit-scrollbar-track {
+    background-color: #bbc1c7; /* Color of the scrollbar track */
+    border-radius: 5px;
+}
+
+.software-overview,
+.user-roles,
+.security-features,
+.accounting-functions,
+.additional-features,
+.support {
+    margin-bottom: 30px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0);
+}
+
+h2 {
+    color: #007bff; /* Custom color for headings */
+    border-bottom: 2px solid #007bff; /* Underline headings */
+    padding-bottom: 5px;
+}
+
+p {
+    line-height: 1.6; /* Improved readability */
+}
+
+ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 5px; /* Space between list items */
 }
 
 .dashboard .header {
@@ -154,67 +197,6 @@ body {
     font-size: 2em;
     display: flex;
     align-items: center;
-}
-
-.dashboard .Dashboard1 h1 {
-    text-align: left;
-    margin-bottom: 20px;
-    font-size: 32px;
-}
-
-.dashboard .dashboard1 {
-    color: #007bff;
-}
-
-.dashboard .top-boxes, .bottom-boxes {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-}
-  
-.dashboard .top-boxes .Current-Ratio, 
-.dashboard .top-boxes .Return-Assets, 
-.dashboard .top-boxes .Return-Equity,
-.dashboard .bottom-boxes .Net-Profit, 
-.dashboard .bottom-boxes .Asset-Turnover, 
-.dashboard .bottom-boxes .Quick-Ratio {
-    width: 30%; /* Adjust this to control the box width */
-    height: 100px;
-    background-color: #007bff; /* Light background for boxes */
-    color: #fff;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-  
-.dashboard .top-boxes:hover .Current-Ratio:hover, 
-.dashboard .top-boxes:hover .Return-Assets:hover, 
-.dashboard .top-boxes:hover .Return-Equity:hover,
-.dashboard .bottom-boxes:hover .Net-Profit:hover, 
-.dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
-.dashboard .bottom-boxes:hover .Quick-Ratio:hover {
-    background-color: #1c4a7c;
-}
-
-.dashboard .top-boxes h1, .bottom-boxes h1 {
-    font-size: 12px;
-    margin: 0;
-    width: 50%; /* Title takes half of the box */
-    text-align: left;
-}
-  
-.dashboard .top-boxes div, .bottom-boxes div {
-    width: 50%; /* Number takes the other half */
-    text-align: right;
-}
-  
-.dashboard .top-boxes div h1, .bottom-boxes div h1 {
-    font-size: 24px;
-    margin: 0;
-    font-weight: bold;
 }
   
 @media (max-width: 768px) {

@@ -723,6 +723,16 @@ const Accounts = () => {
                             Event Logs
                         </Link>
                     </ul>
+                    <div className="help-btn">
+                        <Link
+                            type="help-button"
+                            id="help-link"
+                            title="Help Page Link"
+                            to="/help"
+                        >
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        </Link>
+                    </div>
                 </aside>
             )}
 
@@ -790,6 +800,16 @@ const Accounts = () => {
                             Statement of Retained Earnings
                         </Link>
                     </ul>
+                    <div className="help-btn">
+                        <Link
+                            type="help-button"
+                            id="help-link"
+                            title="Help Page Link"
+                            to="/help"
+                        >
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        </Link>
+                    </div>
                 </aside>
             )}
 
@@ -1174,6 +1194,14 @@ const Accounts = () => {
                                 >
                                     Edit
                                 </button>
+                                <Link
+                                    type="button"
+                                    className="action-button2"
+                                    title="view account ledger"
+                                    to="/account-ledger"
+                                >
+                                    View Ledger
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -1367,6 +1395,16 @@ const Accounts = () => {
                                         ></input>
                                     </label>
                                 </form>
+                                <div className="modal-btns">
+                                    <Link
+                                        type="button"
+                                        className="action-button2"
+                                        title="view account ledger"
+                                        to="/account-ledger"
+                                    >
+                                        View Ledger
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     )}

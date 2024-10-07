@@ -145,6 +145,16 @@ const Dashboard = () => {
                             Event Logs
                         </Link>
                     </ul>
+                    <div className="help-btn">
+                        <Link
+                            type="help-button"
+                            id="help-link"
+                            title="Help Page Link"
+                            to="/help"
+                        >
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        </Link>
+                    </div>
                 </aside>
             )}
 
@@ -196,6 +206,16 @@ const Dashboard = () => {
                             Statement of Retained Earnings
                         </Link>
                     </ul>
+                    <div className="help-btn">
+                        <Link
+                            type="help-button"
+                            id="help-link"
+                            title="Help Page Link"
+                            to="/help"
+                        >
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        </Link>
+                    </div>
                 </aside>
             )}
 
