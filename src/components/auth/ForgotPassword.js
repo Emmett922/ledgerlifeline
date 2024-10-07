@@ -299,6 +299,7 @@ const ForgotPassword = () => {
                                 type="email"
                                 id="email"
                                 name="email"
+                                title="Enter email"
                                 value={email}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()}
@@ -312,6 +313,7 @@ const ForgotPassword = () => {
                                 type="text"
                                 id="username"
                                 name="username"
+                                title="Enter username"
                                 value={username}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()}
@@ -322,6 +324,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             className="forgot-submit-btn"
+                            title="Submit email to user check"
                             disabled={isButtonDisabled1}
                         >
                             Next
@@ -341,6 +344,7 @@ const ForgotPassword = () => {
                                 type="text"
                                 id="securityAnswer"
                                 name="securityAnswer"
+                                title="Answer security question"
                                 value={securityAnswer}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()}
@@ -351,6 +355,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             className="forgot-submit-btn"
+                            title="Submit security answer"
                             disabled={isButtonDisabled2}
                         >
                             Next
@@ -368,6 +373,7 @@ const ForgotPassword = () => {
                                 type="password"
                                 id="newPassword"
                                 name="newPassword"
+                                title="Enter a new and different password"
                                 value={newPassword}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()}
@@ -409,6 +415,7 @@ const ForgotPassword = () => {
                                 type="password"
                                 id="confirmNewPassword"
                                 name="confirmNewPassword"
+                                title="Confirm entered password"
                                 value={confirmNewPassword}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()}
@@ -432,6 +439,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             className="forgot-submit-btn"
+                            title="Submit new password creation"
                             disabled={isButtonDisabled3}
                         >
                             Submit
@@ -446,7 +454,7 @@ const ForgotPassword = () => {
                         <div className="forgot-input-group">
                             <p>Please try logging in with your new password.</p>
                         </div>
-                        <Link to="/" className="forgot-submit-btn">
+                        <Link to="/" className="forgot-submit-btn" title="Go back to login page">
                             Login
                         </Link>
                     </form>

@@ -681,23 +681,44 @@ const Accounts = () => {
                         />
                     </div>
                     <ul className="sidebar-btns">
-                        <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
+                        <Link
+                            className="sidebar-button"
+                            id="dashboard-link"
+                            title="Dashboard Page Link"
+                            to="/dashboard"
+                        >
                             Dashboard
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="chart-of-accounts-link"
+                            title="Chart of Accounts Page Link"
                             to="/chart-of-accounts"
                         >
                             Chart of Accounts
                         </Link>
-                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="accounts-link"
+                            title="Accounts Page Link"
+                            to="/accounts"
+                        >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="users-link" to="/users">
+                        <Link
+                            className="sidebar-button"
+                            id="users-link"
+                            title="Users Page Link"
+                            to="/users"
+                        >
                             Users
                         </Link>
-                        <Link className="sidebar-button" id="event-log-link" to="/event-logs">
+                        <Link
+                            className="sidebar-button"
+                            id="event-log-link"
+                            title="Event Logs Page Link"
+                            to="/event-logs"
+                        >
                             Event Logs
                         </Link>
                     </ul>
@@ -715,29 +736,56 @@ const Accounts = () => {
                         />
                     </div>
                     <ul className="sidebar-btns">
-                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                        <Link
+                            className="sidebar-button"
+                            id="dashboard-link"
+                            title="Dashboard Page Link"
+                            to="dashboard"
+                        >
                             Dashboard
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="chart-of-accounts-link"
+                            title="Chart of Accounts Page Link"
                             to="/chart-of-accounts"
                         >
                             Chart of Accounts
                         </Link>
-                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="accounts-link"
+                            title="Accounts Page Link"
+                            to="/accounts"
+                        >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="journalize-link">
+                        <Link
+                            className="sidebar-button"
+                            title="Journalize Page Link"
+                            id="journalize-link"
+                        >
                             Journalize
                         </Link>
-                        <Link className="sidebar-button" id="income-statement-link">
+                        <Link
+                            className="sidebar-button"
+                            title="Income Statement Page Link"
+                            id="income-statement-link"
+                        >
                             Income Statement
                         </Link>
-                        <Link className="sidebar-button" id="balance-sheet-link">
+                        <Link
+                            className="sidebar-button"
+                            title="Balance Sheet Page Link"
+                            id="balance-sheet-link"
+                        >
                             Balance Sheet
                         </Link>
-                        <Link className="sidebar-button" id="retained-earnings-link">
+                        <Link
+                            className="sidebar-button"
+                            title="Statement of Retained Earnings Page Link"
+                            id="retained-earnings-link"
+                        >
                             Statement of Retained Earnings
                         </Link>
                     </ul>
@@ -762,14 +810,18 @@ const Accounts = () => {
                     {/* Default main heading */}
                     {(storedUserRole === "Manager" || storedUserRole === "Accountant") && (
                         <div className="header-main">
-                            <h1 className="header-title">Accounts</h1>
+                            <h1 className="header-title">Chart of Accounts</h1>
                         </div>
                     )}
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
                         <a>
-                            <button className="action-button1" onClick={handleLogout}>
+                            <button
+                                className="action-button1"
+                                title="Logout of Application"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </button>
                         </a>
@@ -783,6 +835,7 @@ const Accounts = () => {
                             type="date"
                             id="from"
                             name="from"
+                            title="Starting date range"
                             value={fromDate}
                             onChange={(e) => setFromDate(e.target.value)}
                         />
@@ -791,6 +844,7 @@ const Accounts = () => {
                             type="date"
                             id="to"
                             name="to"
+                            title="Ending date range"
                             value={toDate}
                             onChange={(e) => setToDate(e.target.value)}
                         />
@@ -801,6 +855,7 @@ const Accounts = () => {
                             type="tel"
                             id="minBalance"
                             name="minBalance"
+                            title="Minimum balance range"
                             value={minBalance}
                             onChange={handleMinBalanceChange}
                             placeholder="0.00"
@@ -811,6 +866,7 @@ const Accounts = () => {
                             type="tel"
                             id="maxBalance"
                             name="maxBalance"
+                            title="Maximum balance range"
                             value={maxBalance}
                             onChange={handleMaxBalanceChange}
                             placeholder="0.00"
@@ -821,6 +877,7 @@ const Accounts = () => {
                         <input
                             type="text"
                             className="search"
+                            title="Search the accounts"
                             placeholder="Search accounts..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -849,6 +906,7 @@ const Accounts = () => {
                                     <td id="accountNumber">
                                         <button
                                             className="link-button"
+                                            title="View account details"
                                             onClick={() => {
                                                 setSelectedAccount(account);
                                                 setAccountNumber(account.accountNumber);
@@ -903,6 +961,7 @@ const Accounts = () => {
                                         <td>
                                             <Link
                                                 className="account-active-link"
+                                                title="Change active status"
                                                 onClick={() => {
                                                     setSelectedAccount(account);
                                                     setIsActive(account.isActive);
@@ -1326,6 +1385,7 @@ const Accounts = () => {
                                         type="text"
                                         id="accountName"
                                         name="accountName"
+                                        title="Edit account name"
                                         value={accountName}
                                         onChange={handleEditInputChange}
                                         placeholder="Account Name"
@@ -1337,6 +1397,7 @@ const Accounts = () => {
                                         type="text"
                                         id="accountDescription"
                                         name="accountDescription"
+                                        title="Edit account description"
                                         value={accountDescription}
                                         onChange={handleEditInputChange}
                                         placeholder="Account Description"
@@ -1347,6 +1408,7 @@ const Accounts = () => {
                                     <select
                                         id="accountCatagory"
                                         name="accountCatagory"
+                                        title="Select account's category"
                                         value={accountCatagory}
                                         onChange={(event) =>
                                             handleAccountType(event, true, selectedAccount)
@@ -1390,6 +1452,7 @@ const Accounts = () => {
                                     <select
                                         id="accountSubcatagory"
                                         name="accountSubcatagory"
+                                        title="Select account subcategory, is applicable"
                                         value={accountSubcatagory}
                                         onChange={handleEditInputChange}
                                         disabled={isSubcategoryDisabled}
@@ -1407,6 +1470,7 @@ const Accounts = () => {
                                         type="tel"
                                         id="debit"
                                         name="debit"
+                                        title="Edit account's debit total"
                                         value={debit}
                                         onChange={handleDebitChange}
                                         placeholder="0.00"
@@ -1419,6 +1483,7 @@ const Accounts = () => {
                                         type="tel"
                                         id="credit"
                                         name="credit"
+                                        title="Edit account's credit total"
                                         value={credit}
                                         onChange={handleCreditChange}
                                         placeholder="0.00"
@@ -1441,6 +1506,7 @@ const Accounts = () => {
                                         type="text"
                                         id="order"
                                         name="order"
+                                        title="Edit account's order"
                                         value={order}
                                         onChange={handleEditInputChange}
                                         placeholder="Order"
@@ -1451,6 +1517,7 @@ const Accounts = () => {
                                     <select
                                         id="statement"
                                         name="statement"
+                                        title="Select a statement for account"
                                         value={statement}
                                         onChange={handleEditInputChange}
                                     >
@@ -1468,6 +1535,7 @@ const Accounts = () => {
                                         type="text"
                                         id="comment"
                                         name="comment"
+                                        title="Edit comment for account"
                                         value={comment}
                                         onChange={handleEditInputChange}
                                         placeholder="comment"
@@ -1478,6 +1546,7 @@ const Accounts = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Submit changes made to account"
                                     onClick={handleEditAccount}
                                 >
                                     Save Changes
@@ -1509,6 +1578,7 @@ const Accounts = () => {
                                     <select
                                         id="isActive"
                                         name="isActive"
+                                        title="Change the account's active status"
                                         value={isActive ? "true" : "false"}
                                         onChange={handleEditInputChange}
                                     >
@@ -1524,6 +1594,7 @@ const Accounts = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Submit changes made to the account"
                                     onClick={handleChangeIsActive}
                                 >
                                     Save Changes
@@ -1548,6 +1619,7 @@ const Accounts = () => {
                                         type="text"
                                         id="newAccountName"
                                         name="newAccountName"
+                                        title="Give the account a unique name"
                                         value={newAccountName}
                                         onChange={handleNewInputChange}
                                         placeholder="Account Name"
@@ -1559,6 +1631,7 @@ const Accounts = () => {
                                         type="text"
                                         id="newAccountDescription"
                                         name="newAccountDescription"
+                                        title="Give the account a description"
                                         value={newAccountDescription}
                                         onChange={handleNewInputChange}
                                         placeholder="Account Description"
@@ -1569,6 +1642,7 @@ const Accounts = () => {
                                     <select
                                         id="newAccountCatagory"
                                         name="newAccountCatagory"
+                                        title="Select an account category"
                                         value={newAccountCatagory}
                                         onChange={handleAccountType}
                                     >
@@ -1610,6 +1684,7 @@ const Accounts = () => {
                                     <select
                                         id="newAccountSubcatagory"
                                         name="newAccountSubcatagory"
+                                        title="Select an account subcategory, if applicable"
                                         value={newAccountSubcatagory}
                                         onChange={handleNewInputChange}
                                         disabled={isNewSubcategoryDisabled}
@@ -1627,6 +1702,7 @@ const Accounts = () => {
                                         type="tel"
                                         id="newDebit"
                                         name="newDebit"
+                                        title="Give the account an initial debit total"
                                         value={newDebit}
                                         onChange={handleNewDebitChange}
                                         placeholder="0.00"
@@ -1640,6 +1716,7 @@ const Accounts = () => {
                                         type="tel"
                                         id="newCredit"
                                         name="newCredit"
+                                        title="Give the account an initial credit total"
                                         value={newCredit}
                                         onChange={handleNewCreditChange}
                                         placeholder="0.00"
@@ -1675,6 +1752,7 @@ const Accounts = () => {
                                         type="text"
                                         id="newOrder"
                                         name="newOrder"
+                                        title="Give the account an order"
                                         value={newOrder}
                                         onChange={handleNewInputChange}
                                         placeholder="Order"
@@ -1686,6 +1764,7 @@ const Accounts = () => {
                                     <select
                                         id="newStatement"
                                         name="newStatement"
+                                        title="Select a statement for the account"
                                         value={newStatement}
                                         onChange={handleNewInputChange}
                                         disabled={isDisabled2}
@@ -1704,6 +1783,7 @@ const Accounts = () => {
                                         type="text"
                                         id="newComment"
                                         name="newComment"
+                                        title="Give the account a comment"
                                         value={newComment}
                                         onChange={handleNewInputChange}
                                         placeholder="Comment"
@@ -1715,6 +1795,7 @@ const Accounts = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Submit details for account creation"
                                     onClick={handleAddNewAccount}
                                     disabled={isAddNewDisabled}
                                 >

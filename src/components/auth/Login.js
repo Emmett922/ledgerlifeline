@@ -264,6 +264,7 @@ const Login = () => {
                             type="text"
                             id="username"
                             name="username"
+                            title="Enter username"
                             value={username}
                             onChange={handleInputChange}
                             required
@@ -276,6 +277,7 @@ const Login = () => {
                             type="password"
                             id="password"
                             name="password"
+                            title="Enter password"
                             value={password}
                             onChange={handleInputChange}
                             required
@@ -284,17 +286,17 @@ const Login = () => {
                         <label htmlFor="password">Password</label>
                     </div>
                     <div className="login-forgot">
-                        <button type="submit" className="submit-btn" disabled={isButtonDisabled}>
+                        <button type="submit" className="submit-btn" title="Login to application" disabled={isButtonDisabled}>
                             Login
                         </button>
-                        <Link className="forgot" to="forgot-password">
+                        <Link className="forgot" to="forgot-password" title="Change password">
                             Forgot Password?
                         </Link>
                     </div>
                 </form>
             </div>
             <div className="actions">
-                <Link className="register-link" to="register">
+                <Link className="register-link" title="Create a new user request" to="register">
                     <p>New User</p>
                 </Link>
             </div>

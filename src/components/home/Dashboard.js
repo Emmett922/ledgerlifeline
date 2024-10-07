@@ -114,23 +114,34 @@ const Dashboard = () => {
                         />
                     </div>
                     <ul className="sidebar-btns">
-                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                        <Link
+                            className="sidebar-button"
+                            id="dashboard-link"
+                            title="Dashboard page link"
+                            to="dashboard"
+                        >
                             Dashboard
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="chart-of-accounts-link"
+                            title="Chart of Accounts page link"
                             to="/chart-of-accounts"
                         >
                             Chart of Accounts
                         </Link>
-                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="accounts-link"
+                            title="Accounts page link"
+                            to="/accounts"
+                        >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="users-link" to="/users">
+                        <Link className="sidebar-button" id="users-link" title="Users page link" to="/users">
                             Users
                         </Link>
-                        <Link className="sidebar-button" id="event-log-link" to="/event-logs">
+                        <Link className="sidebar-button" id="event-log-link" title="Event Logs page link" to="/event-logs">
                             Event Logs
                         </Link>
                     </ul>
@@ -148,25 +159,40 @@ const Dashboard = () => {
                         />
                     </div>
                     <ul className="sidebar-btns">
-                        <Link className="sidebar-button" id="dashboard-link" to="dashboard">
+                        <Link
+                            className="sidebar-button"
+                            id="dashboard-link"
+                            title="Dashboard page link"
+                            to="dashboard"
+                        >
                             Dashboard
                         </Link>
-                        <Link className="sidebar-button" id="chart-of-accounts-link" to="/chart-of-accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="chart-of-accounts-link"
+                            title="Chart of Accounts page link"
+                            to="/chart-of-accounts"
+                        >
                             Chart of Accounts
                         </Link>
-                        <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                        <Link
+                            className="sidebar-button"
+                            id="accounts-link"
+                            title="Accounts page link"
+                            to="/accounts"
+                        >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="journalize-link">
+                        <Link className="sidebar-button" id="journalize-link" title="Journalize page link">
                             Journalize
                         </Link>
-                        <Link className="sidebar-button" id="income-statement-link">
+                        <Link className="sidebar-button" id="income-statement-link" title="Income Statement page link">
                             Income Statement
                         </Link>
-                        <Link className="sidebar-button" id="balance-sheet-link">
+                        <Link className="sidebar-button" id="balance-sheet-link" title="Balance Sheet page link">
                             Balance Sheet
                         </Link>
-                        <Link className="sidebar-button" id="retained-earnings-link">
+                        <Link className="sidebar-button" id="retained-earnings-link" title="Statement of Retained Earnings page link">
                             Statement of Retained Earnings
                         </Link>
                     </ul>
@@ -183,7 +209,7 @@ const Dashboard = () => {
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{username}</span>
                         <a>
-                            <button className="action-button1" onClick={handleLogout}>
+                            <button className="action-button1" title="Logout of Application" onClick={handleLogout}>
                                 Logout
                             </button>
                         </a>

@@ -272,6 +272,7 @@ const Register = () => {
                                 type="text"
                                 id="firstName"
                                 name="firstName"
+                                title="Enter your first name"
                                 value={firstName}
                                 onChange={handleInputChange}
                                 required
@@ -284,6 +285,7 @@ const Register = () => {
                                 type="text"
                                 id="lastName"
                                 name="lastName"
+                                title="Enter your last name"
                                 value={lastName}
                                 onChange={handleInputChange}
                                 required
@@ -297,6 +299,7 @@ const Register = () => {
                                     type="text"
                                     id="street"
                                     name="street"
+                                    title="Enter the street of your address"
                                     value={street}
                                     onChange={handleInputChange}
                                     required
@@ -308,6 +311,7 @@ const Register = () => {
                                     type="text"
                                     id="city"
                                     name="city"
+                                    title="Enter the city of your address"
                                     value={city}
                                     onChange={handleInputChange}
                                     required
@@ -318,6 +322,7 @@ const Register = () => {
                                 <Select
                                     id="state"
                                     name="state"
+                                    title="Select the state of your address"
                                     value={state}
                                     onChange={handleStateChange}
                                     options={stateOptions}
@@ -331,6 +336,7 @@ const Register = () => {
                                     type="text"
                                     id="postalCode"
                                     name="postalCode"
+                                    title="Enter the postal code of your address"
                                     value={postalCode}
                                     onChange={handleInputChange}
                                     required
@@ -344,6 +350,7 @@ const Register = () => {
                                 type="date"
                                 id="dob"
                                 name="dob"
+                                title="Enter your date of birth"
                                 value={dob}
                                 onChange={handleInputChange}
                                 required
@@ -355,6 +362,7 @@ const Register = () => {
                                 type="text"
                                 id="email"
                                 name="email"
+                                title="Enter your email"
                                 value={email}
                                 onChange={handleInputChange}
                                 required
@@ -367,6 +375,7 @@ const Register = () => {
                                 type="password"
                                 id="password"
                                 name="password"
+                                title="Enter a strong password"
                                 value={password}
                                 onChange={handleInputChange}
                                 required
@@ -405,6 +414,7 @@ const Register = () => {
                                 type="password"
                                 id="confirmPassword"
                                 name="confirmPassword"
+                                title="Confirm the entered password"
                                 value={confirmPassword}
                                 onChange={handleInputChange}
                                 onFocus={(event) => event.target.select()} // Selects entire value of field on focus
@@ -432,6 +442,7 @@ const Register = () => {
                             <Select
                                 id="securityQuestion"
                                 name="securityQuestion"
+                                title="Select a security question"
                                 value={securityQuestion}
                                 onChange={handleSecurityQuestionChange}
                                 options={securityQuestionOptions}
@@ -446,6 +457,7 @@ const Register = () => {
                                     type="text"
                                     id="securityAnswer"
                                     name="securityAnswer"
+                                    title="Enter an answer to your chosen security question"
                                     value={securityAnswer}
                                     onChange={handleInputChange}
                                     required
@@ -456,6 +468,7 @@ const Register = () => {
                         <button
                             type="submit"
                             className="register-submit-btn"
+                            title="Submit user creation details"
                             disabled={isButtonDisabled}
                         >
                             Submit

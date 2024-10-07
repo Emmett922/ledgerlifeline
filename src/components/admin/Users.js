@@ -170,17 +170,6 @@ const Users = () => {
         }
     }, [API_URL]);
 
-    // Handle the switch between tables
-    const handleChangeTable = (event) => {
-        if (userTable === 1) {
-            setUserTable(2);
-            event.target.innerHTML = "Back";
-        } else {
-            setUserTable(1);
-            event.target.innerHTML = "Requests";
-        }
-    };
-
     // Function specifically handling state change
     const handleStateChange = (selectedOption) => {
         setState(selectedOption);
@@ -601,23 +590,24 @@ const Users = () => {
                     <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
                 </div>
                 <ul className="sidebar-btns">
-                    <Link className="sidebar-button" id="dashboard-link" to="/dashboard">
+                    <Link className="sidebar-button" id="dashboard-link" title="Dashboard page link" to="/dashboard">
                         Dashboard
                     </Link>
                     <Link
                         className="sidebar-button"
                         id="chart-of-accounts-link"
+                        title="Chart of Accounts page link"
                         to="/chart-of-accounts"
                     >
                         Chart of Accounts
                     </Link>
-                    <Link className="sidebar-button" id="accounts-link" to="/accounts">
+                    <Link className="sidebar-button" id="accounts-link" title="Accounts page link" to="/accounts">
                         Accounts
                     </Link>
-                    <Link className="sidebar-button" id="users-link" to="/users">
+                    <Link className="sidebar-button" id="users-link" title="Users page link" to="/users">
                         Users
                     </Link>
-                    <Link className="sidebar-button" id="event-log-link" to="/event-logs">
+                    <Link className="sidebar-button" id="event-log-link" title="Event Logs page link" to="/event-logs">
                         Event Logs
                     </Link>
                 </ul>
@@ -627,7 +617,7 @@ const Users = () => {
                 <header className="header">
                     <div className="header-main">
                         <h1 className="header-title">Users</h1>
-                        <Link className="action-button1" to="/register">
+                        <Link className="action-button1" title="Add a new user" to="/register">
                             + Add User
                         </Link>
                         {/*<button
@@ -637,7 +627,7 @@ const Users = () => {
                             <FontAwesomeIcon icon={faEnvelope} size="lg" /> Email All
                         </button>*/}
                         <button
-                            className="action-button1"
+                            className="action-button1" title="View the expired passwords of all users"
                             onClick={() => setIsExpiredPasswordsVisible(true)}
                         >
                             View Expired Passwords
@@ -647,7 +637,7 @@ const Users = () => {
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
                         <a>
-                            <button className="action-button1" onClick={handleLogout}>
+                            <button className="action-button1" title="Logout of Application" onClick={handleLogout}>
                                 Logout
                             </button>
                         </a>
@@ -673,6 +663,7 @@ const Users = () => {
                                         <td id="username">
                                             <button
                                                 className="link-button"
+                                                title="Edit user details"
                                                 onClick={() => {
                                                     setSelectedUser(user);
                                                     setActive(user.active);
@@ -735,6 +726,7 @@ const Users = () => {
                                             <button
                                                 className="action-button1"
                                                 id="single-email"
+                                                title="Email user"
                                                 onClick={() => {
                                                     setSelectedUser(user);
                                                     setIsEmailUserVisible(true);
@@ -747,6 +739,7 @@ const Users = () => {
                                         <td>
                                             <Link
                                                 className="user-role-link"
+                                                title="Change user's role"
                                                 onClick={() => {
                                                     setSelectedUser(user);
                                                     setRole(user.role);
@@ -759,6 +752,7 @@ const Users = () => {
                                         <td>
                                             <Link
                                                 className="user-active-link"
+                                                title="Change user's active status"
                                                 onClick={() => {
                                                     setSelectedUser(user);
                                                     setActive(user.active);
@@ -773,47 +767,12 @@ const Users = () => {
                         </tbody>
                     </table>
                 )}
-                {/* User Creation Request Table */}
-                {userTable === 2 && (
-                    <table className="user-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Employee</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userArray
-                                .filter((user) => user.role === "Employee")
-                                .map((user, index) => (
-                                    <tr key={index}>
-                                        <td id="username">
-                                            <button
-                                                className="link-button"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setIsEditUserVisible(true);
-                                                }}
-                                            >
-                                                {user.username}
-                                            </button>
-                                        </td>
-                                        <td>{`${user.first_name} ${user.last_name}`}</td>
-                                        <td>{user.role}</td>
-                                        <td>{user.active ? "Active" : "Inactive"}</td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                )}
 
                 {/* Edit User Modal */}
                 {isEditUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" onClick={() => setIsEditUserVisible(false)}>
+                            <span className="close" title="Close modal" onClick={() => setIsEditUserVisible(false)}>
                                 &times;
                             </span>
                             <h2>Edit User</h2>
@@ -824,6 +783,7 @@ const Users = () => {
                                         type="text"
                                         id="firstName"
                                         name="firstName"
+                                        title="Edit user's first name"
                                         value={firstName}
                                         onChange={handleInputChange}
                                         placeholder="Firt Name"
@@ -835,6 +795,7 @@ const Users = () => {
                                         type="text"
                                         id="lastName"
                                         name="lastName"
+                                        title="Edit user's last name"
                                         value={lastName}
                                         onChange={handleInputChange}
                                         placeholder="Last Name"
@@ -846,6 +807,7 @@ const Users = () => {
                                         type="text"
                                         id="street"
                                         name="street"
+                                        title="Edit user's street address"
                                         value={street}
                                         onChange={handleInputChange}
                                         placeholder="Street"
@@ -854,6 +816,7 @@ const Users = () => {
                                         type="text"
                                         id="city"
                                         name="city"
+                                        title="Edit user's city address"
                                         value={city}
                                         onChange={handleInputChange}
                                         placeholder="City"
@@ -862,6 +825,7 @@ const Users = () => {
                                         className="state-select"
                                         id="state"
                                         name="state"
+                                        title="Select user's state address"
                                         value={stateOptions.find(
                                             (option) => option.value === state
                                         )}
@@ -874,6 +838,7 @@ const Users = () => {
                                         type="text"
                                         id="postalCode"
                                         name="postalCode"
+                                        title="Edit user's postal code"
                                         value={postalCode}
                                         onChange={handleInputChange}
                                         placeholder="Postal/Zip Code"
@@ -885,6 +850,7 @@ const Users = () => {
                                         type="date"
                                         id="dob"
                                         name="dob"
+                                        title="Edit user's date of birth"
                                         value={dob}
                                         onChange={handleInputChange}
                                     />
@@ -895,6 +861,7 @@ const Users = () => {
                                         type="email"
                                         id="email"
                                         name="email"
+                                        title="Edit user's email"
                                         value={email}
                                         onChange={handleInputChange}
                                         placeholder="Email"
@@ -905,6 +872,7 @@ const Users = () => {
                                     <Select
                                         id="securityQuestion"
                                         name="securityQuestion"
+                                        title="Select user's security question"
                                         value={securityQuestionOptions.find(
                                             (option) => option.value === question
                                         )}
@@ -919,6 +887,7 @@ const Users = () => {
                                         type="text"
                                         id="secuirtyAnswer"
                                         name="securityAnswer"
+                                        title="Edit user's security answer"
                                         value={securityAnswer}
                                         onChange={handleInputChange}
                                         placeholder="Answer"
@@ -929,6 +898,7 @@ const Users = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Save changes made to user's details"
                                     onClick={handleEditUser}
                                 >
                                     Save Changes
@@ -936,6 +906,7 @@ const Users = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Select suspension date(s) for user"
                                     onClick={() => setIsSuspendUserVisible(true)}
                                 >
                                     Suspend User
@@ -949,7 +920,7 @@ const Users = () => {
                 {isEditUserRoleVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" onClick={() => setIsEditUserRoleVisible(false)}>
+                            <span className="close" title="Close modal" onClick={() => setIsEditUserRoleVisible(false)}>
                                 &times;
                             </span>
                             <h2>Edit User's Role</h2>
@@ -965,6 +936,7 @@ const Users = () => {
                                     <select
                                         id="role"
                                         name="role"
+                                        title="Select user's role"
                                         value={role}
                                         onChange={handleInputChange}
                                         defaultValue={
@@ -986,6 +958,7 @@ const Users = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Save changes made to user's role"
                                     onClick={handleChangeRole}
                                 >
                                     Save Changes
@@ -1001,6 +974,7 @@ const Users = () => {
                         <div className="modal-content">
                             <span
                                 className="close"
+                                title="Close modal"
                                 onClick={() => setIsEditUserActiveVisible(false)}
                             >
                                 &times;
@@ -1018,6 +992,7 @@ const Users = () => {
                                     <select
                                         id="active"
                                         name="active"
+                                        title="Select user's active status"
                                         value={active ? "true" : "false"}
                                         onChange={handleInputChange}
                                     >
@@ -1033,6 +1008,7 @@ const Users = () => {
                                 <button
                                     type="button"
                                     className="action-button2"
+                                    title="Save changes made to user's active status"
                                     onClick={handleChangeActive}
                                 >
                                     Save Changes
@@ -1046,7 +1022,7 @@ const Users = () => {
                 {isSuspendUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" onClick={() => setIsSuspendUserVisible(false)}>
+                            <span className="close" title="Close modal" onClick={() => setIsSuspendUserVisible(false)}>
                                 &times;
                             </span>
                             <h2>Suspend User</h2>
@@ -1057,6 +1033,7 @@ const Users = () => {
                                         type="date"
                                         id="start-date"
                                         name="start-date"
+                                        title="User suspension start date"
                                         value={startDate}
                                         onChange={handleInputChange}
                                     />
@@ -1067,6 +1044,7 @@ const Users = () => {
                                         type="date"
                                         id="end-date"
                                         name="end-date"
+                                        title="User suspension end date"
                                         value={endDate}
                                         onChange={handleInputChange}
                                     />
@@ -1075,6 +1053,7 @@ const Users = () => {
                                     <button
                                         type="button"
                                         className="action-button1"
+                                        title="Submit user suspension"
                                         onClick={handleUserSuspension}
                                         disabled={isSuspendedBtnsDisabled}
                                     >
@@ -1083,6 +1062,7 @@ const Users = () => {
                                     <button
                                         type="button"
                                         className="action-button1"
+                                        title="Remove user suspension"
                                         onClick={disableSuspension}
                                         disabled={isSuspendedBtnsDisabled}
                                     >
@@ -1100,6 +1080,7 @@ const Users = () => {
                         <div className="modal-expired-content">
                             <span
                                 className="close"
+                                title="Close modal"
                                 onClick={() => setIsExpiredPasswordsVisible(false)}
                             >
                                 &times;
@@ -1153,7 +1134,7 @@ const Users = () => {
                 {isEmailUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" onClick={() => setIsEmailUserVisible(false)}>
+                            <span className="close" title="Close modal" onClick={() => setIsEmailUserVisible(false)}>
                                 &times;
                             </span>
                             <h2>
@@ -1166,6 +1147,7 @@ const Users = () => {
                                         type="text"
                                         id="emailSubject"
                                         name="emailSubject"
+                                        title="Give email a subject"
                                         placeholder="Enter the subject"
                                         value={emailSubject}
                                         onChange={(e) => setEmailSubject(e.target.value)}
@@ -1177,6 +1159,7 @@ const Users = () => {
                                     <textarea
                                         id="emailMessage"
                                         name="emailMessage"
+                                        title="Enter an email message"
                                         placeholder="Enter your message"
                                         value={emailMessage}
                                         onChange={(e) => setEmailMessage(e.target.value)}
@@ -1184,12 +1167,13 @@ const Users = () => {
                                     ></textarea>
                                 </div>
                                 <div className="modal-btns">
-                                    <button type="submit" className="send-button">
+                                    <button type="submit" title="Send email to user" className="send-button">
                                         Send Email
                                     </button>
                                     <button
                                         type="button"
                                         className="cancel-button"
+                                        title="Cancel email draft"
                                         onClick={() => setIsEmailUserVisible(false)}
                                     >
                                         Cancel
@@ -1204,7 +1188,7 @@ const Users = () => {
                 {isEmailAllVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" onClick={() => setIsEmailAllVisible(false)}>
+                            <span className="close" title="Close modal" onClick={() => setIsEmailAllVisible(false)}>
                                 &times;
                             </span>
                             <h2>Send Email to All Users</h2>

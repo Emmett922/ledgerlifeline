@@ -149,6 +149,7 @@ const AcceptRequest = () => {
                             <select
                                 id="role"
                                 name="role"
+                                title="Select a role for the user"
                                 value={role}
                                 onChange={handleInputChange}
                                 required
@@ -164,6 +165,7 @@ const AcceptRequest = () => {
                         <button
                             type="submit"
                             className="form-submit-btn"
+                            title="Submit user request acception"
                             disabled={isButtonDisabled}
                         >
                             Accept
@@ -180,7 +182,7 @@ const AcceptRequest = () => {
                         <div className="request-form-subtitle">
                             <p>Click below to return to the app</p>
                         </div>
-                        <Link type="submit" className="form-submit-btn" to="/dashboard">
+                        <Link type="submit" className="form-submit-btn" title="Return to the application" to="/dashboard">
                             Return
                         </Link>
                     </form>
