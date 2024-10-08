@@ -3,11 +3,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Calendar from "react-calendar";
+import Calculator from "../calc/Calculator";
+import Draggable from "react-draggable";
+import "react-calendar/dist/Calendar.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import "./styles/Dashboard.css";
 
 const Dashboard = () => {
     const [username, setUserName] = useState("");
     const [userRole, setUserRole] = useState("");
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [showCalculator, setShowCalculator] = useState(false);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -95,6 +104,14 @@ const Dashboard = () => {
         };
     }, [navigate]);
 
+    const toggleCalendar = () => {
+        setShowCalendar(!showCalendar);
+    };
+
+    const toggleCalculator = () => {
+        setShowCalculator(!showCalculator);
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user"); // Clear user data
         navigate("/"); // Redirect to login
@@ -137,21 +154,26 @@ const Dashboard = () => {
                         >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="users-link" title="Users page link" to="/users">
+                        <Link
+                            className="sidebar-button"
+                            id="users-link"
+                            title="Users page link"
+                            to="/users"
+                        >
                             Users
                         </Link>
-                        <Link className="sidebar-button" id="event-log-link" title="Event Logs page link" to="/event-logs">
+                        <Link
+                            className="sidebar-button"
+                            id="event-log-link"
+                            title="Event Logs page link"
+                            to="/event-logs"
+                        >
                             Event Logs
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="Question mark button"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="Question mark button" />
                         </Link>
                     </div>
                 </aside>
@@ -191,27 +213,38 @@ const Dashboard = () => {
                         >
                             Accounts
                         </Link>
-                        <Link className="sidebar-button" id="journalize-link" title="Journalize page link">
+                        <Link
+                            className="sidebar-button"
+                            id="journalize-link"
+                            title="Journalize page link"
+                        >
                             Journalize
                         </Link>
-                        <Link className="sidebar-button" id="income-statement-link" title="Income Statement page link">
+                        <Link
+                            className="sidebar-button"
+                            id="income-statement-link"
+                            title="Income Statement page link"
+                        >
                             Income Statement
                         </Link>
-                        <Link className="sidebar-button" id="balance-sheet-link" title="Balance Sheet page link">
+                        <Link
+                            className="sidebar-button"
+                            id="balance-sheet-link"
+                            title="Balance Sheet page link"
+                        >
                             Balance Sheet
                         </Link>
-                        <Link className="sidebar-button" id="retained-earnings-link" title="Statement of Retained Earnings page link">
+                        <Link
+                            className="sidebar-button"
+                            id="retained-earnings-link"
+                            title="Statement of Retained Earnings page link"
+                        >
                             Statement of Retained Earnings
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="Question mark button"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="Question mark button" />
                         </Link>
                     </div>
                 </aside>
@@ -220,14 +253,76 @@ const Dashboard = () => {
             {/* Main dashboard content */}
             <main className="main-content">
                 <header className="header">
-                    <div className="header-main">
-                        <h1 className="header-title">Dashboard</h1>
-                    </div>
+                    {/* Main content header-main for admin and manager users */}
+                    {(userRole === "Admin" || userRole === "Manager") && (
+                        <div className="header-main">
+                            <h1 className="header-title">Dashboard</h1>
+                        </div>
+                    )}
+
+                    {/* Main content header-main for accountant users */}
+                    {userRole === "Accountant" && (
+                        <div className="header-main">
+                            <h1 className="header-title accountant">Dashboard</h1>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Draggable Calendar pop-up */}
+                    {showCalendar && (
+                        <Draggable>
+                            <div
+                                className="calendar-popup"
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 1000,
+                                    padding: "10px",
+                                    backgroundColor: "white",
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                                }}
+                            >
+                                <Calendar />
+                            </div>
+                        </Draggable>
+                    )}
+
+                    {/* Draggable Calculator pop-up */}
+                    {showCalculator && (
+                        <div
+                            className="calculator-popup"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1000,
+                            }}
+                        >
+                            <Calculator />
+                        </div>
+                    )}
+
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{username}</span>
                         <a>
-                            <button className="action-button1" title="Logout of Application" onClick={handleLogout}>
+                            <button
+                                className="action-button1"
+                                title="Logout of Application"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </button>
                         </a>

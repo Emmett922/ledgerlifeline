@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import Calendar from "react-calendar";
+import Calculator from "../calc/Calculator";
+import Draggable from "react-draggable";
+import "react-calendar/dist/Calendar.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import "react-toastify/dist/ReactToastify.css";
 
 const AccountLedger = () => {
@@ -54,6 +61,8 @@ const AccountLedger = () => {
     const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
     const [maxBalance, setMaxBalance] = useState("0.00");
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [showCalculator, setShowCalculator] = useState(false);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -525,6 +534,14 @@ const AccountLedger = () => {
 
     const filteredAccounts = handleSearch(searchQuery);
 
+    const toggleCalendar = () => {
+        setShowCalendar(!showCalendar);
+    };
+
+    const toggleCalculator = () => {
+        setShowCalculator(!showCalculator);
+    };
+
     const content = (
         <section className="account">
             <ToastContainer />
@@ -581,13 +598,8 @@ const AccountLedger = () => {
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
                         </Link>
                     </div>
                 </aside>
@@ -658,13 +670,8 @@ const AccountLedger = () => {
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
                         </Link>
                     </div>
                 </aside>
@@ -673,17 +680,65 @@ const AccountLedger = () => {
             <main className="main-content">
                 <header className="header">
                     {/* Main heading for admin users to allow new account creation */}
-                    {storedUserRole === "Admin" && (
+                    {(storedUserRole === "Admin" || storedUserRole === "Manager") && (
                         <div className="header-main">
                             <h1 className="header-title">Ledger</h1>
                         </div>
                     )}
                     {/* Default main heading */}
-                    {(storedUserRole === "Manager" || storedUserRole === "Accountant") && (
+                    {storedUserRole === "Accountant" && (
                         <div className="header-main">
                             <h1 className="header-title">Ledger</h1>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
                         </div>
                     )}
+
+                    {/* Draggable Calendar pop-up */}
+                    {showCalendar && (
+                        <Draggable>
+                            <div
+                                className="calendar-popup"
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 1000,
+                                    padding: "10px",
+                                    backgroundColor: "white",
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                                }}
+                            >
+                                <Calendar />
+                            </div>
+                        </Draggable>
+                    )}
+
+                    {/* Draggable Calculator pop-up */}
+                    {showCalculator && (
+                        <div
+                            className="calculator-popup"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1000,
+                            }}
+                        >
+                            <Calculator />
+                        </div>
+                    )}
+
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
@@ -727,8 +782,12 @@ const AccountLedger = () => {
                         {/* Calculate total balance */}
                         {filteredAccounts.length > 0 && (
                             <tr>
-                                <td colSpan={6} style={{ textAlign: 'right', fontWeight: 'bold'}}>
-                                    {`$${formatWithCommas(filteredAccounts.reduce((total, account) => total + account.balance, 0).toFixed(2))}`}
+                                <td colSpan={6} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .reduce((total, account) => total + account.balance, 0)
+                                            .toFixed(2)
+                                    )}`}
                                 </td>
                             </tr>
                         )}
@@ -736,17 +795,24 @@ const AccountLedger = () => {
                             .filter((account) => account.accountNumber)
                             .map((account, index) => (
                                 <tr key={index}>
-                                    <td>{new Date(account.createdAt).toLocaleDateString('en-US')}</td> {/* Date the transaction Took place */}
+                                    <td>
+                                        {new Date(account.createdAt).toLocaleDateString("en-US")}
+                                    </td>{" "}
+                                    {/* Date the transaction Took place */}
                                     <td>{index + 1}</td> {/* This will increment per row */}
                                     <td>{account.accountDescription}</td> {/* Comments */}
-                                    <td>{account.debit !== 0 && account.debit !== account.credit
-                                        ? `$${formatWithCommas(account.balance.toFixed(2))}`
-                                        : ''}
-                                     </td> {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>{account.credit !== 0 && account.credit !== account.debit
-                                        ? `$${formatWithCommas(account.balance.toFixed(2))}`
-                                        : ''}
-                                    </td> {/* Show blank if credit is 0 or credit equals debit */}
+                                    <td>
+                                        {account.debit !== 0 && account.debit !== account.credit
+                                            ? `$${formatWithCommas(account.balance.toFixed(2))}`
+                                            : ""}
+                                    </td>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {account.credit !== 0 && account.credit !== account.debit
+                                            ? `$${formatWithCommas(account.balance.toFixed(2))}`
+                                            : ""}
+                                    </td>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
                                     <td>
                                         {account.balance
                                             ? `$${formatWithCommas(account.balance.toFixed(2))}`
@@ -759,21 +825,21 @@ const AccountLedger = () => {
                 </table>
                 <div className="back-btn">
                     <Link
-                            type="button"
-                            id="accounts-link"
-                            title="Accounts Page Link"
-                            to="/accounts"
-                            style={{
-                                textDecoration: 'none',
-                                color: 'white',
-                                backgroundColor: '#007bff',
-                                padding: '10px 20px',
-                                borderRadius: '5px',
-                                fontWeight: 'lighter',
-                            }}
-                        >
-                            Back to Accounts
-                        </Link>
+                        type="button"
+                        id="accounts-link"
+                        title="Accounts Page Link"
+                        to="/accounts"
+                        style={{
+                            textDecoration: "none",
+                            color: "white",
+                            backgroundColor: "#007bff",
+                            padding: "10px 20px",
+                            borderRadius: "5px",
+                            fontWeight: "lighter",
+                        }}
+                    >
+                        Back to Accounts
+                    </Link>
                 </div>
             </main>
         </section>

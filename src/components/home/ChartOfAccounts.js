@@ -4,6 +4,13 @@ import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Calendar from "react-calendar";
+import Calculator from "../calc/Calculator";
+import Draggable from "react-draggable";
+import "react-calendar/dist/Calendar.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 
 const Accounts = () => {
     // Function variables
@@ -54,6 +61,8 @@ const Accounts = () => {
     const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
     const [maxBalance, setMaxBalance] = useState("0.00");
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [showCalculator, setShowCalculator] = useState(false);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -668,6 +677,14 @@ const Accounts = () => {
 
     const filteredAccounts = handleSearch(searchQuery);
 
+    const toggleCalendar = () => {
+        setShowCalendar(!showCalendar);
+    };
+
+    const toggleCalculator = () => {
+        setShowCalculator(!showCalculator);
+    };
+
     const content = (
         <section className="chartOfAccount">
             <ToastContainer />
@@ -724,13 +741,8 @@ const Accounts = () => {
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
                         </Link>
                     </div>
                 </aside>
@@ -801,13 +813,8 @@ const Accounts = () => {
                         </Link>
                     </ul>
                     <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
                         </Link>
                     </div>
                 </aside>
@@ -829,11 +836,65 @@ const Accounts = () => {
                         </div>
                     )}
                     {/* Default main heading */}
-                    {(storedUserRole === "Manager" || storedUserRole === "Accountant") && (
+                    {storedUserRole === "Manager" && (
                         <div className="header-main">
                             <h1 className="header-title">Chart of Accounts</h1>
                         </div>
                     )}
+                    {/* Main content header-main for accountant users */}
+                    {storedUserRole === "Accountant" && (
+                        <div className="header-main">
+                            <h1 className="header-title accountant">Chart of Accounts</h1>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Draggable Calendar pop-up */}
+                    {showCalendar && (
+                        <Draggable>
+                            <div
+                                className="calendar-popup"
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 1000,
+                                    padding: "10px",
+                                    backgroundColor: "white",
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                                }}
+                            >
+                                <Calendar />
+                            </div>
+                        </Draggable>
+                    )}
+
+                    {/* Draggable Calculator pop-up */}
+                    {showCalculator && (
+                        <div
+                            className="calculator-popup"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1000,
+                            }}
+                        >
+                            <Calculator />
+                        </div>
+                    )}
+
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>

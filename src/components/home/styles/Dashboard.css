@@ -13,7 +13,6 @@ body {
     background-position: center;
     background-attachment: fixed;
     padding: 10px;
-    overflow-y: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -158,6 +157,10 @@ body {
     font-size: 2em;
     display: flex;
     align-items: center;
+}
+
+.header-title.accountant {
+    margin-right: 1.5%;
 }
 
 .dashboard .Dashboard1 h1 {
