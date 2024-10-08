@@ -37,6 +37,10 @@ body {
     border-radius: 10px;
 }
 
+.sidebar-btns {
+    margin-left: -10.5%;
+}
+
 .sidebar-header {
     font-size: 1.5em;
     margin-bottom: 20px;
@@ -58,18 +62,18 @@ body {
 }
 
 .help-btn {
-    padding-top: 400px;
     display: flex; /* Enable flexbox for alignment */
-    justify-content: flex-end; /* Aligns content to the right */
-    align-items: flex-end; /* Aligns content to the bottom */
-    margin-top: auto; /* Pushes the help button to the bottom of the sidebar */
+    justify-content: center; /* Aligns content to the right */
+    text-align: center; /* Aligns content to the bottom */
+    margin-top: 10%; /* Pushes the help button to the bottom of the sidebar */
     padding: 10px; /* Adds padding around the image */
     height: 53%; /* Ensures the help button takes the full height available */
 }
 
 .pfp2 {
-    width: 30px;  /* Set a consistent width for profile picture */
-    height: 30px; /* Set a consistent height for profile picture */
+    position: relative;
+    width: 40px;  /* Set a consistent width for profile picture */
+    height: 40px; /* Set a consistent height for profile picture */
     border-radius: 50%; /* Make it circular */
 }
 

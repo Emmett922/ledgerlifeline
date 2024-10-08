@@ -118,7 +118,6 @@ const Dashboard = () => {
                             className="sidebar-button"
                             id="dashboard-link"
                             title="Dashboard page link"
-                            to="dashboard"
                         >
                             Dashboard
                         </Link>
@@ -152,7 +151,7 @@ const Dashboard = () => {
                             title="Help Page Link"
                             to="/help"
                         >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                            <img className="pfp2" src="/question2.png" alt="Question mark button"/>
                         </Link>
                     </div>
                 </aside>
@@ -173,7 +172,6 @@ const Dashboard = () => {
                             className="sidebar-button"
                             id="dashboard-link"
                             title="Dashboard page link"
-                            to="dashboard"
                         >
                             Dashboard
                         </Link>
@@ -213,7 +211,7 @@ const Dashboard = () => {
                             title="Help Page Link"
                             to="/help"
                         >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
+                            <img className="pfp2" src="/question2.png" alt="Question mark button"/>
                         </Link>
                     </div>
                 </aside>

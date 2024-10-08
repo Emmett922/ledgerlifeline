@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
@@ -750,7 +750,7 @@ const Accounts = () => {
                             className="sidebar-button"
                             id="dashboard-link"
                             title="Dashboard Page Link"
-                            to="dashboard"
+                            to="/dashboard"
                         >
                             Dashboard
                         </Link>
