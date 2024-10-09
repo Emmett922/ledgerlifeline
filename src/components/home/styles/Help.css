@@ -6,19 +6,6 @@
     font-family: 'Arial', sans-serif;
 }
 
-/* Page background and container */
-body {
-    background-image: linear-gradient(to bottom right, #283048, #859398);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-attachment: fixed;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-}
-
 /* Dashboard layout */
 .dashboard {
     display: flex;

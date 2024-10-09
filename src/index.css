@@ -16,6 +16,12 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0;
+    max-height: 100vh;
+}
+
+/* Override for the specific page */
+body.overflow-auto {
+  overflow-y: auto;
 }
 
 /* Center the header with absolute positioning */
@@ -61,10 +67,6 @@ body {
 .forgotPassword .logo,
 .register .logo {
   margin-top: -50px;
-}
-
-.register .logo {
-  margin-left: 643px;
 }
 
 .dashboard .logo,

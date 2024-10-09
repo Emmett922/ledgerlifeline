@@ -6,6 +6,7 @@ import "./style/Calculator.css"; // Create this CSS file for styling
 const Calculator = () => {
     const [expression, setExpression] = useState("");
     const [result, setResult] = useState(null);
+    const [isNewCalculation, setIsNewCalculation] = useState(false);
     const calculatorRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -43,9 +44,77 @@ const Calculator = () => {
             setExpression("");
             setResult(null);
         } else {
-            setExpression(expression + value);
+            if (isNewCalculation && /[+\-*/]/.test(value)) {
+                setExpression(result + value);
+                setIsNewCalculation(false);
+            } else if (isNewCalculation) {
+                setExpression(value);
+                setIsNewCalculation(false);
+            } else {
+                setExpression(expression + value);
+            }
         }
     };
+
+    const handleKeyPress = (e) => {
+        const validKeys = [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "+",
+            "-",
+            "*",
+            "/",
+            "Enter",
+            "c",
+            "Backspace",
+        ];
+        if (validKeys.includes(e.key)) {
+            if (e.key === "Enter") {
+                // Perform calculation
+                try {
+                    setResult(eval(expression));
+                    setExpression("");
+                } catch (error) {
+                    setResult("Error");
+                    setExpression("");
+                }
+            } else if (e.key === "c") {
+                // Clear the input
+                setExpression("");
+                setResult(null);
+            } else if (e.key === "Backspace") {
+                // Remove the last character
+                setExpression(expression.slice(0, -1));
+            } else {
+                if (isNewCalculation && /[+\-*/]/.test(e.key)) {
+                    setExpression(result + e.key);
+                    setIsNewCalculation(false);
+                } else if (isNewCalculation) {
+                    setExpression(e.key);
+                    setIsNewCalculation(false);
+                }
+                // Add the key to the expression
+                else {
+                    setExpression(expression + (e.key === "Enter" ? "" : e.key));
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("keydown", handleKeyPress);
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [expression, result, isNewCalculation]);
 
     useEffect(() => {
         document.addEventListener("mousemove", handleMouseMove);

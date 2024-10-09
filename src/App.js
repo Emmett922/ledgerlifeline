@@ -43,16 +43,22 @@ function App() {
                 document.title = "Chart of Accounts - Ledger Lifeline";
                 break;
             case "/event-logs":
-                document.title = "Event Logs - Ledger Lifeline"
+                document.title = "Event Logs - Ledger Lifeline";
                 break;
             case "/account-ledger":
-                document.title = "Account Ledger - Ledger Lifeline"
+                document.title = "Account Ledger - Ledger Lifeline";
                 break;
             case "/help":
-                document.title = "Help - Ledger Lifeline"
+                document.title = "Help - Ledger Lifeline";
                 break;
             default:
                 document.title = "Ledger Lifeline";
+        }
+
+        if (location.pathname === "/register") {
+            document.body.classList.add("overflow-auto");
+        } else {
+            document.body.classList.remove("overflow-auto");
         }
     }, [location.pathname]);
 
@@ -67,9 +73,9 @@ function App() {
                 <Route path="accept-request/:username" element={<AcceptRequest />} />
                 <Route path="accounts" element={<Accounts />} />
                 <Route path="chart-of-accounts" element={<ChartOfAccounts />} />
-                <Route path="event-logs" element={<EventLogs/>} />
-                <Route path="account-ledger" element={<AccountLedger/>} />
-                <Route path="help" element={<Help/>} />
+                <Route path="event-logs" element={<EventLogs />} />
+                <Route path="account-ledger" element={<AccountLedger />} />
+                <Route path="help" element={<Help />} />
             </Route>
         </Routes>
     );
