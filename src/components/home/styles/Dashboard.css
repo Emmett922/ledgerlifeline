@@ -98,7 +98,8 @@ body {
     font-weight: bold;
 }
 
-.sidebar-button {
+.sidebar-button,
+.account.ledger #accounts-link {
     display: block;
     width: 100%;
     padding: 10px;

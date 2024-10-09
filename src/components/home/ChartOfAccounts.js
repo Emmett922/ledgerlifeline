@@ -1067,9 +1067,8 @@ const Accounts = () => {
                                             type="button"
                                             className="action-button2"
                                             title="view account ledger"
-                                            to="/account-ledger"
                                             onClick={() => {
-                                                handleViewLedger(account.accountNumber)
+                                                handleViewLedger(account._id);
                                             }}
                                         >
                                             View Ledger
@@ -1276,6 +1275,14 @@ const Accounts = () => {
                                 >
                                     Edit
                                 </button>
+                                <Link
+                                    type="button"
+                                    className="action-button2"
+                                    title="view account ledger"
+                                    onClick={handleViewLedger(selectedAccount._id)}
+                                >
+                                    View Ledger
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -1474,7 +1481,7 @@ const Accounts = () => {
                                         type="button"
                                         className="action-button2"
                                         title="view account ledger"
-                                        to="/account-ledger"
+                                        onClick={handleViewLedger(selectedAccount._id)}
                                     >
                                         View Ledger
                                     </Link>

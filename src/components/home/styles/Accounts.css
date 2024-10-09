@@ -129,6 +129,14 @@ select:disabled {
     align-items: baseline;
 }
 
+.account-title {
+    font-size: 1.5em;
+    margin-bottom: 1%;
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: underline;
+}
+
 /* Table styles */
 .account .account-table,
 .chartOfAccount .account-table {
