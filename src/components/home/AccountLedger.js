@@ -18,6 +18,7 @@ const AccountLedger = () => {
     const [isEditAccountActiveVisible, setIsEditAccountActiveVisible] = useState(false);
     const [isAddAccountVisible, setIsAddAccountVisible] = useState(false);
     const [viewAccountDetails, setViewAccountDetails] = useState(false);
+    const [accountDetails, setAccountDetails] = useState(null);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [accountNumber, setAccountNumber] = useState("");
     const [newAccountNumber, setNewAccountNumber] = useState("");
@@ -88,6 +89,35 @@ const AccountLedger = () => {
             setStoredUserRole(storedUser.role);
         }
     });
+
+    useEffect(() => {
+        // Get the account ID from localStorage
+        const accountId = localStorage.getItem("account");
+
+        // If no account ID is found, redirect to chart of accounts
+        if (!accountId) {
+            navigate("/chart-of-accounts", { replace: true });
+            return;
+        }
+
+        // Fetch account details from the backend
+        const fetchAccountDetails = async () => {
+            try {
+                const response = await fetch(`/api/accounts/account-by-id?id=${accountId}`);
+                const data = await response.json();
+                setAccountDetails(data);
+            } catch (error) {
+                console.error("Error fetching account details:", error);
+            }
+        };
+
+        fetchAccountDetails();
+
+        if (accountDetails) {
+            setStoredUserName(accountDetails.accountName);
+        }
+        
+    }, [navigate]);
 
     // Fetch accounts from the database
     useEffect(() => {
@@ -682,7 +712,7 @@ const AccountLedger = () => {
                     {/* Main heading for admin users to allow new account creation */}
                     {(storedUserRole === "Admin" || storedUserRole === "Manager") && (
                         <div className="header-main">
-                            <h1 className="header-title">Ledger</h1>
+                            <h1 className="header-title">Ledger {accountDetails}</h1>
                         </div>
                     )}
                     {/* Default main heading */}
@@ -828,7 +858,10 @@ const AccountLedger = () => {
                         type="button"
                         id="accounts-link"
                         title="Accounts Page Link"
-                        to="/accounts"
+                        to="/chart-of-accounts"
+                        onClick={() => {
+                            localStorage.removeItem("account"); // Remove the account ID
+                        }}
                         style={{
                             textDecoration: "none",
                             color: "white",
@@ -838,7 +871,7 @@ const AccountLedger = () => {
                             fontWeight: "lighter",
                         }}
                     >
-                        Back to Accounts
+                        Back to Chart of Accounts
                     </Link>
                 </div>
             </main>
