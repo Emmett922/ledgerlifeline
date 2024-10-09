@@ -666,9 +666,9 @@ const Accounts = () => {
                         account.accountName.toLowerCase().includes(term) ||
                         account.accountCatagory.toLowerCase().includes(term) ||
                         account.accountSubcatagory.toLowerCase().includes(term) ||
-                        account.balance.toFixed(2).includes(term) ||
+                        (term === account.balance.toFixed(2)) || //account.balance.toFixed(2).includes(term) ||
                         account.accountDescription.toLowerCase().includes(term) ||
-                        isActiveStatus.includes(term)
+                        (term === isActiveStatus) // isActiveStatus.includes(term)
                 )
             );
         });
