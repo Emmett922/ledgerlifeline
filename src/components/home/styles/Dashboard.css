@@ -99,7 +99,8 @@ body {
 }
 
 .sidebar-button,
-.account.ledger #accounts-link {
+.account.ledger #accounts-link,
+.dashboard.help #dashboard-link {
     display: block;
     width: 100%;
     padding: 10px;
@@ -129,8 +130,10 @@ body {
 
 .sidebar-button:hover,
 .dashboard #dashboard-link,
+.dashboard.help #dashboard-link:hover,
 .users #users-link,
 .account #accounts-link,
+.account.ledger #accounts-link:hover,
 .chartOfAccount #chart-of-accounts-link,
 .eventLogs #event-log-link {
     background-color: #1c4a7c;

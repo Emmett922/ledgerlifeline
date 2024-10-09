@@ -194,12 +194,14 @@ const Help = () => {
                             <h1 className="header-title accountant">Application Information</h1>
                             <button
                                 onClick={toggleCalendar}
+                                title="Open/Close pop-up calendar"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
                                 onClick={toggleCalculator}
+                                title="Open/Close pop-up calculator"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />

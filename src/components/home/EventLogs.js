@@ -248,293 +248,270 @@ const EventLogs = () => {
                 return true;
             })();
 
-            return searchTerms.every(
-                (term) =>
-                    update.accountNumber.toString().includes(term) ||
-                    update.accountName.toLowerCase().includes(term)
+            return (
+                isWithinDateRange &&
+                searchTerms.every(
+                    (term) =>
+                        update.accountNumber.toString().includes(term) ||
+                        update.accountName.toLowerCase().includes(term)
+                )
             );
         });
     };
 
     const filteredAccounts = handleSearch1(searchQuery);
 
+    // Seach user updates function
+    const handleSearch2 = (query) => {
+        const searchString = query && typeof query === "string" ? query.toLowerCase() : "";
+
+        const searchTerms = searchString.split(/[\s,]+/);
+
+        return userUpdateArray.filter((update) => {
+            const userUpdatedDate = new Date(update.createdAt);
+            const userUpdateDateString = userUpdatedDate.toISOString().split("T")[0];
+
+            const fromDateString = fromDate ? new Date(fromDate).toISOString().split("T")[0] : null;
+            const toDateString = toDate ? new Date(toDate).toISOString().split("T")[0] : null;
+
+            const isWithinDateRange = (() => {
+                if (!fromDateString && !toDateString) return true;
+
+                if (fromDateString && toDateString) {
+                    // Include accounts created between fromDate and toDate (inclusive)
+                    return (
+                        userUpdateDateString >= fromDateString &&
+                        userUpdateDateString <= toDateString
+                    );
+                } else if (fromDateString) {
+                    // Include accounts created on or after fromDate
+                    return userUpdateDateString >= fromDateString;
+                } else if (toDateString) {
+                    // Include accounts created on or before toDate
+                    return userUpdateDateString <= toDateString;
+                }
+                return true;
+            })();
+
+            return (
+                isWithinDateRange &&
+                searchTerms.every((term) => update.username.toString().includes(term))
+            );
+        });
+    };
+
+    const filteredUsers = handleSearch2(searchQuery);
+
     // Function to render the changes made to an account
-    const renderAccountFieldChanges = (update, prevUpdate) => {
+    const renderAccountFieldChanges = (currUpdate, allUpdates) => {
         const changes = [];
 
-        // Compare accountNumber
-        if (update.accountNumber !== prevUpdate.accountNumber) {
-            changes.push({
-                field: "Account Number",
-                from: prevUpdate.accountNumber || "None",
-                to: update.accountNumber || "None",
-            });
+        // Log the current update and all updates
+        console.log("Current Update:", currUpdate);
+        console.log("All Updates:", allUpdates);
+
+        // Find the most recent previous update for the same account
+        const sortedUpdates = allUpdates
+            .filter((update) => update.account.toString() === currUpdate.account.toString()) // Same account only
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Oldest first
+
+        // Find the index of the current update in the sorted updates
+        const currUpdateIndex = sortedUpdates.findIndex((update) => update._id === currUpdate._id);
+
+        // Previous update will be the one just before the current one
+        const prevUpdate = currUpdateIndex > 0 ? sortedUpdates[currUpdateIndex - 1] : null;
+
+        console.log("Previous Update:", prevUpdate);
+
+        // If there's no previous update, treat it as a brand new account
+        if (!prevUpdate) {
+            // Use currUpdate fields directly or "None" if not defined
+            changes.push(
+                { field: "Account Number", from: "None", to: currUpdate.accountNumber || "None" },
+                { field: "Account Name", from: "None", to: currUpdate.accountName || "None" },
+                {
+                    field: "Account Description",
+                    from: "None",
+                    to: currUpdate.accountDescription || "None",
+                },
+                { field: "Normal Side", from: "None", to: currUpdate.normalSide || "None" },
+                {
+                    field: "Account Category",
+                    from: "None",
+                    to: currUpdate.accountCatagory || "None",
+                },
+                {
+                    field: "Account Subcategory",
+                    from: "None",
+                    to: currUpdate.accountSubCatagory || "None",
+                },
+                { field: "Account Balance", from: "None", to: currUpdate.balance || "None" },
+                { field: "Account Debit", from: "None", to: currUpdate.debit || "None" },
+                { field: "Account Credit", from: "None", to: currUpdate.credit || "None" },
+                { field: "Account Order", from: "None", to: currUpdate.order || "None" },
+                { field: "Account Statement", from: "None", to: currUpdate.statement || "None" },
+                { field: "Account Comment", from: "None", to: currUpdate.comment || "None" },
+                {
+                    field: "Account Active Status",
+                    from: "Inactive",
+                    to: currUpdate.isActive ? "Active" : "Inactive",
+                }
+            );
+        } else {
+            // If a previous update exists, compare each field
+            const compareField = (field, displayName) => {
+                const prevValue = prevUpdate[field] !== undefined ? prevUpdate[field] : "None"; // Default to "None"
+                const currValue = currUpdate[field] !== undefined ? currUpdate[field] : "None"; // Default to "None"
+
+                // Only add to changes if they differ
+                if (prevValue !== currValue) {
+                    changes.push({
+                        field: displayName,
+                        from: prevValue,
+                        to: currValue,
+                    });
+                }
+            };
+
+            // Compare fields
+            compareField("accountNumber", "Account Number");
+            compareField("accountName", "Account Name");
+            compareField("accountDescription", "Account Description");
+            compareField("normalSide", "Normal Side");
+            compareField("accountCatagory", "Account Category");
+            compareField("accountSubCatagory", "Account Subcategory");
+            compareField("balance", "Account Balance");
+            compareField("debit", "Account Debit");
+            compareField("credit", "Account Credit");
+            compareField("order", "Account Order");
+            compareField("statement", "Account Statement");
+            compareField("comment", "Account Comment");
+
+            // Special handling for isActive
+            const prevIsActive = prevUpdate.isActive !== undefined ? prevUpdate.isActive : false; // Previous isActive value
+            const currIsActive = currUpdate.isActive !== undefined ? currUpdate.isActive : false; // Current isActive value
+            if (prevIsActive !== currIsActive) {
+                changes.push({
+                    field: "Account Active Status",
+                    from: prevIsActive ? "Active" : "Inactive",
+                    to: currIsActive ? "Active" : "Inactive",
+                });
+            }
         }
 
-        // Compare accountName
-        if (update.accountName !== prevUpdate.accountName) {
-            changes.push({
-                field: "Account Name",
-                from: prevUpdate.accountName || "None",
-                to: update.accountName || "None",
-            });
-        }
-
-        // Compare accountDescription
-        if (update.accountDescription !== prevUpdate.accountDescription) {
-            changes.push({
-                field: "Account Description",
-                from: prevUpdate.accountDescription || "None",
-                to: update.accountDescription || "None",
-            });
-        }
-
-        // Compare normalSide
-        if (update.normalSide !== prevUpdate.normalSide) {
-            changes.push({
-                field: "Normal Side",
-                from: prevUpdate.normalSide || "None",
-                to: update.normalSide || "None",
-            });
-        }
-
-        // Compare accountCatagory
-        if (update.accountCatagory !== prevUpdate.accountCatagory) {
-            changes.push({
-                field: "Account Category",
-                from: prevUpdate.accountCatagory || "None",
-                to: update.accountCatagory || "None",
-            });
-        }
-
-        // Compare accountSubCatagory
-        if (update.accountSubCatagory !== prevUpdate.accountSubCatagory) {
-            changes.push({
-                field: "Account Subcategory",
-                from: prevUpdate.accountSubCatagory || "None",
-                to: update.accountSubCatagory || "None",
-            });
-        }
-
-        // Compare balance
-        if (update.balance !== prevUpdate.balance) {
-            changes.push({
-                field: "Account Balance",
-                from: prevUpdate.balance || "None",
-                to: update.balance || "None",
-            });
-        }
-
-        // Compare debit
-        if (update.debit !== prevUpdate.debit) {
-            changes.push({
-                field: "Account Debit",
-                from: prevUpdate.debit || "None",
-                to: update.debit || "None",
-            });
-        }
-
-        // Compare credit
-        if (update.credit !== prevUpdate.credit) {
-            changes.push({
-                field: "Account Category",
-                from: prevUpdate.credit || "None",
-                to: update.credit || "None",
-            });
-        }
-
-        // Compare order
-        if (update.order !== prevUpdate.order) {
-            changes.push({
-                field: "Account Order",
-                from: prevUpdate.order || "None",
-                to: update.order || "None",
-            });
-        }
-
-        // Compare statement
-        if (update.statement !== prevUpdate.statement) {
-            changes.push({
-                field: "Account Statement",
-                from: prevUpdate.statement || "None",
-                to: update.statement || "None",
-            });
-        }
-
-        // Compare comment
-        if (update.comment !== prevUpdate.comment) {
-            changes.push({
-                field: "Account Comment",
-                from: prevUpdate.comment || "None",
-                to: update.comment || "None",
-            });
-        }
-
-        // Compare isActive
-        if (update.isActive !== prevUpdate.isActive) {
-            changes.push({
-                field: "Account Active Status",
-                from: prevUpdate.isActive ? "Active" : "Inactive" || "None",
-                to: update.isActive ? "Active" : "Inactive" || "None",
-            });
-        }
-
+        console.log("Changes:", changes);
         return changes;
     };
 
     // Function to render the changes made to an account
-    const renderUserFieldChanges = (update, prevUpdate) => {
+    const renderUserFieldChanges = (currUpdate, allUpdates) => {
         const changes = [];
 
-        // Compare username
-        if (update.username !== prevUpdate.username) {
-            changes.push({
-                field: "Username",
-                from: prevUpdate.username || "None",
-                to: update.username || "None",
-            });
-        }
+        // Log the current update and all updates
+        console.log("Current Update:", currUpdate);
+        console.log("All Updates:", allUpdates);
 
-        // Compare password
-        if (update.password !== prevUpdate.password) {
-            changes.push({
-                field: "Password",
-                from: prevUpdate.password || "None",
-                to: update.password || "None",
-            });
-        }
+        // Find the most recent previous update for the same user
+        const sortedUpdates = allUpdates
+            .filter((update) => update.user.toString() === currUpdate.user.toString()) // Same user only
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Oldest first
 
-        // Compare first_name
-        if (update.first_name !== prevUpdate.first_name) {
-            changes.push({
-                field: "First Name",
-                from: prevUpdate.first_name || "None",
-                to: update.first_name || "None",
-            });
-        }
+        // Find the index of the current update in the sorted updates
+        const currUpdateIndex = sortedUpdates.findIndex((update) => update._id === currUpdate._id);
 
-        // Compare last_name
-        if (update.last_name !== prevUpdate.last_name) {
-            changes.push({
-                field: "Last Name",
-                from: prevUpdate.last_name || "None",
-                to: update.last_name || "None",
-            });
-        }
+        // Previous update will be the one just before the current one
+        const prevUpdate = currUpdateIndex > 0 ? sortedUpdates[currUpdateIndex - 1] : null;
 
-        // Compare email
-        if (update.email !== prevUpdate.email) {
-            changes.push({
-                field: "Email",
-                from: prevUpdate.email || "None",
-                to: update.email || "None",
-            });
-        }
+        console.log("Previous Update:", prevUpdate);
 
-        // Compare address object and its nested fields
-        if (update.address || prevUpdate.address) {
-            // Compare street
-            if (update.address?.street !== prevUpdate.address?.street) {
+        // If there's no previous update, treat it as a brand new user
+        if (!prevUpdate) {
+            // Use currUpdate fields directly or "None" if not defined
+            changes.push(
+                { field: "Username", from: "None", to: currUpdate.username || "None" },
+                { field: "Password", from: "None", to: currUpdate.password || "None" },
+                { field: "First Name", from: "None", to: currUpdate.first_name || "None" },
+                { field: "Last Name", from: "None", to: currUpdate.last_name || "None" },
+                { field: "Email", from: "None", to: currUpdate.email || "None" },
+                {
+                    field: "Address",
+                    from: "None",
+                    to: JSON.stringify(currUpdate.address) || "None", // stringify for a better display
+                },
+                { field: "Date of Birth", from: "None", to: currUpdate.dob || "None" },
+                {
+                    field: "Security Question",
+                    from: "None",
+                    to: JSON.stringify(currUpdate.securityQuestion) || "None", // stringify for a better display
+                },
+                { field: "Role", from: "None", to: currUpdate.role || "None" },
+                {
+                    field: "Active Status",
+                    from: "Inactive",
+                    to: currUpdate.active ? "Active" : "Inactive",
+                },
+                {
+                    field: "Suspended",
+                    from: "None",
+                    to: JSON.stringify(currUpdate.suspended) || "None", // stringify for a better display
+                }
+            );
+        } else {
+            // If a previous update exists, compare each field
+            const compareField = (field, displayName) => {
+                const prevValue = prevUpdate[field] !== undefined ? prevUpdate[field] : "None"; // Default to "None"
+                const currValue = currUpdate[field] !== undefined ? currUpdate[field] : "None"; // Default to "None"
+
+                // Only add to changes if they differ
+                if (prevValue !== currValue) {
+                    changes.push({
+                        field: displayName,
+                        from: prevValue,
+                        to: currValue,
+                    });
+                }
+            };
+
+            // Compare fields
+            compareField("username", "Username");
+            compareField("password", "Password");
+            compareField("first_name", "First Name");
+            compareField("last_name", "Last Name");
+            compareField("email", "Email");
+            compareField("dob", "Date of Birth");
+            compareField("role", "Role");
+
+            // Compare address object and its nested fields
+            if (JSON.stringify(currUpdate.address) !== JSON.stringify(prevUpdate.address)) {
                 changes.push({
-                    field: "Street",
-                    from: prevUpdate.address?.street || "None",
-                    to: update.address?.street || "None",
+                    field: "Address",
+                    from: JSON.stringify(prevUpdate.address) || "None",
+                    to: JSON.stringify(currUpdate.address) || "None",
                 });
             }
-            // Compare city
-            if (update.address?.city !== prevUpdate.address?.city) {
-                changes.push({
-                    field: "City",
-                    from: prevUpdate.address?.city || "None",
-                    to: update.address?.city || "None",
-                });
-            }
-            // Compare state
-            if (update.address?.state !== prevUpdate.address?.state) {
-                changes.push({
-                    field: "State",
-                    from: prevUpdate.address?.state || "None",
-                    to: update.address?.state || "None",
-                });
-            }
-            // Compare postal code
-            if (update.address?.postal_code !== prevUpdate.address?.postal_code) {
-                changes.push({
-                    field: "Postal Code",
-                    from: prevUpdate.address?.postal_code || "None",
-                    to: update.address?.postal_code || "None",
-                });
-            }
-        }
 
-        // Compare dob
-        if (update.dob !== prevUpdate.dob) {
-            changes.push({
-                field: "Date of Birth",
-                from: prevUpdate.dob || "None",
-                to: update.dob || "None",
-            });
-        }
-
-        // Compare securityQuestion object and its nested fields
-        if (update.securityQuestion || prevUpdate.securityQuestion) {
-            // Compare security question text
-            if (update.securityQuestion?.question !== prevUpdate.securityQuestion?.question) {
+            // Special handling for active status
+            const prevIsActive = prevUpdate.active !== undefined ? prevUpdate.active : false; // Previous isActive value
+            const currIsActive = currUpdate.active !== undefined ? currUpdate.active : false; // Current isActive value
+            if (prevIsActive !== currIsActive) {
                 changes.push({
-                    field: "Security Question Text",
-                    from: prevUpdate.securityQuestion?.question || "None",
-                    to: update.securityQuestion?.question || "None",
+                    field: "Active Status",
+                    from: prevIsActive ? "Active" : "Inactive",
+                    to: currIsActive ? "Active" : "Inactive",
                 });
             }
-            // Compare security answer
-            if (update.securityQuestion?.answer !== prevUpdate.securityQuestion?.answer) {
+
+            // Special handling for suspended object and its nested fields
+            if (JSON.stringify(currUpdate.suspended) !== JSON.stringify(prevUpdate.suspended)) {
                 changes.push({
-                    field: "Security Question Answer",
-                    from: prevUpdate.securityQuestion?.answer || "None",
-                    to: update.securityQuestion?.answer || "None",
+                    field: "Suspended",
+                    from: JSON.stringify(prevUpdate.suspended) || "None",
+                    to: JSON.stringify(currUpdate.suspended) || "None",
                 });
             }
         }
 
-        // Compare role
-        if (update.role !== prevUpdate.role) {
-            changes.push({
-                field: "Role",
-                from: prevUpdate.role || "None",
-                to: update.role || "None",
-            });
-        }
-
-        // Compare active
-        if (update.active !== prevUpdate.active) {
-            changes.push({
-                field: "Active Status",
-                from: prevUpdate.active ? "Active" : "Inactive" || "None",
-                to: update.active ? "Active" : "Inactive" || "None",
-            });
-        }
-
-        // Compare suspended object and its nested fields
-        if (update.suspended || prevUpdate.suspended) {
-            // Compare suspension start date
-            if (update.suspended?.start_date !== prevUpdate.suspended?.start_date) {
-                changes.push({
-                    field: "Suspension Start Date",
-                    from: prevUpdate.suspended?.start_date || "None",
-                    to: update.suspended?.start_date || "None",
-                });
-            }
-
-            // Compare suspension end date
-            if (update.suspended?.end_date !== prevUpdate.suspended?.end_date) {
-                changes.push({
-                    field: "Suspension End Date",
-                    from: prevUpdate.suspended?.end_date || "None",
-                    to: update.suspended?.end_date || "None",
-                });
-            }
-        }
-
+        console.log("Changes:", changes);
         return changes;
     };
 
@@ -546,7 +523,12 @@ const EventLogs = () => {
                     <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
                 </div>
                 <ul className="sidebar-btns">
-                    <Link className="sidebar-button" id="dashboard-link" title="Dashboard Page Link" to="/dashboard">
+                    <Link
+                        className="sidebar-button"
+                        id="dashboard-link"
+                        title="Dashboard Page Link"
+                        to="/dashboard"
+                    >
                         Dashboard
                     </Link>
                     <Link
@@ -557,26 +539,36 @@ const EventLogs = () => {
                     >
                         Chart of Accounts
                     </Link>
-                    <Link className="sidebar-button" id="accounts-link" title="Accounts Page Link" to="/accounts">
+                    <Link
+                        className="sidebar-button"
+                        id="accounts-link"
+                        title="Accounts Page Link"
+                        to="/accounts"
+                    >
                         Accounts
                     </Link>
-                    <Link className="sidebar-button" id="users-link" title="Users Page Link" to="/users">
+                    <Link
+                        className="sidebar-button"
+                        id="users-link"
+                        title="Users Page Link"
+                        to="/users"
+                    >
                         Users
                     </Link>
-                    <Link className="sidebar-button" id="event-log-link" title="Event Logs Page Link" to="/event-logs">
+                    <Link
+                        className="sidebar-button"
+                        id="event-log-link"
+                        title="Event Logs Page Link"
+                        to="/event-logs"
+                    >
                         Event Logs
                     </Link>
                 </ul>
                 <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
-                        </Link>
-                    </div>
+                    <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                        <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
+                    </Link>
+                </div>
             </aside>
 
             <main className="main-content">
@@ -588,7 +580,11 @@ const EventLogs = () => {
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
                         <a>
-                            <button className="action-button1" title="Logout of Appliction" onClick={handleLogout}>
+                            <button
+                                className="action-button1"
+                                title="Logout of Appliction"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </button>
                         </a>
@@ -669,51 +665,55 @@ const EventLogs = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {accountUpdateArray.length > 0 && filteredAccounts.sort((a,b) => a.accountUpdateArray - b.accountUpdateArray).map((update, index) => {
-                                        const prevUpdate = accountUpdateArray[index - 1] || {};
-                                        const changes = renderAccountFieldChanges(
-                                            update,
-                                            prevUpdate
-                                        );
+                                {accountUpdateArray.length > 0 &&
+                                    filteredAccounts
+                                        .sort(
+                                            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                                        )
+                                        .map((update) => {
+                                            const changes = renderAccountFieldChanges(
+                                                update,
+                                                accountUpdateArray
+                                            );
 
-                                        return (
-                                            <tr key={update._id}>
-                                                <td>
-                                                    {update.accountNumber} {update.accountName}
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.field}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.from}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.to}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>{update.updatedBy}</td>
-                                                <td>
-                                                    {new Date(
-                                                        update.createdAt
-                                                    ).toLocaleDateString()}{" "}
-                                                    {new Date(
-                                                        update.createdAt
-                                                    ).toLocaleTimeString()}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                            return (
+                                                <tr key={update._id}>
+                                                    <td>
+                                                        {update.accountNumber} {update.accountName}
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.field}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.from}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.to}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>{update.updatedBy}</td>
+                                                    <td>
+                                                        {new Date(
+                                                            update.createdAt
+                                                        ).toLocaleDateString()}{" "}
+                                                        {new Date(
+                                                            update.createdAt
+                                                        ).toLocaleTimeString()}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                             </tbody>
                         </table>
                     </div>
@@ -734,46 +734,52 @@ const EventLogs = () => {
                             </thead>
                             <tbody>
                                 {userUpdateArray.length > 0 &&
-                                    userUpdateArray.map((update, index) => {
-                                        const prevUpdate = userUpdateArray[index - 1] || {};
-                                        const changes = renderUserFieldChanges(update, prevUpdate);
+                                    filteredUsers
+                                        .sort(
+                                            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                                        )
+                                        .map((update) => {
+                                            const changes = renderUserFieldChanges(
+                                                update,
+                                                userUpdateArray
+                                            );
 
-                                        return (
-                                            <tr key={update._id}>
-                                                <td>{update.username}</td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.field}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.from}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>
-                                                    <ul>
-                                                        {changes.map((change, idx) => (
-                                                            <li key={idx}>{change.to}</li>
-                                                        ))}
-                                                    </ul>
-                                                </td>
-                                                <td>{update.updatedBy}</td>
-                                                <td>
-                                                    {new Date(
-                                                        update.createdAt
-                                                    ).toLocaleDateString()}{" "}
-                                                    {new Date(
-                                                        update.createdAt
-                                                    ).toLocaleTimeString()}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                            return (
+                                                <tr key={update._id}>
+                                                    <td>{update.username}</td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.field}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.from}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            {changes.map((change, idx) => (
+                                                                <li key={idx}>{change.to}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>{update.updatedBy}</td>
+                                                    <td>
+                                                        {new Date(
+                                                            update.createdAt
+                                                        ).toLocaleDateString()}{" "}
+                                                        {new Date(
+                                                            update.createdAt
+                                                        ).toLocaleTimeString()}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                             </tbody>
                         </table>
                     </div>
@@ -790,19 +796,27 @@ const EventLogs = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {loginAttempts.map((attempt, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td>{attempt.user.username}</td>
-                                        <td>{attempt.attemptNum}</td>
-                                        <td>{attempt.successful ? "Yes" : "No"}</td>
-                                        <td>
-                                            {new Date(attempt.createdAt).toLocaleDateString()}{" "}
-                                            {new Date(attempt.createdAt).toLocaleTimeString()}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {loginAttempts.length > 0 &&
+                                loginAttempts
+                                    .slice()
+                                    .reverse()
+                                    .map((attempt, index) => {
+                                        return (
+                                            <tr key={index}>
+                                                <td>{attempt.user.username}</td>
+                                                <td>{attempt.attemptNum}</td>
+                                                <td>{attempt.successful ? "Yes" : "No"}</td>
+                                                <td>
+                                                    {new Date(
+                                                        attempt.createdAt
+                                                    ).toLocaleDateString()}{" "}
+                                                    {new Date(
+                                                        attempt.createdAt
+                                                    ).toLocaleTimeString()}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                         </tbody>
                     </table>
                 </div>

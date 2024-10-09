@@ -267,14 +267,14 @@ const Dashboard = () => {
                             <button
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                                title="Open pop-up calendar"
+                                title="Open/Close pop-up calendar"
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
                                 onClick={toggleCalculator}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
-                                title="Open pop-up calculator"
+                                title="Open/Close pop-up calculator"
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />
                             </button>

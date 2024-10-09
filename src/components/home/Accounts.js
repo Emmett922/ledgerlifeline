@@ -255,11 +255,23 @@ const Accounts = () => {
             // Filter existing accounts by the same category
             const categoryAccounts = accountArray.filter((acc) => acc.accountCatagory === category);
 
-            // Get the sequence number for this category
-            const sequenceNumber = categoryAccounts.length + 1;
+            // Extract the numeric part of the account numbers in the category (ensure accountNumber is a string)
+            const accountNumbers = categoryAccounts
+                .map((acc) => {
+                    const accountNumStr = acc.accountNumber?.toString();
+                    return accountNumStr ? parseInt(accountNumStr.substring(prefix.length)) : 0;
+                })
+                .filter((num) => !isNaN(num)); // Filter out invalid numbers
 
-            // Generate account number with padding and increment logic
-            const accountNumber = prefix + sequenceNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
+            // Find the maximum account number in the category, default to 0 if none exist
+            const maxAccountNumber = accountNumbers.length > 0 ? Math.max(...accountNumbers) : 0;
+
+            // Round the max account number up to the nearest multiple of 10 if needed
+            const nextAccountNumber =
+                maxAccountNumber === 0 ? 1 : Math.ceil(maxAccountNumber / 10) * 10;
+
+            // Generate account number with padding logic
+            const accountNumber = prefix + nextAccountNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
 
             return accountNumber;
         };
@@ -666,9 +678,9 @@ const Accounts = () => {
                         account.accountName.toLowerCase().includes(term) ||
                         account.accountCatagory.toLowerCase().includes(term) ||
                         account.accountSubcatagory.toLowerCase().includes(term) ||
-                        (term === account.balance.toFixed(2)) || //account.balance.toFixed(2).includes(term) ||
+                        term === account.balance.toFixed(2) || //account.balance.toFixed(2).includes(term) ||
                         account.accountDescription.toLowerCase().includes(term) ||
-                        (term === isActiveStatus) // isActiveStatus.includes(term)
+                        term === isActiveStatus // isActiveStatus.includes(term)
                 )
             );
         });
@@ -846,12 +858,14 @@ const Accounts = () => {
                             <h1 className="header-title accountant">Accounts</h1>
                             <button
                                 onClick={toggleCalendar}
+                                title="Open/Close pop-up calendar"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
                                 onClick={toggleCalculator}
+                                title="Open/Close pop-up calculator"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />

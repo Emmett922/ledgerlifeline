@@ -854,12 +854,14 @@ const Accounts = () => {
                             <h1 className="header-title accountant">Chart of Accounts</h1>
                             <button
                                 onClick={toggleCalendar}
+                                title="Open/Close pop-up calendar"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
                                 onClick={toggleCalculator}
+                                title="Open/Close pop-up calcualtor"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />
@@ -1061,19 +1063,6 @@ const Accounts = () => {
                                             </Link>
                                         </td>
                                     )}
-                                    <td>
-                                        {/* Ensure account.id is being passed correctly */}
-                                        <Link
-                                            type="button"
-                                            className="action-button2"
-                                            title="view account ledger"
-                                            onClick={() => {
-                                                handleViewLedger(account._id);
-                                            }}
-                                        >
-                                            View Ledger
-                                        </Link>
-                                    </td>
                                     {(storedUserRole === "Manager" ||
                                         storedUserRole === "Accountant") && (
                                         <td>{account.isActive ? "Active" : "Inactive"}</td>

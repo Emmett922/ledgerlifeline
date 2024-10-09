@@ -191,7 +191,7 @@ const AccountLedger = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="accounts-link ledger"
+                            id="accounts-link"
                             title="Accounts Page Link"
                             to="/accounts"
                         >
@@ -308,12 +308,14 @@ const AccountLedger = () => {
                             <h1 className="header-title">Ledger</h1>
                             <button
                                 onClick={toggleCalendar}
+                                title="Open/Close pop-up calendar"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
                                 onClick={toggleCalculator}
+                                title="Open/Close pop-up calculator"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />

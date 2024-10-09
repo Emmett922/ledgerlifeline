@@ -106,14 +106,8 @@ table th {
     border-bottom: 2px solid #ddd;
 }
 
-.users .user-table .users-name {
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
-}
-
 .users .user-table .users-name #single-email {
-    margin-right: 5%;
+    float: right;
     font-size: 12px;
     padding: 5px 12px;
 }
