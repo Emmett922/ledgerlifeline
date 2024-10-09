@@ -174,6 +174,13 @@ const Accounts = () => {
         }
     }, [API_URL]);
 
+    const handleViewLedger = (accountId) => {
+        // Store the chosen account ID in localStorage
+        localStorage.setItem("account", accountId);
+        // Navigate to the ledger page
+        navigate("/account-ledger");
+    };
+
     // Handle the input changes from editing the account
     const handleEditInputChange = (event) => {
         const { name, value } = event.target;
@@ -1054,6 +1061,20 @@ const Accounts = () => {
                                             </Link>
                                         </td>
                                     )}
+                                    <td>
+                                        {/* Ensure account.id is being passed correctly */}
+                                        <Link
+                                            type="button"
+                                            className="action-button2"
+                                            title="view account ledger"
+                                            to="/account-ledger"
+                                            onClick={() => {
+                                                handleViewLedger(account.accountNumber)
+                                            }}
+                                        >
+                                            View Ledger
+                                        </Link>
+                                    </td>
                                     {(storedUserRole === "Manager" ||
                                         storedUserRole === "Accountant") && (
                                         <td>{account.isActive ? "Active" : "Inactive"}</td>
@@ -1255,14 +1276,6 @@ const Accounts = () => {
                                 >
                                     Edit
                                 </button>
-                                <Link
-                                    type="button"
-                                    className="action-button2"
-                                    title="view account ledger"
-                                    to="/account-ledger"
-                                >
-                                    View Ledger
-                                </Link>
                             </div>
                         </div>
                     </div>
