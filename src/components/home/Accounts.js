@@ -1254,14 +1254,6 @@ const Accounts = () => {
                                 >
                                     Edit
                                 </button>
-                                <Link
-                                    type="button"
-                                    className="action-button2"
-                                    title="view account ledger"
-                                    to="/account-ledger"
-                                >
-                                    View Ledger
-                                </Link>
                             </div>
                         </div>
                     </div>
