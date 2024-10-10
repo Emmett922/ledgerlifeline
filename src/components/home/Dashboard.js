@@ -140,19 +140,19 @@ const Dashboard = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts page link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ledger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts page link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
@@ -181,7 +181,7 @@ const Dashboard = () => {
 
             {/* Side navbar for accountant && manager*/}
             {(userRole === "Accountant" || userRole === "Manager") && (
-                <aside className="sidebar">
+                <aside className="sidebar accountant">
                     <div className="app-logo">
                         <img
                             className="logo"
@@ -199,19 +199,19 @@ const Dashboard = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts page link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ledger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts page link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
@@ -257,6 +257,20 @@ const Dashboard = () => {
                     {(userRole === "Admin" || userRole === "Manager") && (
                         <div className="header-main">
                             <h1 className="header-title">Dashboard</h1>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calendar"
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calculator"
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
                         </div>
                     )}
 
@@ -333,19 +347,19 @@ const Dashboard = () => {
                 <div className="Dashboard1">
                     <div className="top-boxes">
                         <div className="Current-Ratio">
-                            <h1>Current Ratio</h1>
+                            <h1 className="box-title">Current Ratio</h1>
                             <div className="percentage">
                                 <h1>515.62%</h1>
                             </div>
                         </div>
                         <div className="Return-Assets">
-                            <h1>Return on Assets</h1>
+                            <h1 className="box-title">Return on Assets</h1>
                             <div className="percentage">
                                 <h1>18.96%</h1>
                             </div>
                         </div>
                         <div className="Return-Equity">
-                            <h1>Return on Equity</h1>
+                            <h1 className="box-title">Return on Equity</h1>
                             <div>
                                 <h1>28.02%</h1>
                             </div>
@@ -353,19 +367,19 @@ const Dashboard = () => {
                     </div>
                     <div className="bottom-boxes">
                         <div className="Net-Profit">
-                            <h1>Net Profit Margin</h1>
+                            <h1 className="box-title">Net Profit Margin</h1>
                             <div className="percentage">
                                 <h1>49.67%</h1>
                             </div>
                         </div>
                         <div className="Asset-Turnover">
-                            <h1>Asset Turnover</h1>
+                            <h1 className="box-title">Asset Turnover</h1>
                             <div className="percentage">
                                 <h1>38.18%</h1>
                             </div>
                         </div>
                         <div className="Quick-Ratio">
-                            <h1>Quick Ratio</h1>
+                            <h1 className="box-title">Quick Ratio</h1>
                             <div className="percentage">
                                 <h1>515.62%</h1>
                             </div>

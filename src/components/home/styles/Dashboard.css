@@ -114,8 +114,13 @@ body {
     border-radius: 5px;
 }
 
+.sidebar.accountant .help-btn {
+    margin-top: -5%;
+}
+
 #dashboard-link,
 #chart-of-accounts-link,
+#ledger-link,
 #users-link,
 #accounts-link,
 #event-log-link,
@@ -135,6 +140,7 @@ body {
 .account #accounts-link,
 .account.ledger #accounts-link:hover,
 .chartOfAccount #chart-of-accounts-link,
+.account.ledger #ledger-link,
 .eventLogs #event-log-link {
     background-color: #1c4a7c;
 }
@@ -190,15 +196,24 @@ body {
 .dashboard .bottom-boxes .Asset-Turnover, 
 .dashboard .bottom-boxes .Quick-Ratio {
     width: 30%; /* Adjust this to control the box width */
-    height: 100px;
-    background-color: #007bff; /* Light background for boxes */
-    color: #fff;
+    height: auto;
+    color: #007bff;
     border-radius: 8px;
+    border: 5px solid #007bff;
     padding: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
+}
+
+.dashboard .top-boxes .box-title,
+.dashboard .bottom-boxes .box-title {
+    width: 100%;
+    text-align: left;
+    font-size: 30px;
+    font-weight: bold;
 }
   
 .dashboard .top-boxes:hover .Current-Ratio:hover, 
@@ -208,24 +223,8 @@ body {
 .dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
 .dashboard .bottom-boxes:hover .Quick-Ratio:hover {
     background-color: #1c4a7c;
-}
-
-.dashboard .top-boxes h1, .bottom-boxes h1 {
-    font-size: 12px;
-    margin: 0;
-    width: 50%; /* Title takes half of the box */
-    text-align: left;
-}
-  
-.dashboard .top-boxes div, .bottom-boxes div {
-    width: 50%; /* Number takes the other half */
-    text-align: right;
-}
-  
-.dashboard .top-boxes div h1, .bottom-boxes div h1 {
-    font-size: 24px;
-    margin: 0;
-    font-weight: bold;
+    border: 5px solid #1c4a7c;
+    color: #fff;
 }
   
 @media (max-width: 768px) {

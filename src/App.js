@@ -7,7 +7,6 @@ import ForgotPassword from "./components/auth/ForgotPassword";
 import Users from "./components/admin/Users";
 import Dashboard from "./components/home/Dashboard";
 import AcceptRequest from "./components/splash/AcceptRequest";
-import Accounts from "./components/home/Accounts";
 import ChartOfAccounts from "./components/home/ChartOfAccounts";
 import EventLogs from "./components/home/EventLogs";
 import AccountLedger from "./components/home/AccountLedger";
@@ -35,9 +34,6 @@ function App() {
                 break;
             case "/accept-request":
                 document.title = "Accept User Request - Ledger Lifeline";
-                break;
-            case "/accounts":
-                document.title = "Accounts - Ledger Lifeline";
                 break;
             case "/chart-of-accounts":
                 document.title = "Chart of Accounts - Ledger Lifeline";
@@ -71,7 +67,6 @@ function App() {
                 <Route path="users" element={<Users />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="accept-request/:username" element={<AcceptRequest />} />
-                <Route path="accounts" element={<Accounts />} />
                 <Route path="chart-of-accounts" element={<ChartOfAccounts />} />
                 <Route path="event-logs" element={<EventLogs />} />
                 <Route path="account-ledger" element={<AccountLedger />} />

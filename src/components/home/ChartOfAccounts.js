@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
@@ -174,13 +174,6 @@ const Accounts = () => {
         }
     }, [API_URL]);
 
-    const handleViewLedger = (accountId) => {
-        // Store the chosen account ID in localStorage
-        localStorage.setItem("account", accountId);
-        // Navigate to the ledger page
-        navigate("/account-ledger");
-    };
-
     // Handle the input changes from editing the account
     const handleEditInputChange = (event) => {
         const { name, value } = event.target;
@@ -262,11 +255,23 @@ const Accounts = () => {
             // Filter existing accounts by the same category
             const categoryAccounts = accountArray.filter((acc) => acc.accountCatagory === category);
 
-            // Get the sequence number for this category
-            const sequenceNumber = categoryAccounts.length + 1;
+            // Extract the numeric part of the account numbers in the category (ensure accountNumber is a string)
+            const accountNumbers = categoryAccounts
+                .map((acc) => {
+                    const accountNumStr = acc.accountNumber?.toString();
+                    return accountNumStr ? parseInt(accountNumStr.substring(prefix.length)) : 0;
+                })
+                .filter((num) => !isNaN(num)); // Filter out invalid numbers
 
-            // Generate account number with padding and increment logic
-            const accountNumber = prefix + sequenceNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
+            // Find the maximum account number in the category, default to 0 if none exist
+            const maxAccountNumber = accountNumbers.length > 0 ? Math.max(...accountNumbers) : 0;
+
+            // Round the max account number up to the nearest multiple of 10 if needed
+            const nextAccountNumber =
+                maxAccountNumber === 0 ? 1 : Math.ceil(maxAccountNumber / 10) * 10;
+
+            // Generate account number with padding logic
+            const accountNumber = prefix + nextAccountNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
 
             return accountNumber;
         };
@@ -369,7 +374,6 @@ const Accounts = () => {
         newAccountNumber &&
         newAccountCatagory &&
         newAccountDescription &&
-        newAccountSubcatagory &&
         newOrder &&
         newComment
     );
@@ -608,8 +612,24 @@ const Accounts = () => {
         }
     };
 
+    const handleClearAll = () => {
+        setNewAccountName("");
+        setNewAccountDescription("");
+        setNewAccountCatagory("");
+        setNewAccountNumber("");
+        setNewNormalSide("");
+        setNewAccountSubcatagory("");
+        setNewDebit("");
+        setNewCredit("");
+        setNewInitialBalance("");
+        setNewBalance("");
+        setNewOrder("");
+        setNewStatement("");
+        setNewComment("");
+    };
+
     const handleLogout = () => {
-        localStorage.removeItem("user"); // Clear account data
+        localStorage.removeItem("user");
         navigate("/"); // Redirect to login
     };
 
@@ -674,15 +694,22 @@ const Accounts = () => {
                         account.accountName.toLowerCase().includes(term) ||
                         account.accountCatagory.toLowerCase().includes(term) ||
                         account.accountSubcatagory.toLowerCase().includes(term) ||
-                        account.balance.toFixed(2).includes(term) ||
+                        term === account.balance.toFixed(2) || //account.balance.toFixed(2).includes(term) ||
                         account.accountDescription.toLowerCase().includes(term) ||
-                        isActiveStatus.includes(term)
+                        term === isActiveStatus // isActiveStatus.includes(term)
                 )
             );
         });
     };
 
     const filteredAccounts = handleSearch(searchQuery);
+
+    const handleViewLedger = (accountId) => {
+        // Store the chosen account ID in localStorage
+        localStorage.setItem("account", accountId);
+        // Navigate to the ledger page
+        navigate("/account-ledger");
+    };
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
@@ -693,7 +720,7 @@ const Accounts = () => {
     };
 
     const content = (
-        <section className="chartOfAccount">
+        <section className="account">
             <ToastContainer />
             {/* Side nav for admin */}
             {storedUserRole === "Admin" && (
@@ -716,19 +743,19 @@ const Accounts = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ledger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts Page Link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
@@ -757,7 +784,7 @@ const Accounts = () => {
 
             {/* Side nav for accountand && manager */}
             {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
-                <aside className="sidebar">
+                <aside className="sidebar accountant">
                     <div className="app-logo">
                         <img
                             className="logo"
@@ -776,19 +803,19 @@ const Accounts = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ledger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts Page Link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
@@ -840,12 +867,40 @@ const Accounts = () => {
                             >
                                 + Add Account
                             </button>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calendar"
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calculator"
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
                         </div>
                     )}
                     {/* Default main heading */}
                     {storedUserRole === "Manager" && (
                         <div className="header-main">
                             <h1 className="header-title">Chart of Accounts</h1>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calendar"
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calculator"
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
                         </div>
                     )}
                     {/* Main content header-main for accountant users */}
@@ -861,7 +916,7 @@ const Accounts = () => {
                             </button>
                             <button
                                 onClick={toggleCalculator}
-                                title="Open/Close pop-up calcualtor"
+                                title="Open/Close pop-up calculator"
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />
@@ -991,7 +1046,6 @@ const Accounts = () => {
                     </thead>
                     <tbody>
                         {filteredAccounts
-                            .filter((account) => account.balance !== 0)
                             .sort((a, b) => a.accountNumber - b.accountNumber)
                             .map((account, index) => (
                                 <tr key={index}>
@@ -1037,7 +1091,18 @@ const Accounts = () => {
                                             {account.accountNumber}
                                         </button>
                                     </td>
-                                    <td>{account.accountName}</td> {/* Account name */}
+                                    <td>
+                                        <button
+                                            className="link-button"
+                                            title="View account in ledger"
+                                            onClick={() => {
+                                                handleViewLedger(account._id);
+                                            }}
+                                        >
+                                            {account.accountName}
+                                        </button>
+                                    </td>{" "}
+                                    {/* Account name */}
                                     <td>{account.accountCatagory}</td> {/* Account type */}
                                     <td>{account.accountSubcatagory}</td>{" "}
                                     {/* Term (current/long term) */}
@@ -1053,6 +1118,7 @@ const Accounts = () => {
                                         <td>
                                             <Link
                                                 className="account-active-link"
+                                                title="Change active status"
                                                 onClick={() => {
                                                     setSelectedAccount(account);
                                                     setIsActive(account.isActive);
@@ -1072,7 +1138,7 @@ const Accounts = () => {
                     </tbody>
                 </table>
 
-                {/* View Account Details Modal For Admin User */}
+                {/* View Account Details Modal FOr Admin User */}
                 {viewAccountDetails && storedUserRole === "Admin" && (
                     <div className="modal">
                         <div className="modal-content">
@@ -1264,14 +1330,16 @@ const Accounts = () => {
                                 >
                                     Edit
                                 </button>
-                                <Link
+                                <button
                                     type="button"
                                     className="action-button2"
-                                    title="view account ledger"
-                                    onClick={handleViewLedger(selectedAccount._id)}
+                                    title="View account page in ledger"
+                                    onClick={() => {
+                                        handleViewLedger(selectedAccount._id);
+                                    }}
                                 >
                                     View Ledger
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1466,14 +1534,16 @@ const Accounts = () => {
                                     </label>
                                 </form>
                                 <div className="modal-btns">
-                                    <Link
+                                    <button
                                         type="button"
                                         className="action-button2"
-                                        title="view account ledger"
-                                        onClick={handleViewLedger(selectedAccount._id)}
+                                        title="View account page in ledger"
+                                        onClick={() => {
+                                            handleViewLedger(selectedAccount._id);
+                                        }}
                                     >
                                         View Ledger
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1909,6 +1979,14 @@ const Accounts = () => {
                                     disabled={isAddNewDisabled}
                                 >
                                     Submit
+                                </button>
+                                <button
+                                    type="button"
+                                    className="action-button2"
+                                    title="Clear all inputs"
+                                    onClick={handleClearAll}
+                                >
+                                    Clear
                                 </button>
                             </div>
                         </div>

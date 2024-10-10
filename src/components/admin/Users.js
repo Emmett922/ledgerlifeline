@@ -590,37 +590,52 @@ const Users = () => {
                     <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
                 </div>
                 <ul className="sidebar-btns">
-                    <Link className="sidebar-button" id="dashboard-link" title="Dashboard page link" to="/dashboard">
+                    <Link
+                        className="sidebar-button"
+                        id="dashboard-link"
+                        title="Dashboard page link"
+                        to="/dashboard"
+                    >
                         Dashboard
                     </Link>
                     <Link
                         className="sidebar-button"
-                        id="chart-of-accounts-link"
-                        title="Chart of Accounts page link"
+                        id="ledger-link"
+                        title="Ledger page link"
+                        to="/account-ledger"
+                    >
+                        Ledger
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="accounts-link"
+                        title="Chart of Accounts Page Link"
                         to="/chart-of-accounts"
                     >
                         Chart of Accounts
                     </Link>
-                    <Link className="sidebar-button" id="accounts-link" title="Accounts page link" to="/accounts">
-                        Accounts
-                    </Link>
-                    <Link className="sidebar-button" id="users-link" title="Users page link" to="/users">
+                    <Link
+                        className="sidebar-button"
+                        id="users-link"
+                        title="Users page link"
+                        to="/users"
+                    >
                         Users
                     </Link>
-                    <Link className="sidebar-button" id="event-log-link" title="Event Logs page link" to="/event-logs">
+                    <Link
+                        className="sidebar-button"
+                        id="event-log-link"
+                        title="Event Logs page link"
+                        to="/event-logs"
+                    >
                         Event Logs
                     </Link>
                 </ul>
                 <div className="help-btn">
-                        <Link
-                            type="help-button"
-                            id="help-link"
-                            title="Help Page Link"
-                            to="/help"
-                        >
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo"/>
-                        </Link>
-                    </div>
+                    <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                        <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
+                    </Link>
+                </div>
             </aside>
 
             <main className="main-content">
@@ -630,14 +645,9 @@ const Users = () => {
                         <Link className="action-button1" title="Add a new user" to="/register">
                             + Add User
                         </Link>
-                        {/*<button
-                            className="action-button1"
-                            onClick={() => setIsEmailAllVisible(true)}
-                        >
-                            <FontAwesomeIcon icon={faEnvelope} size="lg" /> Email All
-                        </button>*/}
                         <button
-                            className="action-button1" title="View the expired passwords of all users"
+                            className="action-button1"
+                            title="View the expired passwords of all users"
                             onClick={() => setIsExpiredPasswordsVisible(true)}
                         >
                             View Expired Passwords
@@ -647,7 +657,11 @@ const Users = () => {
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
                         <a>
-                            <button className="action-button1" title="Logout of Application" onClick={handleLogout}>
+                            <button
+                                className="action-button1"
+                                title="Logout of Application"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </button>
                         </a>
@@ -782,7 +796,11 @@ const Users = () => {
                 {isEditUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" title="Close modal" onClick={() => setIsEditUserVisible(false)}>
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEditUserVisible(false)}
+                            >
                                 &times;
                             </span>
                             <h2>Edit User</h2>
@@ -930,7 +948,11 @@ const Users = () => {
                 {isEditUserRoleVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" title="Close modal" onClick={() => setIsEditUserRoleVisible(false)}>
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEditUserRoleVisible(false)}
+                            >
                                 &times;
                             </span>
                             <h2>Edit User's Role</h2>
@@ -1032,7 +1054,11 @@ const Users = () => {
                 {isSuspendUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" title="Close modal" onClick={() => setIsSuspendUserVisible(false)}>
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsSuspendUserVisible(false)}
+                            >
                                 &times;
                             </span>
                             <h2>Suspend User</h2>
@@ -1144,7 +1170,11 @@ const Users = () => {
                 {isEmailUserVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" title="Close modal" onClick={() => setIsEmailUserVisible(false)}>
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
                                 &times;
                             </span>
                             <h2>
@@ -1177,7 +1207,11 @@ const Users = () => {
                                     ></textarea>
                                 </div>
                                 <div className="modal-btns">
-                                    <button type="submit" title="Send email to user" className="send-button">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
                                         Send Email
                                     </button>
                                     <button
@@ -1198,7 +1232,11 @@ const Users = () => {
                 {isEmailAllVisible && (
                     <div className="modal">
                         <div className="modal-content">
-                            <span className="close" title="Close modal" onClick={() => setIsEmailAllVisible(false)}>
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailAllVisible(false)}
+                            >
                                 &times;
                             </span>
                             <h2>Send Email to All Users</h2>

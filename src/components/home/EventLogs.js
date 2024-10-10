@@ -533,19 +533,19 @@ const EventLogs = () => {
                     </Link>
                     <Link
                         className="sidebar-button"
-                        id="chart-of-accounts-link"
-                        title="Chart of Accounts Page Link"
-                        to="/chart-of-accounts"
+                        id="ledger-link"
+                        title="Ledger page link"
+                        to="/account-ledger"
                     >
-                        Chart of Accounts
+                        Ledger
                     </Link>
                     <Link
                         className="sidebar-button"
                         id="accounts-link"
-                        title="Accounts Page Link"
-                        to="/accounts"
+                        title="Chart of Accounts Page Link"
+                        to="/chart-of-accounts"
                     >
-                        Accounts
+                        Chart of Accounts
                     </Link>
                     <Link
                         className="sidebar-button"

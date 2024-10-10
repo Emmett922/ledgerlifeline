@@ -69,19 +69,19 @@ const Help = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts page link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ledger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts page link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
@@ -110,7 +110,7 @@ const Help = () => {
 
             {/* Side nav for accountand && manager */}
             {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
-                <aside className="sidebar">
+                <aside className="sidebar accountant">
                     <div className="app-logo">
                         <img
                             className="logo"
@@ -129,19 +129,19 @@ const Help = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
-                            id="chart-of-accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
+                            id="ledger-link"
+                            title="Ledger page link"
+                            to="/account-ldeger"
                         >
-                            Chart of Accounts
+                            Ledger
                         </Link>
                         <Link
                             className="sidebar-button"
                             id="accounts-link"
-                            title="Accounts Page Link"
-                            to="/accounts"
+                            title="Chart of Accounts Page Link"
+                            to="/chart-of-accounts"
                         >
-                            Accounts
+                            Chart of Accounts
                         </Link>
                         <Link
                             className="sidebar-button"
