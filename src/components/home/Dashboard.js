@@ -217,6 +217,7 @@ const Dashboard = () => {
                             className="sidebar-button"
                             id="journalize-link"
                             title="Journalize page link"
+                            to="/journalize"
                         >
                             Journalize
                         </Link>

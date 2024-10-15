@@ -821,6 +821,7 @@ const Accounts = () => {
                             className="sidebar-button"
                             title="Journalize Page Link"
                             id="journalize-link"
+                            to="/journalize"
                         >
                             Journalize
                         </Link>
