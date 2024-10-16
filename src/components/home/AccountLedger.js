@@ -146,6 +146,11 @@ const AccountLedger = () => {
         return `${formattedInteger}.${decimalPart}`;
     };
 
+    const [toggleState, setToggleState] = useState(1);
+    const toggleTab = (index) => {
+        setToggleState(index);
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/"); // Redirect to login
@@ -261,6 +266,7 @@ const AccountLedger = () => {
                             className="sidebar-button"
                             title="Journalize Page Link"
                             id="journalize-link"
+                            to="/journalize"
                         >
                             Journalize
                         </Link>
@@ -392,74 +398,302 @@ const AccountLedger = () => {
                     {fetchedAccount.accountNumber} {fetchedAccount.accountName}
                 </div>
 
-                <table className="account-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>PR</th>
-                            <th>Description</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
-                            {/* Date the transaction Took place */}
-                            <td>{1}</td> {/* This will increment per row */}
-                            <td>Initial Account Balance</td>
-                            <td>
-                                {fetchedAccount.debit
-                                    ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
-                                    : " "}
-                            </td>{" "}
-                            {/* Show blank if debit is 0 or debit equals credit */}
-                            <td>
-                                {fetchedAccount.credit
-                                    ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
-                                    : " "}
-                            </td>{" "}
-                            {/* Show blank if credit is 0 or credit equals debit */}
-                        </tr>
-                        <tr>
-                            <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
-                                Total Balance:
-                            </td>
-                            <td
-                                colSpan={4}
-                                style={{
-                                    textAlign: "left",
-                                    fontWeight: "bold",
-                                    textDecoration: "underline",
-                                }}
-                            >
-                                {fetchedAccount.balance
-                                    ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
-                                    : " "}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div className="back-btn">
-                    <Link
-                        type="button"
-                        id="chart-of-accounts-link"
-                        title="Accounts Page Link"
-                        to="/chart-of-accounts"
-                        onClick={() => {
-                            localStorage.removeItem("account"); // Remove the account ID
-                        }}
-                        style={{
-                            textDecoration: "none",
-                            color: "white",
-                            backgroundColor: "#007bff",
-                            padding: "10px 20px",
-                            borderRadius: "5px",
-                            fontWeight: "lighter",
-                        }}
+
+
+                {/* Tab Setup */}
+                <div className="tab-container">
+                    <div
+                        className={toggleState === 1 ? "tabs active-tabs" : "tabs"}
+                        title="Show account updates log"
+                        onClick={() => toggleTab(1)}
                     >
-                        Back to Chart of Accounts
-                    </Link>
+                        All Entries
+                    </div>
+
+                    <div
+                        className={toggleState === 2 ? "tabs active-tabs" : "tabs"}
+                        title="Show user updates log"
+                        onClick={() => toggleTab(2)}
+                    >
+                        Approved Entries
+                    </div>
+
+                    <div
+                        className={toggleState === 3 ? "tabs active-tabs" : "tabs"}
+                        title="Show login attempts log"
+                        onClick={() => toggleTab(3)}
+                    >
+                        Denied Entries
+                    </div>
+
+                    <div
+                        className={toggleState === 4 ? "tabs active-tabs" : "tabs"}
+                        title="Show login attempts log"
+                        onClick={() => toggleTab(4)}
+                    >
+                        Pending Entries
+                    </div>
+                </div>
+
+                {/* Accounts Log */}
+                <div className={toggleState === 1 ? "content active-content" : "content"}>
+                    <div>
+                        <table className="account-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PR</th>
+                                    <th>Description</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
+                                    {/* Date the transaction Took place */}
+                                    <td>{1}</td> {/* This will increment per row */}
+                                    <td>Initial Account Balance</td>
+                                    <td>
+                                        {fetchedAccount.debit
+                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {fetchedAccount.credit
+                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
+                                </tr>
+                                <tr>
+                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                        Total Balance:
+                                    </td>
+                                    <td
+                                        colSpan={4}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                        }}
+                                    >
+                                        {fetchedAccount.balance
+                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
+                                            : " "}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <Link
+                            className="back-btn"
+                            type="button"
+                            id="chart-of-accounts-link"
+                            title="Accounts Page Link"
+                            to="/chart-of-accounts"
+                            onClick={() => {
+                                localStorage.removeItem("account"); // Remove the account ID
+                            }}
+                        >
+                            Back to Chart of Accounts
+                        </Link>
+                    </div>
+                </div>
+
+                <div className={toggleState === 2 ? "content active-content" : "content"}>
+                    <div>
+                        <table className="approved-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PR</th>
+                                    <th>Description</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
+                                    {/* Date the transaction Took place */}
+                                    <td>{1}</td> {/* This will increment per row */}
+                                    <td>Initial Account Balance</td>
+                                    <td>
+                                        {fetchedAccount.debit
+                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {fetchedAccount.credit
+                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
+                                </tr>
+                                <tr>
+                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                        Total Balance:
+                                    </td>
+                                    <td
+                                        colSpan={4}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                        }}
+                                    >
+                                        {fetchedAccount.balance
+                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
+                                            : " "}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <Link
+                            className="back-btn"
+                            type="button"
+                            id="chart-of-accounts-link"
+                            title="Accounts Page Link"
+                            to="/chart-of-accounts"
+                            onClick={() => {
+                                localStorage.removeItem("account"); // Remove the account ID
+                            }}
+                        >
+                            Back to Chart of Accounts
+                        </Link>
+                    </div>
+                </div>
+
+                <div className={toggleState === 3 ? "content active-content" : "content"}>
+                    <div>
+                        <table className="debnied-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PR</th>
+                                    <th>Description</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
+                                    {/* Date the transaction Took place */}
+                                    <td>{1}</td> {/* This will increment per row */}
+                                    <td>Initial Account Balance</td>
+                                    <td>
+                                        {fetchedAccount.debit
+                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {fetchedAccount.credit
+                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
+                                </tr>
+                                <tr>
+                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                        Total Balance:
+                                    </td>
+                                    <td
+                                        colSpan={4}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                        }}
+                                    >
+                                        {fetchedAccount.balance
+                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
+                                            : " "}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <Link
+                            className="back-btn"
+                            type="button"
+                            id="chart-of-accounts-link"
+                            title="Accounts Page Link"
+                            to="/chart-of-accounts"
+                            onClick={() => {
+                                localStorage.removeItem("account"); // Remove the account ID
+                            }}
+                        >
+                            Back to Chart of Accounts
+                        </Link>
+                    </div>
+                </div>
+
+                <div className={toggleState === 4 ? "content active-content" : "content"}>
+                    <div>
+                        <table className="pending-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PR</th>
+                                    <th>Description</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
+                                    {/* Date the transaction Took place */}
+                                    <td>{1}</td> {/* This will increment per row */}
+                                    <td>Initial Account Balance</td>
+                                    <td>
+                                        {fetchedAccount.debit
+                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {fetchedAccount.credit
+                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
+                                            : " "}
+                                    </td>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
+                                </tr>
+                                <tr>
+                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                        Total Balance:
+                                    </td>
+                                    <td
+                                        colSpan={4}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                        }}
+                                    >
+                                        {fetchedAccount.balance
+                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
+                                            : " "}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <Link
+                            className="back-btn"
+                            type="button"
+                            id="chart-of-accounts-link"
+                            title="Accounts Page Link"
+                            to="/chart-of-accounts"
+                            onClick={() => {
+                                localStorage.removeItem("account"); // Remove the account ID
+                            }}
+                        >
+                            Back to Chart of Accounts
+                        </Link>
+                    </div>
                 </div>
             </main>
         </section>

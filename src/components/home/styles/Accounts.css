@@ -35,7 +35,8 @@ select:disabled {
 /* Main content styles */
 .account .main-content,
 .chartOfAccount .main-content {
-    width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
+    width: 170vh;
+    /*This is a tempory solution, need to make to change with the window size*/
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
     padding: 20px;
@@ -47,8 +48,10 @@ select:disabled {
 
 .header {
     display: flex;
-    justify-content: space-between; /* This should already be here */
-    align-items: center; /* Ensure vertical alignment */
+    justify-content: space-between;
+    /* This should already be here */
+    align-items: center;
+    /* Ensure vertical alignment */
     width: 100%;
     margin-bottom: 40px;
     flex-grow: 1;
@@ -64,19 +67,24 @@ select:disabled {
 /* Align user profile section with filters */
 .user-profile {
     display: flex;
-    align-items: center; /* Align items vertically */
+    align-items: center;
+    /* Align items vertically */
     gap: 10px;
 }
 
 /* Make sure the profile image and name are properly aligned */
 .pfp {
-    width: 40px;  /* Set a consistent width for profile picture */
-    height: 40px; /* Set a consistent height for profile picture */
-    border-radius: 50%; /* Make it circular */
+    width: 40px;
+    /* Set a consistent width for profile picture */
+    height: 40px;
+    /* Set a consistent height for profile picture */
+    border-radius: 50%;
+    /* Make it circular */
 }
 
 .profile-name {
-    font-size: 16px; /* Adjust font size if necessary */
+    font-size: 16px;
+    /* Adjust font size if necessary */
 }
 
 /* This was added for the Account Ledger Button/Link*/
@@ -114,7 +122,7 @@ select:disabled {
     text-transform: uppercase;
     border-radius: 5px;
     transition: background-color 0.3s;
-  }
+}
 
 .account .action-button2:hover,
 .chartOfAccount .action-button2:hover {
@@ -146,8 +154,10 @@ select:disabled {
     text-align: left;
 }
 
-.account .account-table th, .account .account-table td,
-.chartOfAccount .account-table th, .chartOfAccount .account-table td {
+.account .account-table th,
+.account .account-table td,
+.chartOfAccount .account-table th,
+.chartOfAccount .account-table td {
     padding: 10px;
     border: 1px solid #ddd;
     border-top: none;
@@ -193,6 +203,26 @@ select:disabled {
     color: #0056b3;
 }
 
+.content-body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.back-btn {
+    align-self: flex-end;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: lighter;
+}
+
+.back-btn:hover {
+    background-color: #0056b3;
+}
+
 /* Modal styles */
 .modal {
     position: fixed;
@@ -227,7 +257,7 @@ select:disabled {
     margin-bottom: 20px;
 }
 
-.account .modal-content form .form-sub-title{
+.account .modal-content form .form-sub-title {
     display: flex;
     gap: 5px;
     margin-bottom: 25px;
@@ -256,15 +286,19 @@ select:disabled {
 .chartOfAccount .table-filter .search-filter input,
 .eventLogs .table-filter .search-filter input {
     height: 35px;
-    width: 100%; /* Adjust width as needed */
-    margin-left: 10px; /* Spacing between label and input */
+    width: 100%;
+    /* Adjust width as needed */
+    margin-left: 10px;
+    /* Spacing between label and input */
     margin-right: 10px;
     border: none;
     border-radius: 5px;
     padding: 5px;
-    background-color: white; /* Transparent background */
+    background-color: white;
+    /* Transparent background */
     border: none;
-    border-bottom: 2px solid #3d3d3d; /* Dark border at the bottom */
+    border-bottom: 2px solid #3d3d3d;
+    /* Dark border at the bottom */
     outline: none;
     transition: border-color 0.3s ease;
     font-size: 15px;
@@ -287,15 +321,19 @@ select:disabled {
 .date-filter input[type="date"],
 .balance-filter input[type="tel"] {
     height: 30px;
-    width: 105px; /* Adjust width as needed */
-    margin-left: 10px; /* Spacing between label and input */
+    width: 105px;
+    /* Adjust width as needed */
+    margin-left: 10px;
+    /* Spacing between label and input */
     margin-right: 10px;
     border: none;
     border-radius: 5px;
     padding: 5px;
-    background-color: white; /* Transparent background */
+    background-color: white;
+    /* Transparent background */
     border: none;
-    border-bottom: 2px solid #3d3d3d; /* Dark border at the bottom */
+    border-bottom: 2px solid #3d3d3d;
+    /* Dark border at the bottom */
     outline: none;
     transition: border-color 0.3s ease;
 }
@@ -306,7 +344,8 @@ select:disabled {
 
 .date-filter input[type="date"]:focus,
 .balance-filter input[type="tel"]:focus {
-    border-bottom-color: #007bff; /* Background color change on focus */
+    border-bottom-color: #007bff;
+    /* Background color change on focus */
 }
 
 .table-filter input:focus {
@@ -320,7 +359,8 @@ select:disabled {
 }
 
 .balance-filter input {
-    width: 80px; /* Slightly narrower for balance inputs */
+    width: 80px;
+    /* Slightly narrower for balance inputs */
 }
 
 .account .modal-content .form-group textarea {
@@ -409,7 +449,7 @@ select:disabled {
         width: 100%;
         margin-bottom: 20px;
     }
-    
+
     .users .main-content {
         margin-left: 0;
     }

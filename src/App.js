@@ -11,6 +11,7 @@ import ChartOfAccounts from "./components/home/ChartOfAccounts";
 import EventLogs from "./components/home/EventLogs";
 import AccountLedger from "./components/home/AccountLedger";
 import Help from "./components/home/Help";
+import Journalize from './components/home/Journalize';
 
 function App() {
     const location = useLocation();
@@ -47,6 +48,9 @@ function App() {
             case "/help":
                 document.title = "Help - Ledger Lifeline";
                 break;
+            case "/journalize":
+                document.title = "Journalize - Ledger Lifeline";
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -71,6 +75,7 @@ function App() {
                 <Route path="event-logs" element={<EventLogs />} />
                 <Route path="account-ledger" element={<AccountLedger />} />
                 <Route path="help" element={<Help />} />
+                <Route path="journalize" element={<Journalize />} />
             </Route>
         </Routes>
     );
