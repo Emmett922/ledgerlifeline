@@ -76,6 +76,14 @@ body {
     border-radius: 50%; /* Make it circular */
 }
 
+.calc-btn {
+    margin-left: -1.5%;
+}
+
+.calendar-btn {
+    margin-left: -0.5%;
+}
+
 
 .pfp {
     height: 45px;

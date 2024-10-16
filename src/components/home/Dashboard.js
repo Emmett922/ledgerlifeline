@@ -286,6 +286,7 @@ const Dashboard = () => {
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
+                                className="calc-btn"
                                 onClick={toggleCalculator}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calculator"

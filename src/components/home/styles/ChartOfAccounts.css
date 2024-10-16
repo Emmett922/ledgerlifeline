@@ -48,7 +48,6 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 .account .header-search {
@@ -129,7 +128,8 @@ body {
 
 
 
-.account .action-button1 {
+.account .action-button1,
+.email-btn {
     padding: 10px 5px;
     background-color: #007bff;
     color: #fff;
@@ -141,7 +141,13 @@ body {
     text-decoration: none;
 }
 
-.account .action-button1:hover {
+.email-btn {
+    padding: 1px 4px;
+    font-size: 24px;
+}
+
+.account .action-button1:hover
+.email-btn:hover {
     background-color: #1c4a7c;
 }
 
@@ -230,7 +236,9 @@ body {
     z-index: 1000;
 }
 
-.modal-content {
+.account .modal-content,
+.account .modal-email-content, 
+.account .modal-view-logs-content {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -243,14 +251,20 @@ body {
     flex-direction: column;
 }
 
-.modal-content form {
+.account .modal-view-logs-content {
+    width: 1500px;
     overflow-y: auto;
-    flex-grow: 1;
-    max-height: 60vh;
-    margin-bottom: 20px;
 }
 
-.account .modal-content form .form-sub-title{
+.modal-email-content form {
+    overflow-y: auto;
+    flex-grow: 1;
+    height: 100%;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.account .modal-content form .form-sub-title {
     display: flex;
     gap: 5px;
     margin-bottom: 25px;
@@ -267,33 +281,45 @@ body {
     margin-bottom: 20px;
 }
 
-.account .modal-content .form-group label {
+.account .modal-content .form-group label,
+.modal-email-content .form-group label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
 }
 
+.modal-email-content .form-group #selectUser {
+    margin-bottom: 20px;
+}
+
 .account .modal-content .form-group input,
-.account .modal-content .form-group textarea {
+.modal-email-content .form-group input,
+.account .modal-content .form-group textarea,
+.modal-email-content .form-group textarea {
     width: 100%;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
+    margin-bottom: 20px;
 }
 
 .account .modal-content .form-group input:focus,
-.account .modal-content .form-group textarea:focus {
+.modal-email-content .form-group input:focus,
+.account .modal-content .form-group textarea:focus,
+.modal-email-content .form-group textarea:focus {
     border-color: #007bff;
 }
 
-.account .modal-content .form-group textarea {
+.account .modal-content .form-group textarea,
+.modal-email-content .form-group textarea {
     height: 150px;
     resize: none;
 }
 
-.modal-content .modal-btns {
+.modal-content .modal-btns,
+.modal-email-content .modal-btns {
     display: flex;
     text-align: center;
     gap: 10px;

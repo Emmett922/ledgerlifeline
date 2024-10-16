@@ -42,6 +42,7 @@ const Users = () => {
     const [userTable, setUserTable] = useState(1);
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
+    const [storedUserFullName, setStoredUserFullName] = useState("");
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -69,6 +70,7 @@ const Users = () => {
         // If all other checks are met, get the storedUser's username
         if (storedUser) {
             setStoredUserName(storedUser.username);
+            setStoredUserFullName(`${storedUser.full_name} ${storedUser.last_name}`);
         }
     });
 
@@ -506,6 +508,7 @@ const Users = () => {
                         user: selectedUser,
                         subject: emailSubject,
                         message: formattedMessage,
+                        senderName: storedUserFullName,
                     }),
                 });
 

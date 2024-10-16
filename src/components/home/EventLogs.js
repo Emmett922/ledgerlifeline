@@ -398,8 +398,6 @@ const EventLogs = () => {
                 });
             }
         }
-
-        console.log("Changes:", changes);
         return changes;
     };
 

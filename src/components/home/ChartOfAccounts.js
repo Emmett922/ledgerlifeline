@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./styles/Accounts.css";
+import "./styles/ChartOfAccounts.css";
 import { Link } from "react-router-dom";
+import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Calendar from "react-calendar";
@@ -9,6 +10,7 @@ import Calculator from "../calc/Calculator";
 import Draggable from "react-draggable";
 import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
 import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 
@@ -57,12 +59,20 @@ const Accounts = () => {
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
+    const [storedUserFullName, setStoredUserFullName] = useState("");
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
     const [maxBalance, setMaxBalance] = useState("0.00");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
+    const [userArray, setUserArray] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailMessage, setEmailMessage] = useState("");
+    const [isEmailUserVisible, setIsEmailUserVisible] = useState(false);
+    const [isViewLogsVisible, setIsViewLogsVisible] = useState(false);
+    const [accountUpdateArray, setAccountUpdateArray] = useState([]);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -86,6 +96,7 @@ const Accounts = () => {
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
+            setStoredUserFullName(`${storedUser.first_name} ${storedUser.last_name}`);
         }
     });
 
@@ -128,6 +139,56 @@ const Accounts = () => {
             }
         };
         fetchAccounts();
+
+        // Get all users from database in
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle result
+                if (response.ok) {
+                    setUserArray(result);
+                } else {
+                    toast("Failed to retrieve users!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (error) {
+                console.log(error);
+                toast("An error occured. Failed to retrieve users!", {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
+            }
+        };
+        fetchUsers();
 
         // Show toast message if present in localStorage
         const toastMessage = localStorage.getItem("toastMessage");
@@ -173,6 +234,27 @@ const Accounts = () => {
             }, 500);
         }
     }, [API_URL]);
+
+    const adminEmailUserOptions = userArray
+        .filter((user) => user.role === "Manager" || user.role === "Accountant")
+        .map((user) => ({
+            value: user,
+            label: `${user.first_name} ${user.last_name}`,
+        }));
+
+    const managerEmailUserOptions = userArray
+        .filter((user) => user.role === "Admin" || user.role === "Accountant")
+        .map((user) => ({
+            value: user,
+            label: `${user.first_name} ${user.last_name}`,
+        }));
+
+    const accountantEmailUserOptions = userArray
+        .filter((user) => user.role === "Admin" || user.role === "Manager")
+        .map((user) => ({
+            value: user,
+            label: `${user.first_name} ${user.last_name}`,
+        }));
 
     // Handle the input changes from editing the account
     const handleEditInputChange = (event) => {
@@ -711,12 +793,205 @@ const Accounts = () => {
         navigate("/account-ledger");
     };
 
+    const handleViewLogs = async () => {
+        console.log("Selected Account ID:", selectedAccount._id);
+        try {
+            const response = await fetch(
+                `${API_URL}/event-logs/account-updates-by-id?id=${selectedAccount._id}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            // Gather the result
+            const result = await response.json();
+
+            console.log(result);
+
+            // Handle result
+            if (response.ok) {
+                setAccountUpdateArray(result);
+            } else {
+                console.log("Error message:", result.message); // Log error message
+                toast(`${result.message}`, {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast("An error occured. Failed to retrieve accounts!", {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
+        }
+        setIsViewLogsVisible(true);
+    };
+
+    // Function to render the changes made to an account
+    const renderAccountFieldChanges = (allUpdates) => {
+        const changesList = [];
+
+        // Loop through the array from the last element to the first
+        for (let i = allUpdates.length - 1; i >= 0; i--) {
+            const currUpdate = allUpdates[i];
+            const prevUpdate = i < allUpdates.length - 1 ? allUpdates[i + 1] : null; // Compare with the next update (older)
+
+            const changes = [];
+
+            if (!prevUpdate) {
+                // First update (latest one), treat as initial update
+                changes.push(
+                    {
+                        field: "Account Number",
+                        from: "None",
+                        to: currUpdate.accountNumber || "None",
+                    },
+                    { field: "Account Name", from: "None", to: currUpdate.accountName || "None" },
+                    {
+                        field: "Account Description",
+                        from: "None",
+                        to: currUpdate.accountDescription || "None",
+                    },
+                    { field: "Normal Side", from: "None", to: currUpdate.normalSide || "None" },
+                    {
+                        field: "Account Category",
+                        from: "None",
+                        to: currUpdate.accountCatagory || "None",
+                    },
+                    {
+                        field: "Account Subcategory",
+                        from: "None",
+                        to: currUpdate.accountSubCatagory || "None",
+                    },
+                    { field: "Account Balance", from: "None", to: currUpdate.balance || "None" },
+                    { field: "Account Debit", from: "None", to: currUpdate.debit || "None" },
+                    { field: "Account Credit", from: "None", to: currUpdate.credit || "None" },
+                    { field: "Account Order", from: "None", to: currUpdate.order || "None" },
+                    {
+                        field: "Account Statement",
+                        from: "None",
+                        to: currUpdate.statement || "None",
+                    },
+                    { field: "Account Comment", from: "None", to: currUpdate.comment || "None" },
+                    {
+                        field: "Account Active Status",
+                        from: "Inactive",
+                        to: currUpdate.isActive ? "Active" : "Inactive",
+                    }
+                );
+            } else {
+                // Compare each field between the current and previous update
+                const compareField = (field, displayName) => {
+                    const prevValue = prevUpdate[field] !== undefined ? prevUpdate[field] : "None";
+                    const currValue = currUpdate[field] !== undefined ? currUpdate[field] : "None";
+
+                    if (prevValue !== currValue) {
+                        changes.push({ field: displayName, from: prevValue, to: currValue });
+                    }
+                };
+
+                compareField("accountNumber", "Account Number");
+                compareField("accountName", "Account Name");
+                compareField("accountDescription", "Account Description");
+                compareField("normalSide", "Normal Side");
+                compareField("accountCatagory", "Account Category");
+                compareField("accountSubCatagory", "Account Subcategory");
+                compareField("balance", "Account Balance");
+                compareField("debit", "Account Debit");
+                compareField("credit", "Account Credit");
+                compareField("order", "Account Order");
+                compareField("statement", "Account Statement");
+                compareField("comment", "Account Comment");
+
+                // Special handling for isActive (true/false)
+                const prevIsActive =
+                    prevUpdate.isActive !== undefined ? prevUpdate.isActive : false;
+                const currIsActive =
+                    currUpdate.isActive !== undefined ? currUpdate.isActive : false;
+
+                if (prevIsActive !== currIsActive) {
+                    changes.push({
+                        field: "Account Active Status",
+                        from: prevIsActive ? "Active" : "Inactive",
+                        to: currIsActive ? "Active" : "Inactive",
+                    });
+                }
+            }
+
+            changesList.push({
+                _id: currUpdate._id,
+                changes,
+            });
+        }
+
+        return changesList;
+    };
+
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
     };
 
     const toggleCalculator = () => {
         setShowCalculator(!showCalculator);
+    };
+
+    const handleEmail = async () => {
+        const formattedMessage = emailMessage.replace(/\n/g, "<br>");
+
+        setTimeout(async () => {
+            try {
+                const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                    method: "POST",
+                    headers: {
+                        "content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        user: selectedUser,
+                        subject: emailSubject,
+                        message: formattedMessage,
+                        senderName: storedUserFullName,
+                    }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    // Store the message in localStorage
+                    localStorage.setItem("toastMessage", result.message);
+
+                    // Reload the page after storing the message
+                    window.location.reload();
+                } else {
+                    alert(`Failed to send email: ${result.message}`);
+                }
+            } catch (error) {
+                console.error("Error sending email:", error);
+                alert("Failed to send email.");
+            }
+        }, 0);
+
+        setIsEmailUserVisible(false);
     };
 
     const content = (
@@ -868,6 +1143,16 @@ const Accounts = () => {
                                 + Add Account
                             </button>
                             <button
+                                className="email-btn"
+                                title="Email Employee"
+                                onClick={() => {
+                                    setIsEmailUserVisible(true);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                            </button>
+                            <button
+                                className="calendar-btn"
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calendar"
@@ -875,6 +1160,7 @@ const Accounts = () => {
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
+                                className="calc-btn"
                                 onClick={toggleCalculator}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calculator"
@@ -887,6 +1173,15 @@ const Accounts = () => {
                     {storedUserRole === "Manager" && (
                         <div className="header-main">
                             <h1 className="header-title">Chart of Accounts</h1>
+                            <button
+                                className="email-btn"
+                                title="Email Employee"
+                                onClick={() => {
+                                    setIsEmailUserVisible(true);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                            </button>
                             <button
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
@@ -907,6 +1202,15 @@ const Accounts = () => {
                     {storedUserRole === "Accountant" && (
                         <div className="header-main">
                             <h1 className="header-title accountant">Chart of Accounts</h1>
+                            <button
+                                className="email-btn"
+                                title="Email Employee"
+                                onClick={() => {
+                                    setIsEmailUserVisible(true);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                            </button>
                             <button
                                 onClick={toggleCalendar}
                                 title="Open/Close pop-up calendar"
@@ -1340,6 +1644,14 @@ const Accounts = () => {
                                 >
                                     View Ledger
                                 </button>
+                                <button
+                                    type="button"
+                                    className="action-button2"
+                                    title="View event logs for selected account"
+                                    onClick={handleViewLogs}
+                                >
+                                    View Event Log
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1543,6 +1855,14 @@ const Accounts = () => {
                                         }}
                                     >
                                         View Ledger
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="action-button2"
+                                        title="View event logs for selected account"
+                                        onClick={handleViewLogs}
+                                    >
+                                        View Logs
                                     </button>
                                 </div>
                             </div>
@@ -1988,6 +2308,345 @@ const Accounts = () => {
                                 >
                                     Clear
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Admin" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={
+                                            adminEmailUserOptions.find(
+                                                (option) => option.value === selectedUser
+                                            ) || null
+                                        }
+                                        onChange={(option) => {
+                                            console.log(option.value);
+                                            setSelectedUser(option.value);
+                                        }}
+                                        options={adminEmailUserOptions}
+                                        isSearchable={true}
+                                        required
+                                        placeholder="Select a user"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Manager" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={
+                                            managerEmailUserOptions.find(
+                                                (option) => option.value === selectedUser
+                                            ) || null
+                                        }
+                                        onChange={(option) => {
+                                            console.log(option.value);
+                                            setSelectedUser(option.value);
+                                        }}
+                                        options={managerEmailUserOptions}
+                                        isSearchable={true}
+                                        required
+                                        placeholder="Select a user"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Accountant" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={
+                                            accountantEmailUserOptions.find(
+                                                (option) => option.value === selectedUser
+                                            ) || null
+                                        }
+                                        onChange={(option) => {
+                                            console.log(option.value);
+                                            setSelectedUser(option.value);
+                                        }}
+                                        options={accountantEmailUserOptions}
+                                        isSearchable={true}
+                                        required
+                                        placeholder="Select a user"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up modal to view logs of selected account */}
+                {isViewLogsVisible && (
+                    <div className="modal">
+                        <div className="modal-view-logs-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsViewLogsVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>
+                                {selectedAccount?.accountNumber} {selectedAccount?.accountName} -
+                                Event Logs
+                            </h2>
+                            <div className="log-table">
+                                <table className="event-log-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Field Changed</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Updated By</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {accountUpdateArray.length > 0 &&
+                                            // Sort updates from newest to oldest based on createdAt timestamp
+                                            accountUpdateArray
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(a.createdAt) -
+                                                        new Date(b.createdAt)
+                                                ) // Sort in descending order
+                                                .map((update, idx) => {
+                                                    // Pass sorted array into renderAccountFieldChanges to calculate changes
+                                                    const changes =
+                                                        renderAccountFieldChanges(
+                                                            accountUpdateArray
+                                                        );
+
+                                                    return (
+                                                        <tr key={update._id}>
+                                                            <td>
+                                                                <ul>
+                                                                    {changes[idx]?.changes?.map(
+                                                                        (change, changeIdx) => (
+                                                                            <li key={changeIdx}>
+                                                                                {change.field}
+                                                                            </li>
+                                                                        )
+                                                                    )}
+                                                                </ul>
+                                                            </td>
+                                                            <td>
+                                                                <ul>
+                                                                    {changes[idx]?.changes?.map(
+                                                                        (change, changeIdx) => (
+                                                                            <li key={changeIdx}>
+                                                                                {change.from}
+                                                                            </li>
+                                                                        )
+                                                                    )}
+                                                                </ul>
+                                                            </td>
+                                                            <td>
+                                                                <ul>
+                                                                    {changes[idx]?.changes?.map(
+                                                                        (change, changeIdx) => (
+                                                                            <li key={changeIdx}>
+                                                                                {change.to}
+                                                                            </li>
+                                                                        )
+                                                                    )}
+                                                                </ul>
+                                                            </td>
+                                                            <td>{update.updatedBy}</td>
+                                                            <td>
+                                                                {new Date(
+                                                                    update.createdAt
+                                                                ).toLocaleDateString()}{" "}
+                                                                {new Date(
+                                                                    update.createdAt
+                                                                ).toLocaleTimeString()}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
