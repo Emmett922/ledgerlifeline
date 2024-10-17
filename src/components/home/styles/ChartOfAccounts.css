@@ -20,14 +20,16 @@ body {
 }
 
 /* Dashboard layout */
-.account {
+.account,
+.journalize {
     display: flex;
     width: 100%;
     max-width: 1550px;
 }
 
 /* Main content styles */
-.account .main-content {
+.account .main-content,
+.journalize .main-content {
     width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
@@ -38,26 +40,30 @@ body {
     overflow-y: hidden;
 }
 
-.account .header {
+.account .header,
+.journalize .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.account .header-main {
+.account .header-main,
+.journalize .header-main {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.account .header-search {
+.account .header-search,
+.journalize .header-search {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
 }
 
 /* Flexbox alignment for header and button */
-.account .header-title {
+.account .header-title,
+.journalize .header-title {
     font-size: 2em;
     display: flex;
     align-items: center;
@@ -128,7 +134,7 @@ body {
 
 
 
-.account .action-button1,
+.action-button1,
 .email-btn {
     padding: 10px 5px;
     background-color: #007bff;
@@ -146,12 +152,12 @@ body {
     font-size: 24px;
 }
 
-.account .action-button1:hover
+.action-button1:hover
 .email-btn:hover {
     background-color: #1c4a7c;
 }
 
-.account .action-button2 {
+.action-button2 {
     padding: 10px;
     background-color: #007bff;
     color: #fff;
@@ -163,7 +169,7 @@ body {
     transition: background-color 0.3s;
   }
 
-.account .action-button2:hover {
+.action-button2:hover {
     background-color: #1c4a7c;
 }
 
@@ -177,7 +183,10 @@ body {
     text-align: left;
 }
 
-.account .account-table th, .account-table td {
+.account .account-table th,
+.account-table td,
+.journal-entry-table th,
+.journal-entry-table td {
     padding: 10px;
     border: 1px solid #ddd;
     border-top: none;
@@ -185,7 +194,8 @@ body {
     border-right: none;
 }
 
-.account .account-table th {
+.account .account-table th,
+.journal-entry-table th {
     background-color: #f4f4f4;
     border-bottom: 2px solid #ddd;
 }
@@ -236,9 +246,10 @@ body {
     z-index: 1000;
 }
 
-.account .modal-content,
+.modal-content,
 .account .modal-email-content, 
-.account .modal-view-logs-content {
+.account .modal-view-logs-content,
+.modal-new-journal-entry-content {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -251,9 +262,14 @@ body {
     flex-direction: column;
 }
 
-.account .modal-view-logs-content {
+.account .modal-view-logs-content,
+.modal-new-journal-entry-content {
     width: 1500px;
     overflow-y: auto;
+}
+
+.modal-new-journal-entry-content {
+    height: 90vh;
 }
 
 .modal-email-content form {
@@ -342,20 +358,22 @@ body {
     transition: background-color 0.3s;
 }
 
-.account .modal-btns .send-button:hover,
-.account .modal-btns .cancel-button:hover {
+.modal-btns .send-button:hover,
+.modal-btns .cancel-button:hover {
     background-color: #1c4a7c;
 }
 
-.account .modal-btns .cancel-button {
+.modal-btns .cancel-button,
+.action-button2.cancel {
     background-color: #dc3545;
 }
 
-.account .modal-btns .cancel-button:hover {
+.modal-btns .cancel-button:hover,
+.action-button2.cancel:hover {
     background-color: #a52a2a;
 }
 
-.account .close {
+.close {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -363,7 +381,7 @@ body {
     cursor: pointer;
 }
 
-.account .close:hover {
+.close:hover {
     color: #ff0000;
 }
 

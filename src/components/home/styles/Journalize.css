@@ -1,0 +1,243 @@
+.journalize .journal-entry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    text-align: left;
+    table-layout: fixed;
+}
+
+.journalize .journal-entry-table tbody {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+}
+
+.journalize .journal-entry-table thead,
+.journalize .journal-entry-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.journal-entry-table th:nth-child(4),
+.journal-entry-table td:nth-child(4) {
+    width: auto;
+}
+
+.journal-entry-table th,
+.journal-entry-table td {
+    border-left: none; /* Remove vertical lines */
+    border-right: none;
+    border-bottom: 1px solid #ccc; /* Keep horizontal line */
+    width: auto;
+}
+
+.journal-entry-table th:nth-child(1),
+.journal-entry-table td:nth-child(1) {
+    width: 12%; /* Date column */
+}
+
+.journal-entry-table th:nth-child(2),
+.journal-entry-table td:nth-child(2) {
+    width: 12%; /* Type column */
+}
+
+.journal-entry-table th:nth-child(3),
+.journal-entry-table td:nth-child(3) {
+    width: 12%; /* Creator column */
+}
+
+.journal-entry-table th:nth-child(5),
+.journal-entry-table td:nth-child(5) {
+    width: 12%; /* Debit column */
+}
+
+.journal-entry-table th:nth-child(6),
+.journal-entry-table td:nth-child(6) {
+    width: 12%; /* Credit column */
+}
+
+/* Journal Entry Creation Table Styles */
+.journal-entry-creation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.journal-entry-creation-table th,
+.journal-entry-creation-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left; /* Aligns text to the left */
+}
+
+.journal-entry-creation-table th {
+    background-color: #f4f4f4;
+}
+
+.new-entry-column {
+    width: 25%;
+}
+
+.debit-column {
+    width: 15%;
+    align-items: center;
+}
+
+.credit-column {
+    width: 15%;
+    align-items: center;
+}
+
+.debit-account-input,
+.credit-account-input {
+    display: flex;
+    align-items: center; /* Aligns buttons and select box */
+    margin-bottom: 20px; /* Adds space between inputs */
+    width: 60%;
+}
+
+.credit-account-input {
+    width: 70%;
+    margin-bottom: 20px;
+}
+
+.account-btns {
+    display: flex;
+    gap: 2px;
+    margin-left: 5px;
+}
+
+.account-btns button {
+    padding: 5px 10px;
+    color: white;
+}
+
+.debit-input,
+.credit-input {
+    display: flex;
+    align-items: center; /* Align input and $ symbol */
+}
+
+#journalDescription {
+    margin-bottom: 10px;
+}
+
+#file-drop-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#file-drop-area.drag-over {
+    background-color: #f0f0f0;
+}
+
+#file-list {
+    margin-top: 10px;
+}
+
+#file-list p {
+    margin: 5px 0;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px 0;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+.file-item p {
+    margin: 0;
+}
+
+.file-item button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.file-item button:hover {
+    background-color: #ff1a1a;
+}
+
+/* Modal button styles inside the journal entry creation table */
+.journal-entry-creation-table .modal-btns {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.journal-entry-creation-table .action-button2 {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.journal-entry-creation-table .action-button2:hover {
+    background-color: #1c4a7c; /* Darker blue on hover */
+}
+
+.journal-entry-creation-table .action-button2.cancel {
+    background-color: #dc3545; /* Red for cancel button */
+}
+
+.journal-entry-creation-table .action-button2.cancel:hover {
+    background-color: #a52a2a; /* Darker red on hover */
+}
+
+.journal-entry-creation-table input[type="text"],
+.journal-entry-creation-table input[type="tel"],
+.journal-entry-creation-table select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+.journal-entry-creation-table input[type="text"]:focus,
+.journal-entry-creation-table input[type="tel"]:focus,
+.journal-entry-creation-table select:focus {
+    border-color: #007bff; /* Change border color on focus */
+}
+
+.journal-entry-creation-table textarea {
+    width: 100%;
+    height: 60px;
+    padding: 8px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.journal-entry-creation-table textarea:focus {
+    border-color: #007bff; /* Change border color on focus */
+}
+
+.journalize .modal-btns {
+    gap: 10px;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .journal-entry-creation-table {
+        font-size: 14px; /* Adjust font size for smaller screens */
+    }
+}

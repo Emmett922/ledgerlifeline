@@ -1184,18 +1184,18 @@ const Accounts = () => {
                                 <FontAwesomeIcon icon={faEnvelope} size="lg" />
                             </button>
                             <button
-                                onClick={toggleCalendar}
-                                style={{ background: "none", border: "none", cursor: "pointer" }}
-                                title="Open/Close pop-up calendar"
-                            >
-                                <FontAwesomeIcon icon={faCalendar} size="2x" />
-                            </button>
-                            <button
                                 onClick={toggleCalculator}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calculator"
                             >
                                 <FontAwesomeIcon icon={faCalculator} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalendar}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calendar"
+                            >
+                                <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                         </div>
                     )}
@@ -1229,6 +1229,21 @@ const Accounts = () => {
                         </div>
                     )}
 
+                    {/* Draggable Calculator pop-up */}
+                    {showCalculator && (
+                        <div
+                            className="calculator-popup"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1000,
+                            }}
+                        >
+                            <Calculator />
+                        </div>
+                    )}
+
                     {/* Draggable Calendar pop-up */}
                     {showCalendar && (
                         <Draggable>
@@ -1247,21 +1262,6 @@ const Accounts = () => {
                                 <Calendar />
                             </div>
                         </Draggable>
-                    )}
-
-                    {/* Draggable Calculator pop-up */}
-                    {showCalculator && (
-                        <div
-                            className="calculator-popup"
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                zIndex: 1000,
-                            }}
-                        >
-                            <Calculator />
-                        </div>
                     )}
 
                     <div className="user-profile">

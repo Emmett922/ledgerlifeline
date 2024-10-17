@@ -149,6 +149,7 @@ body {
 .account.ledger #accounts-link:hover,
 .chartOfAccount #chart-of-accounts-link,
 .account.ledger #ledger-link,
+.journalize #journalize-link,
 .eventLogs #event-log-link {
     background-color: #1c4a7c;
 }

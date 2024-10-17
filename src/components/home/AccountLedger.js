@@ -242,7 +242,7 @@ const AccountLedger = () => {
                             className="sidebar-button"
                             id="dashboard-link"
                             title="Dashboard Page Link"
-                            to="dashboard"
+                            to="/dashboard"
                         >
                             Dashboard
                         </Link>
