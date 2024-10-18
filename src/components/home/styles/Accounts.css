@@ -268,6 +268,7 @@ select:disabled {
     text-decoration: none;
     color: #007bff;
     font-weight: lighter;
+    padding-bottom: 2%;
 }
 
 .account .modal-content .form-group {
