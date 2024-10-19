@@ -32,6 +32,17 @@
     width: auto;
 }
 
+.journal-entry-table td {
+    vertical-align: top;
+}
+
+.journalize .error-message {
+    color: red;
+    float: left;
+    font-size: 12px;
+    margin-left: 2px;
+}
+
 .journal-entry-table th:nth-child(1),
 .journal-entry-table td:nth-child(1) {
     width: 12%; /* Date column */
@@ -75,6 +86,14 @@
     background-color: #f4f4f4;
 }
 
+.journal-entry-creation-table td {
+    vertical-align: top;
+}
+
+.debit-row {
+    height: 20px;
+}
+
 .new-entry-column {
     width: 25%;
 }
@@ -92,20 +111,28 @@
 .debit-account-input,
 .credit-account-input {
     display: flex;
-    align-items: center; /* Aligns buttons and select box */
-    margin-bottom: 20px; /* Adds space between inputs */
-    width: 60%;
+    flex-direction: column; /* Stack the inputs vertically */
+    align-items: flex-start; /* Align items to the start */
+    width: 90%; /* Maintain desired width */
+    margin-bottom: 10px; /* Space between input groups */
 }
 
-.credit-account-input {
-    width: 70%;
-    margin-bottom: 20px;
+/* For the individual account inputs */
+.debit-account-input > *,
+.credit-account-input > * {
+    margin-bottom: 5px; /* Add space between inputs */
+    width: 100%; /* Ensure each input takes the full width */
 }
 
 .account-btns {
-    display: flex;
-    gap: 2px;
-    margin-left: 5px;
+    display: flex; /* Keep buttons aligned next to input */
+    gap: 2px; /* Space between buttons */
+    margin-left: 5px; /* Space from input */
+    align-items: center; /* Center buttons vertically */
+}
+
+.credit-account-input {
+    width: 100%;
 }
 
 .account-btns button {
@@ -116,7 +143,8 @@
 .debit-input,
 .credit-input {
     display: flex;
-    align-items: center; /* Align input and $ symbol */
+    flex-wrap: wrap;
+    margin-bottom: 10px;
 }
 
 #journalDescription {
@@ -127,6 +155,7 @@
     border: 2px dashed #ccc;
     padding: 20px;
     width: 100%;
+    margin-top: 10%;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -232,6 +261,12 @@
 }
 
 .journalize .modal-btns {
+    gap: 10px;
+}
+
+.journalize .modal .modal-btns {
+    display: flex;
+    justify-content: flex-end;
     gap: 10px;
 }
 

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Journalize.css";
 import { Link } from "react-router-dom";
+import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Calendar from "react-calendar";
@@ -41,6 +43,8 @@ const Journalize = () => {
     const [comment, setComment] = useState("");
     const [newComment, setNewComment] = useState("");
     const [accountArray, setAccountArray] = useState([]);
+    const [journalEntryArray, setJournalEntryArray] = useState([]);
+    const [errorMessageArray, setErrorMessageArray] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
@@ -51,10 +55,12 @@ const Journalize = () => {
     const [maxBalance, setMaxBalance] = useState("0.00");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
-    const [debitArray, setDebitArray] = useState([]);
-    const [creditArray, setCreditArray] = useState([]);
+    const [journalType, setJournalType] = useState("");
+    const [journalDescription, setJournalDescription] = useState("");
     const [selectedDebitAccount, setSelectedDebitAccount] = useState("");
     const [selectedCreditAccount, setSelectedCreditAccount] = useState("");
+    const [debitInputValues, setDebitInputValues] = useState([{ account: "", amount: "" }]);
+    const [creditInputValues, setCreditInputValues] = useState([{ account: "", amount: "" }]);
     const [debitValue, setDebitValue] = useState("");
     const [creditValue, setCreditValue] = useState("");
     const [entryType, setEntryType] = useState("");
@@ -121,10 +127,88 @@ const Journalize = () => {
                     });
                 }
             } catch (error) {
-                alert("An error occured. Failed to retrieve account!");
+                alert("An error occured. Failed to retrieve accounts!");
             }
         };
         fetchAccounts();
+
+        // Get all journalEntries
+        const fetchJournalEntries = async () => {
+            try {
+                const response = await fetch(`${API_URL}/journal-entry`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle result
+                if (response.ok) {
+                    setJournalEntryArray(result);
+                } else {
+                    // Show toast message
+                    toast(`${result.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occured. Failed to retrieve journal entries!");
+            }
+        };
+        fetchJournalEntries();
+
+        // Get error messages
+        const fetchErrorMessages = async () => {
+            try {
+                const response = await fetch(`${API_URL}/error-message`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle result
+                if (response.ok) {
+                    setErrorMessageArray(result);
+                } else {
+                    // Show toast message
+                    toast(`${result.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (err) {
+                console.log(err);
+                alert("An error occured. Failed to retrieve error messages!");
+            }
+        };
+        fetchErrorMessages();
 
         // Show toast message if present in localStorage
         const toastMessage = localStorage.getItem("toastMessage");
@@ -254,6 +338,18 @@ const Journalize = () => {
         }
     };
 
+    // Get the currently selected accounts from debit and credit inputs
+    const selectedDebitAccounts = debitInputValues.map((debit) => debit.account._id);
+    const selectedCreditAccounts = creditInputValues.map((credit) => credit.account._id);
+    const selectedAccounts = new Set([...selectedDebitAccounts, ...selectedCreditAccounts]);
+
+    const accountOptions = accountArray
+        .filter((account) => !selectedAccounts.has(account._id)) // Use _id for filtering
+        .map((account) => ({
+            value: account, // This is the entire account object
+            label: `${account.accountNumber} ${account.accountName}`,
+        }));
+
     const formatWithCommas = (value) => {
         const [integerPart, decimalPart] = value.split(".");
 
@@ -305,35 +401,135 @@ const Journalize = () => {
     };
 
     const handleAddNewJournal = async () => {
+        const formattedDebitValues = debitInputValues.map((item) => ({
+            account: item.account._id, // Ensure this points to the ObjectId
+            amount: parseFloat(item.amount), // Ensure amount is a number
+        }));
+
+        const formattedCreditValues = creditInputValues.map((item) => ({
+            account: item.account._id, // Ensure this points to the ObjectId
+            amount: parseFloat(item.amount), // Ensure amount is a number
+        }));
+
+        // Calculate total debit and credit amounts
+        const totalDebitAmount = formattedDebitValues.reduce((acc, item) => acc + item.amount, 0);
+        const totalCreditAmount = formattedCreditValues.reduce((acc, item) => acc + item.amount, 0);
+
+        // Check if debit and credit totals are equal
+        if (totalDebitAmount !== totalCreditAmount) {
+            // Show toast message
+            toast(errorForImbalanceOfValues.message, {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
+            return; // Prevent submission if the totals are not equal
+        }
+
         const accountData = {
-            accountName: newAccountName,
-            accountNumber: newAccountNumber,
-            accountDescription: newAccountDescription,
-            normalSide: newNormalSide === "Debit" ? "L" : "R",
-            debit: newDebit,
-            credit: newCredit,
-            balance: newBalance,
+            debit: formattedDebitValues,
+            credit: formattedCreditValues,
+            type: journalType,
+            description: journalDescription,
             createdBy: storedUserName,
         };
 
+        // Prepare FormData to include the journal data and files
+        const formData = new FormData();
+        formData.append("journalEntry", JSON.stringify(accountData)); // Append journal data as a string
+        for (let file of files) {
+            console.log("File being uploaded:", file); // Log the file object
+            formData.append("files", file);
+        }
+
         try {
-            const response = await fetch(`${API_URL}/accounts`, {
+            const response = await fetch(`${API_URL}/journal-entry`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(accountData),
+                body: formData,
             });
 
-            const result = await response.json();
+            if (!response.ok) {
+                const errorResult = await response.json(); // Get the error details
+                console.error("Error response:", errorResult);
+                alert(`Error: ${errorResult.message}`);
+                return; // Stop further execution if there's an error
+            }
 
+            const result = await response.json();
             localStorage.setItem("toastMessage", result.message);
             setIsAddJournalVisible(false);
             window.location.reload();
         } catch (error) {
-            console.error("Error submitting new account details", error);
+            console.error("Error submitting new journal entry details", error);
             alert("An error occurred. Please try again.");
         }
+    };
+
+    // Add Debit Input
+    const addDebitInput = () => {
+        setDebitInputValues([...debitInputValues, { account: "", amount: "" }]);
+    };
+
+    // Remove Debit Input
+    const removeDebitInput = (index) => {
+        if (debitInputValues.length > 1) {
+            const newDebitValues = debitInputValues.filter((_, i) => i !== index);
+            setDebitInputValues(newDebitValues);
+        }
+    };
+
+    // Add Credit Input
+    const addCreditInput = () => {
+        setCreditInputValues([...creditInputValues, { account: "", amount: "" }]);
+    };
+
+    // Remove Credit Input
+    const removeCreditInput = (index) => {
+        if (creditInputValues.length > 1) {
+            const newCreditValues = creditInputValues.filter((_, i) => i !== index);
+            setCreditInputValues(newCreditValues);
+        }
+    };
+
+    // Update Debit Input Values
+    const handleDebitInputChange = (index, field, value) => {
+        const updatedDebits = [...debitInputValues];
+        updatedDebits[index][field] = value; // Here, value should be the entire account object
+        setDebitInputValues(updatedDebits);
+    };
+
+    const formatInputValue = (value) => {
+        const input = value.replace(/\D/g, ""); // Remove non-digit characters
+        const debitValue = parseFloat(input) / 100; // Convert to decimal
+        return debitValue.toFixed(2); // Format to two decimal places
+    };
+
+    const handleInputChange = (event, index, type) => {
+        const value = event.target.value;
+        const formattedValue = formatInputValue(value);
+
+        // Update the state with the formatted value
+        if (type === "d") {
+            handleDebitInputChange(index, "amount", formattedValue);
+        } else {
+            handleCreditInputChange(index, "amount", formattedValue);
+        }
+    };
+
+    // Update Credit Input Values
+    const handleCreditInputChange = (index, field, value) => {
+        console.log("Selected account:", value);
+        const updatedCredits = [...creditInputValues];
+        updatedCredits[index][field] = value;
+        setCreditInputValues(updatedCredits);
     };
 
     // Handle files selected via drag-and-drop or input field
@@ -367,7 +563,7 @@ const Journalize = () => {
     };
 
     // Handle input field file selection
-    const handleInputChange = (e) => {
+    const handleFileInputChange = (e) => {
         const selectedFiles = e.target.files;
         handleFiles(selectedFiles);
     };
@@ -383,11 +579,65 @@ const Journalize = () => {
     };
 
     const handleClearAll = () => {
-        setNewAccountNumber("");
-        setNewAccountName("");
-        setNewAccountDescription("");
-        setNewDebit("");
-        setNewCredit("");
+        setJournalType("");
+        setJournalDescription("");
+        setFiles([]);
+        // Clear all values but keep one set of debit and credit inputs
+        setDebitInputValues((prevValues) => {
+            if (prevValues.length > 0) {
+                return [
+                    {
+                        account: "", // keep the first account
+                        amount: "", // clear the amount
+                    },
+                ];
+            }
+            return [{ account: "", amount: "" }]; // default if no previous values
+        });
+
+        setCreditInputValues((prevValues) => {
+            if (prevValues.length > 0) {
+                return [
+                    {
+                        account: "", // keep the first account
+                        amount: "", // clear the amount
+                    },
+                ];
+            }
+            return [{ account: "", amount: "" }]; // default if no previous values
+        });
+    };
+
+    const handleCancel = () => {
+        setJournalType("");
+        setJournalDescription("");
+        setFiles([]);
+        // Clear all values but keep one set of debit and credit inputs
+        setDebitInputValues((prevValues) => {
+            if (prevValues.length > 0) {
+                return [
+                    {
+                        account: "", // keep the first account
+                        amount: "", // clear the amount
+                    },
+                ];
+            }
+            return [{ account: "", amount: "" }]; // default if no previous values
+        });
+
+        setCreditInputValues((prevValues) => {
+            if (prevValues.length > 0) {
+                return [
+                    {
+                        account: "", // keep the first account
+                        amount: "", // clear the amount
+                    },
+                ];
+            }
+            return [{ account: "", amount: "" }]; // default if no previous values
+        });
+
+        setIsAddJournalVisible(false);
     };
 
     const handleLogout = () => {
@@ -395,87 +645,78 @@ const Journalize = () => {
         navigate("/"); // Redirect to login
     };
 
-    const isDisabled2 = !newAccountCatagory;
+    const areDebitInputsValid = debitInputValues.every(
+        (debit) => debit.account && debit.amount && debit.amount > 0 // Ensure account and amount are filled
+    );
 
-    const isAddNewDisabled = !(
-        newAccountName &&
-        newAccountNumber &&
-        newAccountCatagory &&
-        newAccountDescription &&
-        newOrder &&
-        newComment
+    const areCreditInputsValid = creditInputValues.every(
+        (credit) => credit.account && credit.amount && credit.amount > 0 // Ensure account and amount are filled
+    );
+
+    const isDebitAccountSelected = debitInputValues.every((debit) => debit.account);
+    const isDebitValueInput = debitInputValues.every((debit) => debit.amount && debit.amount > 0);
+
+    const isCreditAccountSelected = creditInputValues.every((credit) => credit.account);
+    const isCreditValueInput = creditInputValues.every(
+        (credit) => credit.amount && credit.amount > 0
+    );
+
+    const isJournalEntrySubmitDisabled = !(
+        journalType &&
+        journalDescription &&
+        files.length > 0 &&
+        areDebitInputsValid &&
+        areCreditInputsValid
     );
 
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
-        return accountArray.filter((account) => {
-            // Extract and convert the account creation date to YYYY-MM-DD string
-            const accountCreatedDate = new Date(account.createdAt);
-            const accountCreatedDateString = accountCreatedDate.toISOString().split("T")[0]; // Get date in 'YYYY-MM-DD' format
+        return journalEntryArray.filter((entry) => {
+            const updatedAtDate = new Date(entry.updatedAt).toLocaleDateString();
 
-            // Convert fromDate and toDate to YYYY-MM-DD strings (if they exist)
-            const fromDateString = fromDate ? new Date(fromDate).toISOString().split("T")[0] : null;
-            const toDateString = toDate ? new Date(toDate).toISOString().split("T")[0] : null;
+            // Helper function to check if any term matches a value
+            const matchesSearchTerm = (value) => {
+                return searchTerms.some((term) => value.toLowerCase().includes(term));
+            };
 
-            // Apply date filter if fromDate or toDate are set
-            const isWithinDateRange = (() => {
-                if (!fromDateString && !toDateString) return true; // If no date filters, include all accounts
+            // Check debit accounts for matching account numbers or names
+            const matchesDebit = entry.debit.some(
+                (debitAccount) =>
+                    matchesSearchTerm(debitAccount.account.accountNumber.toString()) ||
+                    matchesSearchTerm(debitAccount.account.accountName)
+            );
 
-                if (fromDateString && toDateString) {
-                    // Include accounts created between fromDate and toDate (inclusive)
-                    return (
-                        accountCreatedDateString >= fromDateString &&
-                        accountCreatedDateString <= toDateString
-                    );
-                } else if (fromDateString) {
-                    // Include accounts created on or after fromDate
-                    return accountCreatedDateString >= fromDateString;
-                } else if (toDateString) {
-                    // Include accounts created on or before toDate
-                    return accountCreatedDateString <= toDateString;
-                }
-                return true;
-            })();
+            // Check credit accounts for matching account numbers or names
+            const matchesCredit = entry.credit.some(
+                (creditAccount) =>
+                    matchesSearchTerm(creditAccount.account.accountNumber.toString()) ||
+                    matchesSearchTerm(creditAccount.account.accountName)
+            );
 
-            // Balance filter logic
-            const isWithinBalanceRange = (() => {
-                const min = parseFloat(minBalance) || null;
-                const max = parseFloat(maxBalance) || null;
+            // Check if any search term matches the type, creator, status, or date
+            const matchesType = matchesSearchTerm(entry.type.toLowerCase());
+            const matchesCreatedBy = matchesSearchTerm(entry.createdBy.toLowerCase());
+            const matchesStatus = matchesSearchTerm(entry.status.toLowerCase());
+            const matchesUpdatedAt = searchTerms.some((term) => updatedAtDate.includes(term));
+            const matchesUpdatedBy = entry.updatedBy
+                ? matchesSearchTerm(entry.updatedBy.toLowerCase())
+                : false;
 
-                if (!min && !max) return true; // If no balance filters, include all accounts
-
-                if (min !== null && max !== null) {
-                    return account.balance >= min && account.balance <= max;
-                } else if (min !== null) {
-                    return account.balance >= min;
-                } else if (max !== null) {
-                    return account.balance <= max;
-                }
-                return true;
-            })();
-
-            const isActiveStatus = account.isActive ? "active" : "inactive"; // Determine status text
-
-            // Check if any search term matches the relevant fields AND the account is within the date and balance range
+            // Return true if any of the fields match the search query
             return (
-                isWithinDateRange &&
-                isWithinBalanceRange &&
-                searchTerms.every(
-                    (term) =>
-                        account.accountNumber.toString().includes(term) ||
-                        account.accountName.toLowerCase().includes(term) ||
-                        account.accountCatagory.toLowerCase().includes(term) ||
-                        account.accountSubcatagory.toLowerCase().includes(term) ||
-                        term === account.balance.toFixed(2) || //account.balance.toFixed(2).includes(term) ||
-                        account.accountDescription.toLowerCase().includes(term) ||
-                        term === isActiveStatus // isActiveStatus.includes(term)
-                )
+                matchesDebit ||
+                matchesCredit ||
+                matchesType ||
+                matchesCreatedBy ||
+                matchesStatus ||
+                matchesUpdatedAt ||
+                matchesUpdatedBy
             );
         });
     };
 
-    const filteredJournal = handleSearch(searchQuery);
+    const filteredJournalEntries = handleSearch(searchQuery);
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
@@ -484,6 +725,25 @@ const Journalize = () => {
     const toggleCalculator = () => {
         setShowCalculator(!showCalculator);
     };
+
+    // -- Error messages -- //
+    // Entry Type Error
+    const errorForJournalType = errorMessageArray.find((error) => error.errorID === "ER1");
+
+    // Entry Description Error
+    const errorForEntryDescription = errorMessageArray.find((error) => error.errorID === "ER2");
+
+    // Entry Documentation Error
+    const errorForEntryDocumentation = errorMessageArray.find((error) => error.errorID === "ER3");
+
+    // Account selection error
+    const errorForAccountSelect = errorMessageArray.find((error) => error.errorID === "ER4");
+
+    // Selection value error
+    const errorForInputValue = errorMessageArray.find((error) => error.errorID === "ER5");
+
+    // Imbalance error
+    const errorForImbalanceOfValues = errorMessageArray.find((error) => error.errorID === "ER6");
 
     const content = (
         <section className="journalize">
@@ -676,78 +936,90 @@ const Journalize = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredJournal
-                            .sort((a, b) => a.accountNumber - b.accountNumber)
-                            .map((account, index) => (
-                                <tr>
-                                    <td>{`${new Date(account.createdAt).toLocaleDateString()}`}</td>
-                                    <td>{/*Journal "Type" HERE*/}</td>
-                                    <td>{account.createdBy}</td>
-                                    <td>
-                                        {/* First row: Show only the debited account (account number and name) */}
-                                        {account.debit > 0 && (
-                                            <div>
-                                                <span style={{ color: "blue" }}>
-                                                    {account.accountNumber}
-                                                </span>{" "}
-                                                - <strong>{account.accountName}</strong>
-                                            </div>
-                                        )}
-
-                                        {/*
-                                            // Filter and display debited accounts for the same ledger //
-                                            {debit.filter(account => account.ledgerId === currentLedgerId).length > 0 && (
-                                                <>
-                                                // Display the first debited account if it exists //
-                                                <div>
-                                                    <span style={{ color: 'blue' }}>{debit[0].accountNumber}</span> - <strong>{debit[0].accountName}</strong>
-                                                </div>
-
-                                                // Display additional debited accounts in the same ledger //
-                                                {debit.slice(1).filter(account => account.ledgerId === currentLedgerId).map((account, index) => (
-                                                    <div key={index} style={{ paddingLeft: '10px' }}>
-                                                    <span style={{ color: 'blue' }}>{account.accountNumber}</span> - <strong>{account.accountName}</strong>
-                                                    </div>
-                                                ))}
-                                                </>
-                                            )}
-                                            */}
-
-                                        {/* Second row: Show only the credited account (account number and name) */}
-                                        {account.credit > 0 && (
-                                            <div>
-                                                <span
-                                                    style={{ paddingLeft: "20px", color: "blue" }}
-                                                >
-                                                    {account.accountNumber}
-                                                </span>{" "}
-                                                - <strong>{account.accountName}</strong>
-                                            </div>
-                                        )}
-                                        {/* Third row: Description */}
-                                        <div>
-                                            <span style={{ fontWeight: "bold" }}>
-                                                Description:{" "}
-                                            </span>
-                                            {account.accountDescription}.
+                        {filteredJournalEntries.map((entry, index) => (
+                            <tr key={index}>
+                                <td>
+                                    <strong>
+                                        {new Date(entry.updatedAt).toLocaleDateString()}
+                                    </strong>
+                                    <br />
+                                    <br />
+                                    <strong>
+                                        <span
+                                            style={{
+                                                color:
+                                                    entry.status === "Approved"
+                                                        ? "green"
+                                                        : entry.status === "Rejected"
+                                                        ? "red"
+                                                        : "orange",
+                                            }}
+                                        >
+                                            {entry.status}
+                                        </span>
+                                    </strong>
+                                    <br />
+                                    <br />
+                                    {(entry.status === "Approved" ||
+                                        entry.status === "Rejected") && (
+                                        <span
+                                            style={{
+                                                color: "#007bff",
+                                                textDecoration: "underline",
+                                            }}
+                                        >
+                                            {entry.updatedBy}
+                                        </span>
+                                    )}
+                                </td>
+                                <td>{entry.type}</td>
+                                <td>{entry.createdBy}</td>
+                                <td>
+                                    {entry.debit.map((debitAccount, index) => (
+                                        <div key={index}>
+                                            <span style={{ color: "#007bff" }}>
+                                                {debitAccount.account.accountNumber}
+                                            </span>{" "}
+                                            - <strong>{debitAccount.account.accountName}</strong>
                                         </div>
-                                    </td>
-                                    <td>
-                                        {account.debit
-                                            ? `$${formatWithCommas(account.debit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>
-                                        <div>
-                                            {account.credit
-                                                ? `$${formatWithCommas(account.credit.toFixed(2))}`
-                                                : " "}
+                                    ))}
+                                    <br />
+                                    {entry.credit.map((creditAccount, index) => (
+                                        <div key={index} style={{ paddingLeft: "40px" }}>
+                                            <span style={{ color: "#007bff" }}>
+                                                {creditAccount.account.accountNumber}
+                                            </span>{" "}
+                                            - <strong>{creditAccount.account.accountName}</strong>
                                         </div>
-                                    </td>{" "}
-                                    {/* Show blank if credit is 0 or credit equals debit */}
-                                </tr>
-                            ))}
+                                    ))}
+                                    <br />
+                                    <div>
+                                        <span style={{ fontWeight: "bold" }}>Description: </span>
+                                        {entry.description}.
+                                    </div>
+                                </td>
+                                <td>
+                                    {entry.debit.map((debitAccount, index) => (
+                                        <div key={index}>
+                                            ${formatWithCommas(debitAccount.amount.toFixed(2))}
+                                        </div>
+                                    ))}
+                                </td>
+                                <td>
+                                    <br />
+                                    {entry.debit.map((_, index) => (
+                                        <React.Fragment key={index}>
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
+                                    {entry.credit.map((creditAccount, index) => (
+                                        <div key={index}>
+                                            ${formatWithCommas(creditAccount.amount.toFixed(2))}
+                                        </div>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
 
@@ -830,175 +1102,352 @@ const Journalize = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className="new-entry-column">
-                                                <select
-                                                    id="journalType"
-                                                    name="journalType"
-                                                    defaultValue=""
-                                                    required
-                                                >
-                                                    <option value="" disabled>
-                                                        Select Type
-                                                    </option>
-                                                    <option value="expense">Regular</option>
-                                                    <option value="revenue">Adjusting</option>
-                                                </select>
-                                                <textarea
-                                                    id="journalDescription"
-                                                    name="journalDescription"
-                                                    placeholder="Description"
-                                                />
-                                                <div
-                                                    id="file-drop-area"
-                                                    onClick={handleClick}
-                                                    onDragOver={handleDragOver}
-                                                    onDragLeave={handleDragLeave}
-                                                    onDrop={handleDrop}
-                                                >
-                                                    <p>
-                                                        Drag and drop files here or click to browse
-                                                    </p>
-                                                    <input
-                                                        type="file"
-                                                        id="file-input"
-                                                        accept=".doc,.docx,.pdf,.xls,.xlsx,.csv,.png,.jpg"
-                                                        multiple
-                                                        onChange={handleInputChange}
-                                                        style={{ display: "none" }} // Hide the input field
-                                                    />
-                                                </div>
-
-                                                <div id="file-list">
-                                                    {files.length > 0 &&
-                                                        files.map((file, index) => (
-                                                            <div key={index} className="file-item">
-                                                                <p>
-                                                                    {file.name} (
-                                                                    {(file.size / 1024).toFixed(2)}{" "}
-                                                                    KB)
-                                                                </p>
-                                                                <button
-                                                                    onClick={() =>
-                                                                        removeFile(index)
-                                                                    }
-                                                                >
-                                                                    X
-                                                                </button>
-                                                            </div>
-                                                        ))}
-                                                </div>
-                                            </td>
-                                            {/* Account Column with Debit and Credit Accounts */}
-                                            <td className="account-column">
-                                                {/* Debit Account */}
-                                                <div className="debit-account-input">
+                                        <tr className="debit-row">
+                                            {/* New Entry Column - Spanning both Debit and Credit rows */}
+                                            <td className="new-entry-column" rowSpan="2">
+                                                <div className="new-entry-inputs">
                                                     <select
-                                                        id="debit-account"
-                                                        name="debit-account"
+                                                        id="journalType"
+                                                        name="journalType"
+                                                        value={journalType}
+                                                        onChange={(event) => {
+                                                            setJournalType(event.target.value);
+                                                        }}
                                                         defaultValue=""
                                                         required
                                                     >
                                                         <option value="" disabled>
-                                                            Select Account
+                                                            Select Type
                                                         </option>
+                                                        <option value="Regular">Regular</option>
+                                                        <option value="Adjusting">Adjusting</option>
                                                     </select>
-                                                    <div className="account-btns">
-                                                        <button type="button" className="add-btn">
-                                                            +
-                                                        </button>
-                                                        <button type="button" className="del-btn">
-                                                            -
-                                                        </button>
+                                                    {/* Render the error message below the select input */}
+                                                    {!journalType && errorForJournalType && (
+                                                        <div className="error-message">
+                                                            {errorForJournalType.message}{" "}
+                                                            {/* Display the message for ER1 */}
+                                                        </div>
+                                                    )}
+                                                    <textarea
+                                                        id="journalDescription"
+                                                        name="journalDescription"
+                                                        value={journalDescription}
+                                                        onChange={(event) => {
+                                                            setJournalDescription(
+                                                                event.target.value
+                                                            );
+                                                        }}
+                                                        placeholder="Description"
+                                                    />
+                                                    {/* Render the error message below the select input */}
+                                                    {!journalDescription &&
+                                                        errorForEntryDescription && (
+                                                            <div className="error-message">
+                                                                {errorForEntryDescription.message}{" "}
+                                                                {/* Display the message for ER1 */}
+                                                            </div>
+                                                        )}
+                                                    <br />
+                                                    <div
+                                                        id="file-drop-area"
+                                                        onClick={handleClick}
+                                                        onDragOver={handleDragOver}
+                                                        onDragLeave={handleDragLeave}
+                                                        onDrop={handleDrop}
+                                                    >
+                                                        <p>
+                                                            Drag and drop files here or click to
+                                                            browse
+                                                        </p>
+                                                        <input
+                                                            type="file"
+                                                            id="file-input"
+                                                            accept=".doc,.docx,.pdf,.xls,.xlsx,.csv,.png,.jpg"
+                                                            multiple
+                                                            onChange={handleFileInputChange}
+                                                            style={{ display: "none" }} // Hide the input field
+                                                        />
                                                     </div>
+                                                    <div id="file-list">
+                                                        {files.length > 0 &&
+                                                            files.map((file, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="file-item"
+                                                                >
+                                                                    <p>
+                                                                        {file.name} (
+                                                                        {(file.size / 1024).toFixed(
+                                                                            2
+                                                                        )}{" "}
+                                                                        KB)
+                                                                    </p>
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            removeFile(index)
+                                                                        }
+                                                                    >
+                                                                        X
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                    {/* Render the error message below the select input */}
+                                                    {!files.length > 0 &&
+                                                        errorForEntryDocumentation && (
+                                                            <div className="error-message">
+                                                                {errorForEntryDocumentation.message}{" "}
+                                                                {/* Display the message for ER1 */}
+                                                            </div>
+                                                        )}
                                                 </div>
+                                            </td>
+                                            {/* Debit Row with Existing Inputs */}
+                                            <td className="account-column">
+                                                {/* Debit Account */}
+                                                <div className="debit-account-input">
+                                                    {debitInputValues.map((debit, index) => (
+                                                        <div
+                                                            key={`debit-account-${index}`}
+                                                            className="debit-account-input"
+                                                        >
+                                                            <Select
+                                                                id={`debit-account-${index}`}
+                                                                name={`debit-account-${index}`}
+                                                                title="Select debit account"
+                                                                value={
+                                                                    debit.account
+                                                                        ? {
+                                                                              value: debit.account, // Ensure this is the same object structure as in accountOptions
+                                                                              label: `${debit.account.accountNumber} ${debit.account.accountName}`,
+                                                                          }
+                                                                        : null
+                                                                }
+                                                                onChange={(option) =>
+                                                                    handleDebitInputChange(
+                                                                        index,
+                                                                        "account",
+                                                                        option.value
+                                                                    )
+                                                                }
+                                                                options={accountOptions}
+                                                                isSearchable={true}
+                                                                required
+                                                                placeholder="Select debit account"
+                                                            />
 
+                                                            <div className="account-btns">
+                                                                <button
+                                                                    type="button"
+                                                                    className="add-btn"
+                                                                    onClick={() => addDebitInput()}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="del-btn"
+                                                                    onClick={() =>
+                                                                        removeDebitInput(index)
+                                                                    }
+                                                                >
+                                                                    -
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {/* Render the error message below the select input */}
+                                                {!isDebitAccountSelected &&
+                                                    errorForAccountSelect && (
+                                                        <div className="error-message">
+                                                            {errorForAccountSelect.message}{" "}
+                                                            {/* Display the message for ER1 */}
+                                                        </div>
+                                                    )}
+                                            </td>
+                                            <td className="debit-column">
+                                                {/* Debit Input */}
+                                                <div className="debit-input">
+                                                    {debitInputValues.map((debit, index) => (
+                                                        <div
+                                                            key={`debit-input-${index}`}
+                                                            className="debit-input"
+                                                        >
+                                                            <span>$</span>
+                                                            <input
+                                                                type="tel"
+                                                                name={`debit-amount-${index}`}
+                                                                placeholder="0.00"
+                                                                value={
+                                                                    debitInputValues[index]
+                                                                        ?.amount || "0.00"
+                                                                } // Default to "0.00"
+                                                                onChange={(event) =>
+                                                                    handleInputChange(
+                                                                        event,
+                                                                        index,
+                                                                        "d"
+                                                                    )
+                                                                }
+                                                                inputMode="numeric"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {/* Render the error message below the select input */}
+                                                {!isDebitValueInput && errorForInputValue && (
+                                                    <div className="error-message">
+                                                        {errorForInputValue.message}{" "}
+                                                        {/* Display the message for ER1 */}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="credit-column"></td>{" "}
+                                            {/* Empty column for alignment */}
+                                        </tr>
+
+                                        {/* Credit Row with Existing Inputs */}
+                                        <tr className="credit-row">
+                                            <td className="account-column">
                                                 {/* Credit Account */}
                                                 <div
                                                     className="credit-account-input"
                                                     style={{ paddingLeft: "10%" }}
                                                 >
-                                                    <select
-                                                        id="credit-account"
-                                                        name="credit-account"
-                                                        defaultValue=""
-                                                        required
-                                                    >
-                                                        <option value="" disabled>
-                                                            Select Account
-                                                        </option>
-                                                    </select>
-                                                    <div className="account-btns">
-                                                        <button type="button" className="add-btn">
-                                                            +
-                                                        </button>
-                                                        <button type="button" className="del-btn">
-                                                            -
-                                                        </button>
-                                                    </div>
+                                                    {creditInputValues.map((credit, index) => (
+                                                        <div
+                                                            key={`credit-account-${index}`}
+                                                            className="credit-account-input"
+                                                        >
+                                                            <Select
+                                                                id={`credit-account-${index}`}
+                                                                name={`credit-account-${index}`}
+                                                                title="Select credit account"
+                                                                value={
+                                                                    credit.account
+                                                                        ? {
+                                                                              value: credit.account, // Ensure this is the same object structure as in accountOptions
+                                                                              label: `${credit.account.accountNumber} ${credit.account.accountName}`,
+                                                                          }
+                                                                        : null
+                                                                }
+                                                                onChange={(option) =>
+                                                                    handleCreditInputChange(
+                                                                        index,
+                                                                        "account",
+                                                                        option.value
+                                                                    )
+                                                                }
+                                                                options={accountOptions}
+                                                                isSearchable={true}
+                                                                required
+                                                                placeholder="Select credit account"
+                                                            />
+                                                            <div className="account-btns">
+                                                                <button
+                                                                    type="button"
+                                                                    className="add-btn"
+                                                                    onClick={() => addCreditInput()}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="del-btn"
+                                                                    onClick={() =>
+                                                                        removeCreditInput(index)
+                                                                    }
+                                                                >
+                                                                    -
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
+                                                {/* Render the error message below the select input */}
+                                                {!isCreditAccountSelected &&
+                                                    errorForAccountSelect && (
+                                                        <div
+                                                            className="error-message"
+                                                            style={{ paddingLeft: "10%" }}
+                                                        >
+                                                            {errorForAccountSelect.message}{" "}
+                                                            {/* Display the message for ER1 */}
+                                                        </div>
+                                                    )}
                                             </td>
-
-                                            {/* Debit Input */}
-                                            <td className="debit-column">
-                                                <div className="debit-input">
-                                                    <span>$</span>
-                                                    <input
-                                                        type="tel"
-                                                        name="debit-amount"
-                                                        pattern="\d+(\.\d{2})?"
-                                                        placeholder="0.00"
-                                                        title="Enter debit amount"
-                                                        required
-                                                    />
-                                                </div>
-                                            </td>
-
-                                            {/* Credit Input */}
+                                            <td className="debit-column"></td>{" "}
+                                            {/* Empty column for alignment */}
                                             <td className="credit-column">
+                                                {/* Credit Input */}
                                                 <div className="credit-input">
-                                                    <span>$</span>
-                                                    <input
-                                                        type="tel"
-                                                        name="credit-amount"
-                                                        pattern="\d+(\.\d{2})?"
-                                                        placeholder="0.00"
-                                                        title="Enter credit amount"
-                                                        required
-                                                    />
+                                                    {creditInputValues.map((credit, index) => (
+                                                        <div
+                                                            key={`credit-input-${index}`}
+                                                            className="credit-input"
+                                                        >
+                                                            <span>$</span>
+                                                            <input
+                                                                type="tel"
+                                                                name={`credit-amount-${index}`}
+                                                                placeholder="0.00"
+                                                                value={
+                                                                    creditInputValues[index]
+                                                                        ?.amount || "0.00"
+                                                                } // Default to "0.00"
+                                                                onChange={(event) =>
+                                                                    handleInputChange(
+                                                                        event,
+                                                                        index,
+                                                                        "c"
+                                                                    )
+                                                                }
+                                                                inputMode="numeric"
+                                                            />
+                                                        </div>
+                                                    ))}
                                                 </div>
+                                                {/* Render the error message below the select input */}
+                                                {!isCreditValueInput && errorForInputValue && (
+                                                    <div className="error-message">
+                                                        {errorForInputValue.message}{" "}
+                                                        {/* Display the message for ER1 */}
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <div className="modal-btns">
-                                    <button
-                                        type="button"
-                                        className="action-button2"
-                                        title="Submit details for account creation"
-                                        onClick={handleAddNewJournal}
-                                        disabled={isAddNewDisabled}
-                                    >
-                                        Submit
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="action-button2"
-                                        title="Clear all inputs"
-                                        onClick={handleClearAll}
-                                    >
-                                        Clear
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="action-button2 cancel"
-                                        title="Clear all inputs"
-                                        onClick={handleClearAll}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
                             </form>
+                            <div className="modal-btns">
+                                <button
+                                    type="button"
+                                    className="action-button2"
+                                    title="Submit details for account creation"
+                                    onClick={handleAddNewJournal}
+                                    disabled={isJournalEntrySubmitDisabled}
+                                >
+                                    Submit
+                                </button>
+                                <button
+                                    type="button"
+                                    className="action-button2"
+                                    title="Clear all inputs"
+                                    onClick={handleClearAll}
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    type="button"
+                                    className="action-button2 cancel"
+                                    title="Clear all inputs"
+                                    onClick={handleCancel}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
