@@ -17,6 +17,7 @@ import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 const Journalize = () => {
     // Function variables
     const [isEditJournalVisible, setIsEditJournalVisible] = useState(false);
+    const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [isAddJournalVisible, setIsAddJournalVisible] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [fetchedAccount, setFetchedAccount] = useState("");
@@ -66,6 +67,11 @@ const Journalize = () => {
     const [entryType, setEntryType] = useState("");
     const [entryDescription, setEntryDescription] = useState("");
     const [files, setFiles] = useState([]);
+    const [fullSizeImage, setFullSizeImage] = useState(null);
+    const [selectedEntry, setSelectedEntry] = useState("");
+    const [selectedEntryStatus, setSelectedEntryStatus] = useState("");
+    const [rejectionReason, setRejectionReason] = useState("");
+    const [hoveredIndex, setHoveredIndex] = useState(null);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -361,30 +367,20 @@ const Journalize = () => {
     };
 
     const handleEditJournal = async () => {
-        const editAccountData = {
-            id: selectedAccount._id,
-            accountName,
-            accountNumber,
-            accountDescription,
-            normalSide: normalSide === "Debit" ? "L" : "R",
-            accountCatagory,
-            accountSubcatagory,
-            debit,
-            credit,
-            balance,
-            order,
-            statement,
-            comment,
-            updatedBy: storedUserName,
+        const approvalOrRejectionData = {
+            journalEntryID: selectedEntry._id,
+            status: selectedEntryStatus,
+            managerID: storedUserName,
+            reason: rejectionReason ? rejectionReason : null,
         };
 
         try {
-            const response = await fetch(`${API_URL}/accounts/`, {
+            const response = await fetch(`${API_URL}/journal-entry`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(editAccountData),
+                body: JSON.stringify(approvalOrRejectionData),
             });
 
             const result = await response.json();
@@ -392,7 +388,7 @@ const Journalize = () => {
             //Store message locally to deliver on page reload
             localStorage.setItem("toastMessage", result.message);
         } catch (error) {
-            console.error("Error submitting edit:", error);
+            console.error("Error editing entry status:", error);
             alert("An error occurred. Please try again.");
         }
 
@@ -669,6 +665,9 @@ const Journalize = () => {
         areCreditInputsValid
     );
 
+    const isEntryStatusChangeSubmissionDisabled =
+        !selectedEntryStatus || (selectedEntryStatus === "Rejected" && !rejectionReason);
+
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
@@ -718,6 +717,36 @@ const Journalize = () => {
 
     const filteredJournalEntries = handleSearch(searchQuery);
 
+    const handleRowClick = async (entry) => {
+        try {
+            setSelectedEntry(entry);
+            const response = await fetch(`${API_URL}/journal-entry/files?id=${entry._id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch entry files");
+            }
+
+            const files = await response.json();
+
+            setFiles(files);
+            console.log(files);
+            setViewEntryDetails(true);
+        } catch (error) {
+            console.error("Error fetching entry files: ", error);
+            alert("Error getting entry files");
+        }
+    };
+
+    const handleStatusClick = (entry) => {
+        setSelectedAccount(entry);
+        setIsEditJournalVisible(true);
+    };
+
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
     };
@@ -744,6 +773,9 @@ const Journalize = () => {
 
     // Imbalance error
     const errorForImbalanceOfValues = errorMessageArray.find((error) => error.errorID === "ER6");
+
+    // Reason for rejection error
+    const errorForRejectionReason = errorMessageArray.find((error) => error.errorID === "ER7");
 
     const content = (
         <section className="journalize">
@@ -935,92 +967,204 @@ const Journalize = () => {
                             <th>Credit</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {filteredJournalEntries.map((entry, index) => (
-                            <tr key={index}>
-                                <td>
-                                    <strong>
-                                        {new Date(entry.updatedAt).toLocaleDateString()}
-                                    </strong>
-                                    <br />
-                                    <br />
-                                    <strong>
-                                        <span
-                                            style={{
-                                                color:
-                                                    entry.status === "Approved"
-                                                        ? "green"
-                                                        : entry.status === "Rejected"
-                                                        ? "red"
-                                                        : "orange",
-                                            }}
-                                        >
-                                            {entry.status}
-                                        </span>
-                                    </strong>
-                                    <br />
-                                    <br />
-                                    {(entry.status === "Approved" ||
-                                        entry.status === "Rejected") && (
-                                        <span
-                                            style={{
-                                                color: "#007bff",
-                                                textDecoration: "underline",
-                                            }}
-                                        >
-                                            {entry.updatedBy}
-                                        </span>
-                                    )}
-                                </td>
-                                <td>{entry.type}</td>
-                                <td>{entry.createdBy}</td>
-                                <td>
-                                    {entry.debit.map((debitAccount, index) => (
-                                        <div key={index}>
-                                            <span style={{ color: "#007bff" }}>
-                                                {debitAccount.account.accountNumber}
-                                            </span>{" "}
-                                            - <strong>{debitAccount.account.accountName}</strong>
+                    {storedUserRole === "Manager" && (
+                        <tbody className="manager-view">
+                            {filteredJournalEntries.map((entry, index) => (
+                                <tr key={index} onClick={() => handleRowClick(entry)}>
+                                    <td>
+                                        <strong>
+                                            {new Date(entry.updatedAt).toLocaleDateString()}
+                                        </strong>
+                                        <br />
+                                        <br />
+                                        <strong>
+                                            <span
+                                                style={{
+                                                    color:
+                                                        entry.status === "Approved"
+                                                            ? "green"
+                                                            : entry.status === "Rejected"
+                                                            ? "red"
+                                                            : "orange",
+                                                    textDecoration:
+                                                        entry.status === "Pending"
+                                                            ? "underline"
+                                                            : "none",
+                                                    cursor:
+                                                        entry.status === "Pending"
+                                                            ? "pointer"
+                                                            : "default",
+                                                }}
+                                                onClick={
+                                                    entry.status === "Pending"
+                                                        ? () => handleStatusClick(entry)
+                                                        : null
+                                                }
+                                            >
+                                                {entry.status}
+                                            </span>
+                                        </strong>
+                                        <br />
+                                        <br />
+                                        {(entry.status === "Approved" ||
+                                            entry.status === "Rejected") && (
+                                            <span
+                                                style={{
+                                                    color: "#007bff",
+                                                    textDecoration: "underline",
+                                                }}
+                                            >
+                                                {entry.updatedBy}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>{entry.type}</td>
+                                    <td>{entry.createdBy}</td>
+                                    <td>
+                                        {entry.debit.map((debitAccount, index) => (
+                                            <div key={index}>
+                                                <span style={{ color: "#007bff" }}>
+                                                    {debitAccount.account.accountNumber}
+                                                </span>{" "}
+                                                -{" "}
+                                                <strong>{debitAccount.account.accountName}</strong>
+                                            </div>
+                                        ))}
+                                        <br />
+                                        {entry.credit.map((creditAccount, index) => (
+                                            <div key={index} style={{ paddingLeft: "40px" }}>
+                                                <span style={{ color: "#007bff" }}>
+                                                    {creditAccount.account.accountNumber}
+                                                </span>{" "}
+                                                -{" "}
+                                                <strong>{creditAccount.account.accountName}</strong>
+                                            </div>
+                                        ))}
+                                        <br />
+                                        <div>
+                                            <span style={{ fontWeight: "bold" }}>
+                                                Description:{" "}
+                                            </span>
+                                            {entry.description}.
                                         </div>
-                                    ))}
-                                    <br />
-                                    {entry.credit.map((creditAccount, index) => (
-                                        <div key={index} style={{ paddingLeft: "40px" }}>
-                                            <span style={{ color: "#007bff" }}>
-                                                {creditAccount.account.accountNumber}
-                                            </span>{" "}
-                                            - <strong>{creditAccount.account.accountName}</strong>
+                                    </td>
+                                    <td>
+                                        {entry.debit.map((debitAccount, index) => (
+                                            <div key={index}>
+                                                ${formatWithCommas(debitAccount.amount.toFixed(2))}
+                                            </div>
+                                        ))}
+                                    </td>
+                                    <td>
+                                        <br />
+                                        {entry.debit.map((_, index) => (
+                                            <React.Fragment key={index}>
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                        {entry.credit.map((creditAccount, index) => (
+                                            <div key={index}>
+                                                ${formatWithCommas(creditAccount.amount.toFixed(2))}
+                                            </div>
+                                        ))}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    )}
+
+                    {storedUserRole === "Accountant" && (
+                        <tbody className="accountant-view">
+                            {filteredJournalEntries.map((entry, index) => (
+                                <tr key={index}>
+                                    <td>
+                                        <strong>
+                                            {new Date(entry.updatedAt).toLocaleDateString()}
+                                        </strong>
+                                        <br />
+                                        <br />
+                                        <strong>
+                                            <span
+                                                style={{
+                                                    color:
+                                                        entry.status === "Approved"
+                                                            ? "green"
+                                                            : entry.status === "Rejected"
+                                                            ? "red"
+                                                            : "orange",
+                                                }}
+                                            >
+                                                {entry.status}
+                                            </span>
+                                        </strong>
+                                        <br />
+                                        <br />
+                                        {(entry.status === "Approved" ||
+                                            entry.status === "Rejected") && (
+                                            <span
+                                                style={{
+                                                    color: "#007bff",
+                                                    textDecoration: "underline",
+                                                }}
+                                            >
+                                                {entry.updatedBy}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>{entry.type}</td>
+                                    <td>{entry.createdBy}</td>
+                                    <td>
+                                        {entry.debit.map((debitAccount, index) => (
+                                            <div key={index}>
+                                                <span style={{ color: "#007bff" }}>
+                                                    {debitAccount.account.accountNumber}
+                                                </span>{" "}
+                                                -{" "}
+                                                <strong>{debitAccount.account.accountName}</strong>
+                                            </div>
+                                        ))}
+                                        <br />
+                                        {entry.credit.map((creditAccount, index) => (
+                                            <div key={index} style={{ paddingLeft: "40px" }}>
+                                                <span style={{ color: "#007bff" }}>
+                                                    {creditAccount.account.accountNumber}
+                                                </span>{" "}
+                                                -{" "}
+                                                <strong>{creditAccount.account.accountName}</strong>
+                                            </div>
+                                        ))}
+                                        <br />
+                                        <div>
+                                            <span style={{ fontWeight: "bold" }}>
+                                                Description:{" "}
+                                            </span>
+                                            {entry.description}.
                                         </div>
-                                    ))}
-                                    <br />
-                                    <div>
-                                        <span style={{ fontWeight: "bold" }}>Description: </span>
-                                        {entry.description}.
-                                    </div>
-                                </td>
-                                <td>
-                                    {entry.debit.map((debitAccount, index) => (
-                                        <div key={index}>
-                                            ${formatWithCommas(debitAccount.amount.toFixed(2))}
-                                        </div>
-                                    ))}
-                                </td>
-                                <td>
-                                    <br />
-                                    {entry.debit.map((_, index) => (
-                                        <React.Fragment key={index}>
-                                            <br />
-                                        </React.Fragment>
-                                    ))}
-                                    {entry.credit.map((creditAccount, index) => (
-                                        <div key={index}>
-                                            ${formatWithCommas(creditAccount.amount.toFixed(2))}
-                                        </div>
-                                    ))}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+                                    </td>
+                                    <td>
+                                        {entry.debit.map((debitAccount, index) => (
+                                            <div key={index}>
+                                                ${formatWithCommas(debitAccount.amount.toFixed(2))}
+                                            </div>
+                                        ))}
+                                    </td>
+                                    <td>
+                                        <br />
+                                        {entry.debit.map((_, index) => (
+                                            <React.Fragment key={index}>
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                        {entry.credit.map((creditAccount, index) => (
+                                            <div key={index}>
+                                                ${formatWithCommas(creditAccount.amount.toFixed(2))}
+                                            </div>
+                                        ))}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    )}
                 </table>
 
                 {/* Edit Journal Entry Modal */}
@@ -1030,56 +1174,117 @@ const Journalize = () => {
                             <span className="close" onClick={() => setIsEditJournalVisible(false)}>
                                 &times;
                             </span>
-                            <h2>Edit Journal Entry</h2>
+                            <h2>Approve/Deny Entry</h2>
                             <form>
                                 <label>
-                                    Account Name:
-                                    <input
-                                        type="text"
-                                        id="accountName"
-                                        name="accountName"
-                                        title="Edit account name"
-                                        value={accountName}
-                                        onChange={handleEditInputChange}
-                                        placeholder="Account Name"
-                                    />
+                                    Approve or Deny Entry:
+                                    <select
+                                        id="entryStatus"
+                                        name="entryStatus"
+                                        title="Approve or Deny the Selected Journal Entry"
+                                        style={{ marginTop: "3%" }}
+                                        value={selectedEntryStatus}
+                                        onChange={(e) => setSelectedEntryStatus(e.target.value)}
+                                        defaultValue=""
+                                        required
+                                    >
+                                        <option value="" disabled>
+                                            Select status
+                                        </option>
+                                        <option value="Approved">Approve</option>
+                                        <option value="Rejected">Reject</option>
+                                    </select>
                                 </label>
-                                <label>
-                                    Account Desciption:
-                                    <input
-                                        type="text"
-                                        id="accountDescription"
-                                        name="accountDescription"
-                                        title="Edit account description"
-                                        value={accountDescription}
-                                        onChange={handleEditInputChange}
-                                        placeholder="Account Description"
-                                    />
-                                </label>
-                                <label>
-                                    Account Number:
-                                    <input
-                                        type="text"
-                                        id="accountNumber"
-                                        name="accountNumber"
-                                        value={accountNumber}
-                                        onChange={handleEditInputChange}
-                                        placeholder="Account Number"
-                                        disabled
-                                    />
-                                </label>
+                                {selectedEntryStatus === "Rejected" && (
+                                    <label>
+                                        Reason
+                                        <textarea
+                                            id="rejectionReason"
+                                            name="rejectionReason"
+                                            title="Give a reason for rejection of entry"
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                            placeholder="Reason for rejection"
+                                            required
+                                        />
+                                        {!rejectionReason && errorForRejectionReason && (
+                                            <div className="error-message">
+                                                {errorForRejectionReason.message}{" "}
+                                            </div>
+                                        )}
+                                    </label>
+                                )}
                             </form>
                             <div className="modal-btns">
                                 <button
                                     type="button"
                                     className="action-button2"
-                                    title="Submit changes made to account"
+                                    title="Submit the approval/rejection choice"
                                     onClick={handleEditJournal}
+                                    disabled={isEntryStatusChangeSubmissionDisabled}
                                 >
-                                    Save Changes
+                                    Submit
                                 </button>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Modal for viewing the source documentation of */}
+                {viewEntryDetails && (
+                    <div className="modal">
+                        <div className="modal-view-entry-details-content">
+                            <span className="close" onClick={() => setViewEntryDetails(false)}>
+                                &times;
+                            </span>
+                            <h2>Entry Source Documentation</h2>
+                            <div className="file-thumbnails">
+                                {files &&
+                                    files.map((file) => (
+                                        <div key={file._id} className="thumbnail-container">
+                                            <img
+                                                src={file.url}
+                                                alt={file.filename}
+                                                className="thumbnail"
+                                                onClick={() => setFullSizeImage(file.url)} // Set the full size image URL on click
+                                            />
+                                            {/*
+                                            <a
+                                                href={file.url}
+                                                download={file.filename} // Correctly handle file downloading
+                                                className="download-link"
+                                            >
+                                                Download
+                                            </a>
+                                             */}
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                        {fullSizeImage && ( // This shows the enlarged image
+                            <div className="full-size-modal">
+                                <span
+                                    className="close"
+                                    onClick={() => setFullSizeImage(null)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "10px",
+                                        right: "20px",
+                                        color: "white",
+                                        fontSize: "24px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    &times;
+                                </span>
+                                <img
+                                    src={fullSizeImage}
+                                    alt="Full size"
+                                    className="full-size-image"
+                                    style={{ maxWidth: "90%", maxHeight: "90%" }} // Ensure the image fits within the modal
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
 

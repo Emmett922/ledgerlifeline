@@ -68,6 +68,10 @@
     width: 12%; /* Credit column */
 }
 
+.manager-view tr:hover {
+    background-color: rgb(219, 219, 219);
+}
+
 /* Journal Entry Creation Table Styles */
 .journal-entry-creation-table {
     width: 100%;
@@ -247,7 +251,8 @@
     border-color: #007bff; /* Change border color on focus */
 }
 
-.journal-entry-creation-table textarea {
+.journal-entry-creation-table textarea,
+.journalize .modal-content textarea {
     width: 100%;
     height: 60px;
     padding: 8px;
@@ -256,7 +261,12 @@
     border-radius: 5px;
 }
 
-.journal-entry-creation-table textarea:focus {
+.journalize .modal-content textarea {
+    margin-top: 2%;
+}
+
+.journal-entry-creation-table textarea:focus,
+.journalize .modal-content textarea:focus {
     border-color: #007bff; /* Change border color on focus */
 }
 
@@ -268,6 +278,69 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+}
+
+.modal-view-entry-details-content {
+    text-align: center;
+}
+
+
+.file-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px; /* Space between thumbnails */
+}
+
+.thumbnail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+}
+
+.thumbnail {
+    width: 400px; /* Adjust thumbnail size here */
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.full-size-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.download-link {
+    text-decoration: none;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.download-link:hover {
+    background-color: #1c4a7c;
+}
+
+.full-size-image {
+    max-width: 90%; /* Responsive full-size image */
+    max-height: 90%; /* Limit height */
 }
 
 /* Media queries for responsiveness */

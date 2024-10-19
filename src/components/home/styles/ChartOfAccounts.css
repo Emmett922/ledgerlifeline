@@ -249,7 +249,8 @@ body {
 .modal-content,
 .account .modal-email-content, 
 .account .modal-view-logs-content,
-.modal-new-journal-entry-content {
+.modal-new-journal-entry-content,
+.modal-view-entry-details-content {
     background: #fff;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
