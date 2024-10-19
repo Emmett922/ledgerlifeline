@@ -20,6 +20,12 @@ const AccountLedger = () => {
     const [storedUserRole, setStoredUserRole] = useState("");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
+    const [isEditEntryVisible, setIsEditEntryVisible] = useState(false);
+    const [isEditEntryActiveVisible, setIsEditEntryActiveVisible] = useState(false);
+    const [isActive, setIsActive] = useState(false);
+    const [changeIsActive, setChangeIsActive] = useState(false);
+    const [selectedEntry, setSelectedEntry] = useState(null);
+
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
@@ -314,7 +320,7 @@ const AccountLedger = () => {
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
                             </button>
                             <button
-                            className="calc-btn"
+                                className="calc-btn"
                                 onClick={toggleCalculator}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calculator"
@@ -436,6 +442,7 @@ const AccountLedger = () => {
                 </div>
 
                 {/* Accounts Log */}
+                {/* Tab Bodies Begin Here */}
                 <div className={toggleState === 1 ? "content active-content" : "content"}>
                     <div>
                         <table className="account-table">
@@ -446,6 +453,7 @@ const AccountLedger = () => {
                                     <th>Description</th>
                                     <th>Debit</th>
                                     <th>Credit</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -466,6 +474,18 @@ const AccountLedger = () => {
                                             : " "}
                                     </td>{" "}
                                     {/* Show blank if credit is 0 or credit equals debit */}
+                                    <td>
+                                            <Link
+                                                className="entry-active-link"
+                                                title="Change active status"
+                                                onClick={() => {
+                                                    setIsEditEntryVisible(true);
+                                                    setIsEditEntryActiveVisible(true);
+                                                }}
+                                            >
+                                                Pending
+                                            </Link>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
@@ -695,6 +715,70 @@ const AccountLedger = () => {
                         </Link>
                     </div>
                 </div>
+
+
+                {/* Edit Entry Active Status Modal */}
+                {isEditEntryActiveVisible && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span
+                                className="close"
+                                onClick={() => setIsEditEntryActiveVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Edit Entry's Approval Status</h2>
+                            <form>
+                                <h3 className="form-sub-title">
+                                    Account: <p className="name">{fetchedAccount.accountNumber} {fetchedAccount.accountName}</p>
+
+                                    <td>
+                                        {fetchedAccount.debit === 0 ? "":"Debit:"}
+                                    </td>
+                                    <p className="name">
+                                        {fetchedAccount.debit
+                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
+                                            : ""}
+                                    </p>{" "}
+                                    {/* Show blank if debit is 0 or debit equals credit */}
+                                    <td>
+                                        {fetchedAccount.credit === 0 ? "":"Credit:"}
+                                    </td>
+                                    <p className="name">
+                                        {fetchedAccount.credit
+                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
+                                            : " "}
+                                    </p>{" "}
+                                    {/* Show blank if credit is 0 or credit equals debit */}
+                                </h3>
+                                <label>
+                                    Status:
+                                    <select
+                                        id="isActive"
+                                        name="isActive"
+                                        title="Change the account's active status"
+                                        value={isActive ? "true" : "false"}
+                                    >
+                                        <option value="" disabled>
+                                            Select status
+                                        </option>
+                                        <option value="true">Approved</option>
+                                        <option value="false">Denied</option>
+                                    </select>
+                                </label>
+                            </form>
+                            <div className="modal-btns">
+                                <button
+                                    type="button"
+                                    className="action-button2"
+                                    title="Submit the entry status change"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </section>
     );
