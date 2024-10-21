@@ -636,6 +636,11 @@ const Journalize = () => {
         setIsAddJournalVisible(false);
     };
 
+    const [toggleState, setToggleState] = useState(1);
+    const toggleTab = (index) => {
+        setToggleState(index);
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/"); // Redirect to login
@@ -696,7 +701,6 @@ const Journalize = () => {
             // Check if any search term matches the type, creator, status, or date
             const matchesType = matchesSearchTerm(entry.type.toLowerCase());
             const matchesCreatedBy = matchesSearchTerm(entry.createdBy.toLowerCase());
-            const matchesStatus = matchesSearchTerm(entry.status.toLowerCase());
             const matchesUpdatedAt = searchTerms.some((term) => updatedAtDate.includes(term));
             const matchesUpdatedBy = entry.updatedBy
                 ? matchesSearchTerm(entry.updatedBy.toLowerCase())
@@ -708,7 +712,6 @@ const Journalize = () => {
                 matchesCredit ||
                 matchesType ||
                 matchesCreatedBy ||
-                matchesStatus ||
                 matchesUpdatedAt ||
                 matchesUpdatedBy
             );
@@ -746,6 +749,10 @@ const Journalize = () => {
         setSelectedAccount(entry);
         setIsEditJournalVisible(true);
     };
+
+    const handlePostReferenceClick = (pr) => {
+
+    }
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
@@ -849,7 +856,7 @@ const Journalize = () => {
             <main className="main-content">
                 <header className="header">
                     <div className="header-main">
-                        <h1 className="header-title">Journalize</h1>
+                        <h1 className="header-title">General Journal</h1>
                         <button
                             className="action-button1"
                             title="Add a new account"
@@ -956,216 +963,1197 @@ const Journalize = () => {
                     </div>
                 </div>
 
-                <table className="journal-entry-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Type</th>
-                            <th>Creator</th>
-                            <th>Accounts</th>
-                            <th>Debit</th>
-                            <th>Credit</th>
-                        </tr>
-                    </thead>
-                    {storedUserRole === "Manager" && (
-                        <tbody className="manager-view">
-                            {filteredJournalEntries.map((entry, index) => (
-                                <tr key={index} onClick={() => handleRowClick(entry)}>
-                                    <td>
-                                        <strong>
-                                            {new Date(entry.updatedAt).toLocaleDateString()}
-                                        </strong>
-                                        <br />
-                                        <br />
-                                        <strong>
-                                            <span
-                                                style={{
-                                                    color:
-                                                        entry.status === "Approved"
-                                                            ? "green"
-                                                            : entry.status === "Rejected"
-                                                            ? "red"
-                                                            : "orange",
-                                                    textDecoration:
-                                                        entry.status === "Pending"
-                                                            ? "underline"
-                                                            : "none",
-                                                    cursor:
-                                                        entry.status === "Pending"
-                                                            ? "pointer"
-                                                            : "default",
-                                                }}
-                                                onClick={
-                                                    entry.status === "Pending"
-                                                        ? () => handleStatusClick(entry)
-                                                        : null
-                                                }
-                                            >
-                                                {entry.status}
-                                            </span>
-                                        </strong>
-                                        <br />
-                                        <br />
-                                        {(entry.status === "Approved" ||
-                                            entry.status === "Rejected") && (
-                                            <span
-                                                style={{
-                                                    color: "#007bff",
-                                                    textDecoration: "underline",
-                                                }}
-                                            >
-                                                {entry.updatedBy}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td>{entry.type}</td>
-                                    <td>{entry.createdBy}</td>
-                                    <td>
-                                        {entry.debit.map((debitAccount, index) => (
-                                            <div key={index}>
-                                                <span style={{ color: "#007bff" }}>
-                                                    {debitAccount.account.accountNumber}
-                                                </span>{" "}
-                                                -{" "}
-                                                <strong>{debitAccount.account.accountName}</strong>
-                                            </div>
-                                        ))}
-                                        <br />
-                                        {entry.credit.map((creditAccount, index) => (
-                                            <div key={index} style={{ paddingLeft: "40px" }}>
-                                                <span style={{ color: "#007bff" }}>
-                                                    {creditAccount.account.accountNumber}
-                                                </span>{" "}
-                                                -{" "}
-                                                <strong>{creditAccount.account.accountName}</strong>
-                                            </div>
-                                        ))}
-                                        <br />
-                                        <div>
-                                            <span style={{ fontWeight: "bold" }}>
-                                                Description:{" "}
-                                            </span>
-                                            {entry.description}.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {entry.debit.map((debitAccount, index) => (
-                                            <div key={index}>
-                                                ${formatWithCommas(debitAccount.amount.toFixed(2))}
-                                            </div>
-                                        ))}
-                                    </td>
-                                    <td>
-                                        <br />
-                                        {entry.debit.map((_, index) => (
-                                            <React.Fragment key={index}>
-                                                <br />
-                                            </React.Fragment>
-                                        ))}
-                                        {entry.credit.map((creditAccount, index) => (
-                                            <div key={index}>
-                                                ${formatWithCommas(creditAccount.amount.toFixed(2))}
-                                            </div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
+                {/* Tab Setup */}
+                <div className="tab-container">
+                    <div
+                        className={toggleState === 1 ? "tabs active-tabs" : "tabs"}
+                        title="Show account updates log"
+                        onClick={() => toggleTab(1)}
+                    >
+                        All Entries
+                    </div>
 
-                    {storedUserRole === "Accountant" && (
-                        <tbody className="accountant-view">
-                            {filteredJournalEntries.map((entry, index) => (
-                                <tr key={index}>
-                                    <td>
-                                        <strong>
-                                            {new Date(entry.updatedAt).toLocaleDateString()}
-                                        </strong>
-                                        <br />
-                                        <br />
-                                        <strong>
-                                            <span
-                                                style={{
-                                                    color:
-                                                        entry.status === "Approved"
-                                                            ? "green"
-                                                            : entry.status === "Rejected"
-                                                            ? "red"
-                                                            : "orange",
-                                                }}
-                                            >
-                                                {entry.status}
-                                            </span>
-                                        </strong>
-                                        <br />
-                                        <br />
-                                        {(entry.status === "Approved" ||
-                                            entry.status === "Rejected") && (
-                                            <span
-                                                style={{
-                                                    color: "#007bff",
-                                                    textDecoration: "underline",
-                                                }}
-                                            >
-                                                {entry.updatedBy}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td>{entry.type}</td>
-                                    <td>{entry.createdBy}</td>
-                                    <td>
-                                        {entry.debit.map((debitAccount, index) => (
-                                            <div key={index}>
-                                                <span style={{ color: "#007bff" }}>
-                                                    {debitAccount.account.accountNumber}
-                                                </span>{" "}
-                                                -{" "}
-                                                <strong>{debitAccount.account.accountName}</strong>
-                                            </div>
-                                        ))}
-                                        <br />
-                                        {entry.credit.map((creditAccount, index) => (
-                                            <div key={index} style={{ paddingLeft: "40px" }}>
-                                                <span style={{ color: "#007bff" }}>
-                                                    {creditAccount.account.accountNumber}
-                                                </span>{" "}
-                                                -{" "}
-                                                <strong>{creditAccount.account.accountName}</strong>
-                                            </div>
-                                        ))}
-                                        <br />
-                                        <div>
-                                            <span style={{ fontWeight: "bold" }}>
-                                                Description:{" "}
-                                            </span>
-                                            {entry.description}.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {entry.debit.map((debitAccount, index) => (
-                                            <div key={index}>
-                                                ${formatWithCommas(debitAccount.amount.toFixed(2))}
-                                            </div>
-                                        ))}
-                                    </td>
-                                    <td>
-                                        <br />
-                                        {entry.debit.map((_, index) => (
-                                            <React.Fragment key={index}>
+                    <div
+                        className={toggleState === 2 ? "tabs active-tabs" : "tabs"}
+                        title="Show user updates log"
+                        onClick={() => toggleTab(2)}
+                    >
+                        Approved Entries
+                    </div>
+
+                    <div
+                        className={toggleState === 3 ? "tabs active-tabs" : "tabs"}
+                        title="Show login attempts log"
+                        onClick={() => toggleTab(3)}
+                    >
+                        Denied Entries
+                    </div>
+
+                    <div
+                        className={toggleState === 4 ? "tabs active-tabs" : "tabs"}
+                        title="Show login attempts log"
+                        onClick={() => toggleTab(4)}
+                    >
+                        Pending Entries
+                    </div>
+                </div>
+
+                <div className={toggleState === 1 ? "content active-content" : "content"}>
+                    <table className="journal-entry-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Type</th>
+                                <th>Creator</th>
+                                <th>PR</th>
+                                <th>Accounts</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                            </tr>
+                        </thead>
+                        {storedUserRole === "Manager" && (
+                            <tbody className="manager-view">
+                                {filteredJournalEntries.map((entry, index) => (
+                                    <tr key={index} onClick={() => handleRowClick(entry)}>
+                                        <td>
+                                            <strong>
+                                                {new Date(entry.updatedAt).toLocaleDateString()}
+                                            </strong>
+                                            <br />
+                                            <br />
+                                            <strong>
+                                                <span
+                                                    style={{
+                                                        color:
+                                                            entry.status === "Approved"
+                                                                ? "green"
+                                                                : entry.status === "Rejected"
+                                                                ? "red"
+                                                                : "orange",
+                                                        textDecoration:
+                                                            entry.status === "Pending"
+                                                                ? "underline"
+                                                                : "none",
+                                                        cursor:
+                                                            entry.status === "Pending"
+                                                                ? "pointer"
+                                                                : "default",
+                                                    }}
+                                                    onClick={
+                                                        entry.status === "Pending"
+                                                            ? () => handleStatusClick(entry)
+                                                            : null
+                                                    }
+                                                >
+                                                    {entry.status === "Rejected"
+                                                        ? "Denied"
+                                                        : entry.status}
+                                                </span>
+                                            </strong>
+                                            <br />
+                                            {entry.status === "Rejected" && (
+                                                <div>
+                                                    <br />
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Reason:{" "}
+                                                    </span>
+                                                    <br />
+                                                    {entry.rejectionReason}
+                                                </div>
+                                            )}
+                                            {(entry.status === "Approved" ||
+                                                entry.status === "Rejected") && (
+                                                <span
+                                                    style={{
+                                                        color: "#007bff",
+                                                        textDecoration: "underline",
+                                                    }}
+                                                >
+                                                    <br />
+                                                    {entry.updatedBy}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>{entry.type}</td>
+                                        <td>{entry.createdBy}</td>
+                                        {entry.status === "Approved" && (
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            {debitAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
                                                 <br />
-                                            </React.Fragment>
-                                        ))}
-                                        {entry.credit.map((creditAccount, index) => (
-                                            <div key={index}>
-                                                ${formatWithCommas(creditAccount.amount.toFixed(2))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                            {creditAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                            </td>
+                                        )}
+                                        {(entry.status === "Rejected" ||
+                                            entry.status === "Pending") && <td> </td>}
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    <strong>
+                                                        {debitAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index} style={{ paddingLeft: "40px" }}>
+                                                    <strong>
+                                                        {creditAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            <div>
+                                                <span style={{ fontWeight: "bold" }}>
+                                                    Description:{" "}
+                                                </span>
+                                                {entry.description}.
                                             </div>
-                                        ))}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
-                </table>
+                                        </td>
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        debitAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <br />
+                                            {entry.debit.map((_, index) => (
+                                                <React.Fragment key={index}>
+                                                    <br />
+                                                </React.Fragment>
+                                            ))}
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        creditAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {filteredJournalEntries.map((entry, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <strong>
+                                                {new Date(entry.updatedAt).toLocaleDateString()}
+                                            </strong>
+                                            <br />
+                                            <br />
+                                            <strong>
+                                                <span
+                                                    style={{
+                                                        color:
+                                                            entry.status === "Approved"
+                                                                ? "green"
+                                                                : entry.status === "Rejected"
+                                                                ? "red"
+                                                                : "orange",
+                                                        textDecoration:
+                                                            entry.status === "Pending"
+                                                                ? "underline"
+                                                                : "none",
+                                                        cursor:
+                                                            entry.status === "Pending"
+                                                                ? "pointer"
+                                                                : "default",
+                                                    }}
+                                                    onClick={
+                                                        entry.status === "Pending"
+                                                            ? () => handleStatusClick(entry)
+                                                            : null
+                                                    }
+                                                >
+                                                    {entry.status === "Rejected"
+                                                        ? "Denied"
+                                                        : entry.status}
+                                                </span>
+                                            </strong>
+                                            <br />
+                                            {entry.status === "Rejected" && (
+                                                <div>
+                                                    <br />
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Reason:{" "}
+                                                    </span>
+                                                    <br />
+                                                    {entry.rejectionReason}
+                                                </div>
+                                            )}
+                                            {(entry.status === "Approved" ||
+                                                entry.status === "Rejected") && (
+                                                <span
+                                                    style={{
+                                                        color: "#007bff",
+                                                        textDecoration: "underline",
+                                                    }}
+                                                >
+                                                    <br />
+                                                    {entry.updatedBy}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>{entry.type}</td>
+                                        <td>{entry.createdBy}</td>
+                                        {entry.status === "Approved" && (
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            {debitAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                            {creditAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                            </td>
+                                        )}
+                                        {(entry.status === "Rejected" ||
+                                            entry.status === "Pending") && <td> </td>}
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    <strong>
+                                                        {debitAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index} style={{ paddingLeft: "40px" }}>
+                                                    <strong>
+                                                        {creditAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            <div>
+                                                <span style={{ fontWeight: "bold" }}>
+                                                    Description:{" "}
+                                                </span>
+                                                {entry.description}.
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        debitAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <br />
+                                            {entry.debit.map((_, index) => (
+                                                <React.Fragment key={index}>
+                                                    <br />
+                                                </React.Fragment>
+                                            ))}
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        creditAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
+
+                <div className={toggleState === 2 ? "content active-content" : "content"}>
+                    <table className="journal-entry-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Type</th>
+                                <th>Creator</th>
+                                <th>PR</th>
+                                <th>Accounts</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                            </tr>
+                        </thead>
+                        {storedUserRole === "Manager" && (
+                            <tbody className="manager-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Approved")
+                                    .map((entry, index) => (
+                                        <tr key={index} onClick={() => handleRowClick(entry)}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                            textDecoration:
+                                                                entry.status === "Pending"
+                                                                    ? "underline"
+                                                                    : "none",
+                                                            cursor:
+                                                                entry.status === "Pending"
+                                                                    ? "pointer"
+                                                                    : "default",
+                                                        }}
+                                                        onClick={
+                                                            entry.status === "Pending"
+                                                                ? () => handleStatusClick(entry)
+                                                                : null
+                                                        }
+                                                    >
+                                                        {entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Approved")
+                                    .map((entry, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                        }}
+                                                    >
+                                                        {entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
+
+                <div className={toggleState === 3 ? "content active-content" : "content"}>
+                    <table className="journal-entry-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Type</th>
+                                <th>Creator</th>
+                                <th>PR</th>
+                                <th>Accounts</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                            </tr>
+                        </thead>
+                        {storedUserRole === "Manager" && (
+                            <tbody className="manager-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Rejected")
+                                    .map((entry, index) => (
+                                        <tr key={index} onClick={() => handleRowClick(entry)}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                            textDecoration:
+                                                                entry.status === "Pending"
+                                                                    ? "underline"
+                                                                    : "none",
+                                                            cursor:
+                                                                entry.status === "Pending"
+                                                                    ? "pointer"
+                                                                    : "default",
+                                                        }}
+                                                        onClick={
+                                                            entry.status === "Pending"
+                                                                ? () => handleStatusClick(entry)
+                                                                : null
+                                                        }
+                                                    >
+                                                        {entry.status === "Rejected"
+                                                            ? "Denied"
+                                                            : entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                {entry.status === "Rejected" && (
+                                                    <div>
+                                                        <br />
+                                                        <span style={{ fontWeight: "bold" }}>
+                                                            Reason:{" "}
+                                                        </span>
+                                                        <br />
+                                                        {entry.rejectionReason}
+                                                    </div>
+                                                )}
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        <br />
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Rejected")
+                                    .map((entry, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                            textDecoration:
+                                                                entry.status === "Pending"
+                                                                    ? "underline"
+                                                                    : "none",
+                                                            cursor:
+                                                                entry.status === "Pending"
+                                                                    ? "pointer"
+                                                                    : "default",
+                                                        }}
+                                                        onClick={
+                                                            entry.status === "Pending"
+                                                                ? () => handleStatusClick(entry)
+                                                                : null
+                                                        }
+                                                    >
+                                                        {entry.status === "Rejected"
+                                                            ? "Denied"
+                                                            : entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                {entry.status === "Rejected" && (
+                                                    <div>
+                                                        <br />
+                                                        <span style={{ fontWeight: "bold" }}>
+                                                            Reason:{" "}
+                                                        </span>
+                                                        <br />
+                                                        {entry.rejectionReason}
+                                                    </div>
+                                                )}
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        <br />
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
+
+                <div className={toggleState === 4 ? "content active-content" : "content"}>
+                    <table className="journal-entry-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Type</th>
+                                <th>Creator</th>
+                                <th>PR</th>
+                                <th>Accounts</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                            </tr>
+                        </thead>
+                        {storedUserRole === "Manager" && (
+                            <tbody className="manager-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Pending")
+                                    .map((entry, index) => (
+                                        <tr key={index} onClick={() => handleRowClick(entry)}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                            textDecoration:
+                                                                entry.status === "Pending"
+                                                                    ? "underline"
+                                                                    : "none",
+                                                            cursor:
+                                                                entry.status === "Pending"
+                                                                    ? "pointer"
+                                                                    : "default",
+                                                        }}
+                                                        onClick={
+                                                            entry.status === "Pending"
+                                                                ? () => handleStatusClick(entry)
+                                                                : null
+                                                        }
+                                                    >
+                                                        {entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {filteredJournalEntries
+                                    .filter((entry) => entry.status === "Pending")
+                                    .map((entry, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                        }}
+                                                    >
+                                                        {entry.status}
+                                                    </span>
+                                                </strong>
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
 
                 {/* Edit Journal Entry Modal */}
                 {isEditJournalVisible && (
@@ -1234,7 +2222,13 @@ const Journalize = () => {
                 {viewEntryDetails && (
                     <div className="modal">
                         <div className="modal-view-entry-details-content">
-                            <span className="close" onClick={() => setViewEntryDetails(false)}>
+                            <span
+                                className="close"
+                                onClick={() => {
+                                    setViewEntryDetails(false);
+                                    setFiles([]);
+                                }}
+                            >
                                 &times;
                             </span>
                             <h2>Entry Source Documentation</h2>

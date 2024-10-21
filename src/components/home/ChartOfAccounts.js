@@ -348,12 +348,19 @@ const Accounts = () => {
             // Find the maximum account number in the category, default to 0 if none exist
             const maxAccountNumber = accountNumbers.length > 0 ? Math.max(...accountNumbers) : 0;
 
-            // Round the max account number up to the nearest multiple of 10 if needed
-            const nextAccountNumber =
-                maxAccountNumber === 0 ? 1 : Math.ceil(maxAccountNumber / 10) * 10;
+            // Increment logic: if less than 10, round up to nearest 10, otherwise add 10
+            let nextAccountNumber;
+            if (maxAccountNumber === 0) {
+                nextAccountNumber = 1; // Start at 0001 for the first entry
+            } else if (maxAccountNumber % 10 !== 0) {
+                // If it's not a multiple of 10, round up to the nearest multiple of 10
+                nextAccountNumber = Math.ceil(maxAccountNumber / 10) * 10;
+            } else {
+                nextAccountNumber = maxAccountNumber + 10; // Otherwise, add 10
+            }
 
-            // Generate account number with padding logic
-            const accountNumber = prefix + nextAccountNumber.toString().padStart(4, "0"); // Pad with zeros up to 4 digits
+            // Generate the full account number
+            const accountNumber = prefix + nextAccountNumber.toString().padStart(4, "0");
 
             return accountNumber;
         };
@@ -1336,112 +1343,119 @@ const Accounts = () => {
                     </div>
                 </div>
 
-                <table className="account-table">
-                    <thead>
-                        <tr>
-                            <th>Number</th>
-                            <th>Name</th>{" "}
-                            {/*name of the account (cash, accounts receivable, etc.)*/}
-                            <th>Type</th> {/*type of the account (asset, liability, equity, et.)*/}
-                            <th>Sub-Type</th> {/*current/long term*/}
-                            <th>Balance</th> {/*name of the admin's username*/}
-                            <th>Description</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredAccounts
-                            .sort((a, b) => a.accountNumber - b.accountNumber)
-                            .map((account, index) => (
-                                <tr key={index}>
-                                    <td id="accountNumber">
-                                        <button
-                                            className="link-button"
-                                            title="View account details"
-                                            onClick={() => {
-                                                setSelectedAccount(account);
-                                                setAccountNumber(account.accountNumber);
-                                                setAccountName(account.accountName);
-                                                setAccountDescription(account.accountDescription);
-                                                if (account.normalSide === "L") {
-                                                    setNormalSide("Debit");
-                                                } else if (account.normalSide === "R") {
-                                                    setNormalSide("Credit");
-                                                }
-                                                setAccountCatagory(account.accountCatagory);
-                                                if (
-                                                    account.accountCatagory === "Asset" ||
-                                                    account.accountCatagory === "Liability"
-                                                ) {
-                                                    setIsSubcategoryDisabled(false);
-                                                }
-                                                setAccountSubcatagory(account.accountSubcatagory);
-                                                setInitialBalance(
-                                                    account.initialBalance.toFixed(2)
-                                                );
-                                                setDebit(account.debit.toFixed(2));
-                                                setCredit(account.credit.toFixed(2));
-                                                setBalance(account.balance.toFixed(2));
-                                                setDateAccountAdded(account.createdAt);
-                                                setDateAccountUpdated(account.updatedAt);
-                                                setUserID(account.createdBy);
-                                                setOrder(account.order);
-                                                setStatement(account.statement);
-                                                setComment(account.comment);
-                                                setIsActive(account.isActive);
-
-                                                setViewAccountDetails(true);
-                                            }}
-                                        >
-                                            {account.accountNumber}
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="link-button"
-                                            title="View account in ledger"
-                                            onClick={() => {
-                                                handleViewLedger(account._id);
-                                            }}
-                                        >
-                                            {account.accountName}
-                                        </button>
-                                    </td>{" "}
-                                    {/* Account name */}
-                                    <td>{account.accountCatagory}</td> {/* Account type */}
-                                    <td>{account.accountSubcatagory}</td>{" "}
-                                    {/* Term (current/long term) */}
-                                    <td>
-                                        {account.balance
-                                            ? `$${formatWithCommas(account.balance.toFixed(2))}`
-                                            : "$0.00"}
-                                    </td>{" "}
-                                    {/* Account balance with dollar sign */}
-                                    <td>{account.accountDescription}</td> {/* Comments */}
-                                    {/* Treat active status cell as link only for admin users */}
-                                    {storedUserRole === "Admin" && (
-                                        <td>
-                                            <Link
-                                                className="account-active-link"
-                                                title="Change active status"
+                <div className="account-table-container">
+                    <table className="account-table">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Name</th>{" "}
+                                {/*name of the account (cash, accounts receivable, etc.)*/}
+                                <th>Type</th>{" "}
+                                {/*type of the account (asset, liability, equity, et.)*/}
+                                <th>Sub-Type</th> {/*current/long term*/}
+                                <th>Balance</th> {/*name of the admin's username*/}
+                                <th>Description</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredAccounts
+                                .sort((a, b) => a.accountNumber - b.accountNumber)
+                                .map((account, index) => (
+                                    <tr key={index}>
+                                        <td id="accountNumber">
+                                            <button
+                                                className="link-button"
+                                                title="View account details"
                                                 onClick={() => {
                                                     setSelectedAccount(account);
+                                                    setAccountNumber(account.accountNumber);
+                                                    setAccountName(account.accountName);
+                                                    setAccountDescription(
+                                                        account.accountDescription
+                                                    );
+                                                    if (account.normalSide === "L") {
+                                                        setNormalSide("Debit");
+                                                    } else if (account.normalSide === "R") {
+                                                        setNormalSide("Credit");
+                                                    }
+                                                    setAccountCatagory(account.accountCatagory);
+                                                    if (
+                                                        account.accountCatagory === "Asset" ||
+                                                        account.accountCatagory === "Liability"
+                                                    ) {
+                                                        setIsSubcategoryDisabled(false);
+                                                    }
+                                                    setAccountSubcatagory(
+                                                        account.accountSubcatagory
+                                                    );
+                                                    setInitialBalance(
+                                                        account.initialBalance.toFixed(2)
+                                                    );
+                                                    setDebit(account.debit.toFixed(2));
+                                                    setCredit(account.credit.toFixed(2));
+                                                    setBalance(account.balance.toFixed(2));
+                                                    setDateAccountAdded(account.createdAt);
+                                                    setDateAccountUpdated(account.updatedAt);
+                                                    setUserID(account.createdBy);
+                                                    setOrder(account.order);
+                                                    setStatement(account.statement);
+                                                    setComment(account.comment);
                                                     setIsActive(account.isActive);
-                                                    setIsEditAccountActiveVisible(true);
+
+                                                    setViewAccountDetails(true);
                                                 }}
                                             >
-                                                {account.isActive ? "Active" : "Inactive"}
-                                            </Link>
+                                                {account.accountNumber}
+                                            </button>
                                         </td>
-                                    )}
-                                    {(storedUserRole === "Manager" ||
-                                        storedUserRole === "Accountant") && (
-                                        <td>{account.isActive ? "Active" : "Inactive"}</td>
-                                    )}
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
+                                        <td>
+                                            <button
+                                                className="link-button"
+                                                title="View account in ledger"
+                                                onClick={() => {
+                                                    handleViewLedger(account._id);
+                                                }}
+                                            >
+                                                {account.accountName}
+                                            </button>
+                                        </td>{" "}
+                                        {/* Account name */}
+                                        <td>{account.accountCatagory}</td> {/* Account type */}
+                                        <td>{account.accountSubcatagory}</td>{" "}
+                                        {/* Term (current/long term) */}
+                                        <td>
+                                            {account.balance
+                                                ? `$${formatWithCommas(account.balance.toFixed(2))}`
+                                                : "$0.00"}
+                                        </td>{" "}
+                                        {/* Account balance with dollar sign */}
+                                        <td>{account.accountDescription}</td> {/* Comments */}
+                                        {/* Treat active status cell as link only for admin users */}
+                                        {storedUserRole === "Admin" && (
+                                            <td>
+                                                <Link
+                                                    className="account-active-link"
+                                                    title="Change active status"
+                                                    onClick={() => {
+                                                        setSelectedAccount(account);
+                                                        setIsActive(account.isActive);
+                                                        setIsEditAccountActiveVisible(true);
+                                                    }}
+                                                >
+                                                    {account.isActive ? "Active" : "Inactive"}
+                                                </Link>
+                                            </td>
+                                        )}
+                                        {(storedUserRole === "Manager" ||
+                                            storedUserRole === "Accountant") && (
+                                            <td>{account.isActive ? "Active" : "Inactive"}</td>
+                                        )}
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {/* View Account Details Modal FOr Admin User */}
                 {viewAccountDetails && storedUserRole === "Admin" && (

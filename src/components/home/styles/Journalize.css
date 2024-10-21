@@ -1,3 +1,8 @@
+.journalize .content.active-content {
+    overflow-y: auto;
+}
+
+
 .journalize .journal-entry-table {
     width: 100%;
     border-collapse: collapse;
@@ -7,8 +12,7 @@
 }
 
 .journalize .journal-entry-table tbody {
-    max-height: 400px;
-    overflow-y: auto;
+    overflow-y: hidden;
     display: block;
 }
 
@@ -19,8 +23,8 @@
     table-layout: fixed;
 }
 
-.journal-entry-table th:nth-child(4),
-.journal-entry-table td:nth-child(4) {
+.journal-entry-table th:nth-child(5),
+.journal-entry-table td:nth-child(5) {
     width: auto;
 }
 
@@ -45,27 +49,35 @@
 
 .journal-entry-table th:nth-child(1),
 .journal-entry-table td:nth-child(1) {
-    width: 12%; /* Date column */
+    width: 15%; /* Date column */
 }
 
 .journal-entry-table th:nth-child(2),
 .journal-entry-table td:nth-child(2) {
-    width: 12%; /* Type column */
+    width: 9%; /* Type column */
 }
 
 .journal-entry-table th:nth-child(3),
 .journal-entry-table td:nth-child(3) {
-    width: 12%; /* Creator column */
+    width: 9%; /* Creator column */
 }
 
-.journal-entry-table th:nth-child(5),
-.journal-entry-table td:nth-child(5) {
-    width: 12%; /* Debit column */
+.journal-entry-table th:nth-child(4),
+.journal-entry-table td:nth-child(4) {
+    width: 6%; /* PR column */
+}
+.journal-entry-table th:nth-child(4) {
+    text-align: center;
 }
 
 .journal-entry-table th:nth-child(6),
 .journal-entry-table td:nth-child(6) {
-    width: 12%; /* Credit column */
+    width: 13%; /* Debit column */
+}
+
+.journal-entry-table th:nth-child(7),
+.journal-entry-table td:nth-child(7) {
+    width: 13%; /* Credit column */
 }
 
 .manager-view tr:hover {
