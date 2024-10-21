@@ -25,6 +25,11 @@ const AccountLedger = () => {
     const [isActive, setIsActive] = useState(false);
     const [changeIsActive, setChangeIsActive] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState(null);
+    const [fetchedEntry, setFetchedEntry] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+
 
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -36,6 +41,15 @@ const AccountLedger = () => {
             X
         </button>
     );
+
+    const handleEditInputChange = (event) => {
+        const { name, value } = event.target;
+
+        if (name === "isActive") {
+            setIsActive(value === "true");
+            setChangeIsActive(true);
+        } 
+    };
 
     useEffect(() => {
         // Retrieve the user data from localStorage
@@ -141,6 +155,73 @@ const AccountLedger = () => {
             }, 500); // Delay by 500ms (can be adjusted as needed)
         }
     }, [selectedAccount]);
+
+    useEffect(() => {
+        const fetchEntryById = async () => {
+            try {
+                const response = await fetch(
+                    `${API_URL}/accounts/account-by-id?id=${selectedEntry}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json,",
+                        },
+                    }
+                );
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    setFetchedEntry(result);
+                } else {
+                    toast(`${result.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        if (selectedEntry) {
+            fetchEntryById();
+        }
+
+        // Show toast message if present in localStorage
+        const toastMessage = localStorage.getItem("toastMessage");
+        if (toastMessage !== null) {
+            // Show toast message
+            toast(toastMessage, {
+                style: {
+                    backgroundColor: "#333",
+                    color: "white",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                },
+                progressStyle: {
+                    backgroundColor: "#2196f3", // Solid blue color for progress bar
+                    backgroundImage: "none",
+                },
+                closeButton: <CustomCloseButton />,
+            });
+
+            // Delay removal of the message from localStorage
+            setTimeout(() => {
+                localStorage.removeItem("toastMessage");
+            }, 500); // Delay by 500ms (can be adjusted as needed)
+        }
+    }, [selectedEntry]);
+
 
     const formatWithCommas = (value) => {
         const [integerPart, decimalPart] = value.split(".");
@@ -404,7 +485,52 @@ const AccountLedger = () => {
                     {fetchedAccount.accountNumber} {fetchedAccount.accountName}
                 </div>
 
-
+                <div className="table-filter">
+                    <div className="date-filter">
+                        From:
+                        <input
+                            type="date"
+                            id="from"
+                            name="from"
+                            title="Starting date range"
+                        />
+                        To:
+                        <input
+                            type="date"
+                            id="to"
+                            name="to"
+                            title="Ending date range"
+                        />
+                    </div>
+                    <div className="balance-filter">
+                        Min:
+                        <input
+                            type="tel"
+                            id="minBalance"
+                            name="minBalance"
+                            title="Minimum balance range"
+                            placeholder="0.00"
+                            inputMode="numeric"
+                        />
+                        Max:
+                        <input
+                            type="tel"
+                            id="maxBalance"
+                            name="maxBalance"
+                            title="Maximum balance range"
+                            placeholder="0.00"
+                            inputMode="numeric"
+                        />
+                    </div>
+                    <div className="search-filter">
+                        <input
+                            type="text"
+                            className="search"
+                            title="Search the accounts"
+                            placeholder="Search accounts..."
+                        />
+                    </div>
+                </div>
 
                 {/* Tab Setup */}
                 <div className="tab-container">
@@ -479,11 +605,12 @@ const AccountLedger = () => {
                                                 className="entry-active-link"
                                                 title="Change active status"
                                                 onClick={() => {
+                                                    setSelectedEntry(selectedEntry)
                                                     setIsEditEntryVisible(true);
                                                     setIsEditEntryActiveVisible(true);
                                                 }}
                                             >
-                                                Pending
+                                                InsertStatusHere
                                             </Link>
                                     </td>
                                 </tr>
@@ -756,8 +883,9 @@ const AccountLedger = () => {
                                     <select
                                         id="isActive"
                                         name="isActive"
-                                        title="Change the account's active status"
+                                        title="Change the entry's approval status"
                                         value={isActive ? "true" : "false"}
+                                        onChange={handleEditInputChange}
                                     >
                                         <option value="" disabled>
                                             Select status
