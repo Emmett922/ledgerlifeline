@@ -29,6 +29,7 @@ const AccountLedger = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
+    const [postReferenceFromJournal, setPostReferenceFromJournal] = useState("");
 
 
     const API_URL = process.env.REACT_APP_API_URL;

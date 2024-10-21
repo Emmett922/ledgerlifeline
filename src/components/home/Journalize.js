@@ -768,7 +768,10 @@ const Journalize = () => {
         return isDescending ? dateB - dateA : dateA - dateB; // Sort by updatedAt
     });
 
-    const handlePostReferenceClick = (pr) => {};
+    const handlePostReferenceClick = (pr) => {
+        localStorage.setItem('PR', JSON.stringify(pr));
+        navigate("/account-ledger");
+    };
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
