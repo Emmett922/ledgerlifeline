@@ -1,5 +1,6 @@
 .journalize .content.active-content {
     overflow-y: auto;
+    height: 400px;
 }
 
 
@@ -29,7 +30,7 @@
 }
 
 .journal-entry-table th,
-.journal-entry-table td {
+.journal-entry-table td{
     border-left: none; /* Remove vertical lines */
     border-right: none;
     border-bottom: 1px solid #ccc; /* Keep horizontal line */
@@ -95,7 +96,9 @@
 .journal-entry-creation-table td {
     padding: 10px;
     border: 1px solid #ddd;
-    text-align: left; /* Aligns text to the left */
+    text-align: left;
+    border-left: none;
+    border-right: none;
 }
 
 .journal-entry-creation-table th {
@@ -104,6 +107,7 @@
 
 .journal-entry-creation-table td {
     vertical-align: top;
+    border-bottom: none;
 }
 
 .debit-row {
@@ -161,6 +165,18 @@
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 10px;
+}
+
+.debit-input .single-input,
+.credit-input .single-input {
+    display: flex;
+    align-items: center;
+}
+
+
+.single-input span {
+    margin-right: 0.5rem; /* Add some spacing between the dollar sign and input */
+    margin-top: -5%;
 }
 
 #journalDescription {
@@ -354,6 +370,37 @@
     max-width: 90%; /* Responsive full-size image */
     max-height: 90%; /* Limit height */
 }
+
+.file-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+  }
+  
+  .file-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .file-icon {
+    font-size: 50px; /* Adjust size as needed */
+    margin-bottom: 5px;
+    color: #007bff;
+  }
+  
+  .file-name {
+    font-size: 14px;
+    text-align: center;
+  }  
 
 /* Media queries for responsiveness */
 @media (max-width: 768px) {

@@ -13,6 +13,9 @@ import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faCalculator } from "@fortawesome/free-solid-svg-icons";
+import { faCaretUp } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faFilePdf, faFileExcel, faFileAlt } from "@fortawesome/free-solid-svg-icons";
 
 const Journalize = () => {
     // Function variables
@@ -750,9 +753,22 @@ const Journalize = () => {
         setIsEditJournalVisible(true);
     };
 
-    const handlePostReferenceClick = (pr) => {
+    // -- Code for toggling the table in ascending and descending order -- //
+    const [isDescending, setIsDescending] = useState(true); // State for sorting order
 
-    }
+    // Function to toggle sort order
+    const toggleSortOrder = () => {
+        setIsDescending((prev) => !prev);
+    };
+
+    // Sorting logic applied before mapping
+    const sortedEntries = [...filteredJournalEntries].sort((a, b) => {
+        const dateA = new Date(a.updatedAt);
+        const dateB = new Date(b.updatedAt);
+        return isDescending ? dateB - dateA : dateA - dateB; // Sort by updatedAt
+    });
+
+    const handlePostReferenceClick = (pr) => {};
 
     const toggleCalendar = () => {
         setShowCalendar(!showCalendar);
@@ -955,7 +971,7 @@ const Journalize = () => {
                         <input
                             type="text"
                             className="search"
-                            title="Search the accounts"
+                            title="Search General Journal"
                             placeholder="Search entries..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -967,7 +983,7 @@ const Journalize = () => {
                 <div className="tab-container">
                     <div
                         className={toggleState === 1 ? "tabs active-tabs" : "tabs"}
-                        title="Show account updates log"
+                        title="Show all journal entries"
                         onClick={() => toggleTab(1)}
                     >
                         All Entries
@@ -975,7 +991,7 @@ const Journalize = () => {
 
                     <div
                         className={toggleState === 2 ? "tabs active-tabs" : "tabs"}
-                        title="Show user updates log"
+                        title="Show all approved entries"
                         onClick={() => toggleTab(2)}
                     >
                         Approved Entries
@@ -983,7 +999,7 @@ const Journalize = () => {
 
                     <div
                         className={toggleState === 3 ? "tabs active-tabs" : "tabs"}
-                        title="Show login attempts log"
+                        title="Show all denied entries"
                         onClick={() => toggleTab(3)}
                     >
                         Denied Entries
@@ -991,7 +1007,7 @@ const Journalize = () => {
 
                     <div
                         className={toggleState === 4 ? "tabs active-tabs" : "tabs"}
-                        title="Show login attempts log"
+                        title="Show all pending entries"
                         onClick={() => toggleTab(4)}
                     >
                         Pending Entries
@@ -1002,7 +1018,22 @@ const Journalize = () => {
                     <table className="journal-entry-table">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th>
+                                    <button
+                                        onClick={toggleSortOrder}
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {isDescending ? (
+                                            <FontAwesomeIcon icon={faCaretUp} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretDown} />
+                                        )}
+                                    </button>
+                                </th>
                                 <th>Type</th>
                                 <th>Creator</th>
                                 <th>PR</th>
@@ -1013,149 +1044,7 @@ const Journalize = () => {
                         </thead>
                         {storedUserRole === "Manager" && (
                             <tbody className="manager-view">
-                                {filteredJournalEntries.map((entry, index) => (
-                                    <tr key={index} onClick={() => handleRowClick(entry)}>
-                                        <td>
-                                            <strong>
-                                                {new Date(entry.updatedAt).toLocaleDateString()}
-                                            </strong>
-                                            <br />
-                                            <br />
-                                            <strong>
-                                                <span
-                                                    style={{
-                                                        color:
-                                                            entry.status === "Approved"
-                                                                ? "green"
-                                                                : entry.status === "Rejected"
-                                                                ? "red"
-                                                                : "orange",
-                                                        textDecoration:
-                                                            entry.status === "Pending"
-                                                                ? "underline"
-                                                                : "none",
-                                                        cursor:
-                                                            entry.status === "Pending"
-                                                                ? "pointer"
-                                                                : "default",
-                                                    }}
-                                                    onClick={
-                                                        entry.status === "Pending"
-                                                            ? () => handleStatusClick(entry)
-                                                            : null
-                                                    }
-                                                >
-                                                    {entry.status === "Rejected"
-                                                        ? "Denied"
-                                                        : entry.status}
-                                                </span>
-                                            </strong>
-                                            <br />
-                                            {entry.status === "Rejected" && (
-                                                <div>
-                                                    <br />
-                                                    <span style={{ fontWeight: "bold" }}>
-                                                        Reason:{" "}
-                                                    </span>
-                                                    <br />
-                                                    {entry.rejectionReason}
-                                                </div>
-                                            )}
-                                            {(entry.status === "Approved" ||
-                                                entry.status === "Rejected") && (
-                                                <span
-                                                    style={{
-                                                        color: "#007bff",
-                                                        textDecoration: "underline",
-                                                    }}
-                                                >
-                                                    <br />
-                                                    {entry.updatedBy}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td>{entry.type}</td>
-                                        <td>{entry.createdBy}</td>
-                                        {entry.status === "Approved" && (
-                                            <td>
-                                                {entry.debit.map((debitAccount, index) => (
-                                                    <div key={index}>
-                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
-                                                            {debitAccount.account.accountNumber}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                                {entry.credit.map((creditAccount, index) => (
-                                                    <div key={index}>
-                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
-                                                            {creditAccount.account.accountNumber}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                            </td>
-                                        )}
-                                        {(entry.status === "Rejected" ||
-                                            entry.status === "Pending") && <td> </td>}
-                                        <td>
-                                            {entry.debit.map((debitAccount, index) => (
-                                                <div key={index}>
-                                                    <strong>
-                                                        {debitAccount.account.accountName}
-                                                    </strong>
-                                                </div>
-                                            ))}
-                                            <br />
-                                            {entry.credit.map((creditAccount, index) => (
-                                                <div key={index} style={{ paddingLeft: "40px" }}>
-                                                    <strong>
-                                                        {creditAccount.account.accountName}
-                                                    </strong>
-                                                </div>
-                                            ))}
-                                            <br />
-                                            <div>
-                                                <span style={{ fontWeight: "bold" }}>
-                                                    Description:{" "}
-                                                </span>
-                                                {entry.description}.
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {entry.debit.map((debitAccount, index) => (
-                                                <div key={index}>
-                                                    $
-                                                    {formatWithCommas(
-                                                        debitAccount.amount.toFixed(2)
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </td>
-                                        <td>
-                                            <br />
-                                            {entry.debit.map((_, index) => (
-                                                <React.Fragment key={index}>
-                                                    <br />
-                                                </React.Fragment>
-                                            ))}
-                                            {entry.credit.map((creditAccount, index) => (
-                                                <div key={index}>
-                                                    $
-                                                    {formatWithCommas(
-                                                        creditAccount.amount.toFixed(2)
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        )}
-
-                        {storedUserRole === "Accountant" && (
-                            <tbody className="accountant-view">
-                                {filteredJournalEntries.map((entry, index) => (
+                                {sortedEntries.map((entry, index) => (
                                     <tr key={index}>
                                         <td>
                                             <strong>
@@ -1207,7 +1096,7 @@ const Journalize = () => {
                                                 entry.status === "Rejected") && (
                                                 <span
                                                     style={{
-                                                        color: "#007bff",
+                                                        color: "black",
                                                         textDecoration: "underline",
                                                     }}
                                                 >
@@ -1222,7 +1111,19 @@ const Journalize = () => {
                                             <td>
                                                 {entry.debit.map((debitAccount, index) => (
                                                     <div key={index}>
-                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                        <span
+                                                            style={{
+                                                                color: "#007bff",
+                                                                cursor: "pointer",
+                                                            }}
+                                                            onClick={() =>
+                                                                handlePostReferenceClick(
+                                                                    debitAccount.account
+                                                                        .accountNumber
+                                                                )
+                                                            }
+                                                            title="Navigate to account in General Ledger"
+                                                        >
                                                             {debitAccount.account.accountNumber}
                                                         </span>
                                                     </div>
@@ -1230,7 +1131,19 @@ const Journalize = () => {
                                                 <br />
                                                 {entry.credit.map((creditAccount, index) => (
                                                     <div key={index}>
-                                                    <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                        <span
+                                                            style={{
+                                                                color: "#007bff",
+                                                                cursor: "pointer",
+                                                            }}
+                                                            onClick={() =>
+                                                                handlePostReferenceClick(
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                )
+                                                            }
+                                                            title="Navigate to account in General Ledger"
+                                                        >
                                                             {creditAccount.account.accountNumber}
                                                         </span>
                                                     </div>
@@ -1261,7 +1174,188 @@ const Journalize = () => {
                                                 <span style={{ fontWeight: "bold" }}>
                                                     Description:{" "}
                                                 </span>
-                                                {entry.description}.
+                                                {entry.description}
+                                            </div>
+                                            <br />
+                                            <div>
+                                                <span
+                                                    style={{
+                                                        color: "#007bff",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={() => handleRowClick(entry)}
+                                                    title="Click to view entry source documentation"
+                                                >
+                                                    Source Documentation
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        debitAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <br />
+                                            {entry.debit.map((_, index) => (
+                                                <React.Fragment key={index}>
+                                                    <br />
+                                                </React.Fragment>
+                                            ))}
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index}>
+                                                    $
+                                                    {formatWithCommas(
+                                                        creditAccount.amount.toFixed(2)
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {sortedEntries.map((entry, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <strong>
+                                                {new Date(entry.updatedAt).toLocaleDateString()}
+                                            </strong>
+                                            <br />
+                                            <br />
+                                            <strong>
+                                                <span
+                                                    style={{
+                                                        color:
+                                                            entry.status === "Approved"
+                                                                ? "green"
+                                                                : entry.status === "Rejected"
+                                                                ? "red"
+                                                                : "orange",
+                                                    }}
+                                                >
+                                                    {entry.status === "Rejected"
+                                                        ? "Denied"
+                                                        : entry.status}
+                                                </span>
+                                            </strong>
+                                            <br />
+                                            {entry.status === "Rejected" && (
+                                                <div>
+                                                    <br />
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Reason:{" "}
+                                                    </span>
+                                                    <br />
+                                                    {entry.rejectionReason}
+                                                </div>
+                                            )}
+                                            {(entry.status === "Approved" ||
+                                                entry.status === "Rejected") && (
+                                                <span
+                                                    style={{
+                                                        color: "black",
+                                                        textDecoration: "underline",
+                                                    }}
+                                                >
+                                                    <br />
+                                                    {entry.updatedBy}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>{entry.type}</td>
+                                        <td>{entry.createdBy}</td>
+                                        {entry.status === "Approved" && (
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <span
+                                                            style={{
+                                                                color: "#007bff",
+                                                                cursor: "pointer",
+                                                            }}
+                                                            onClick={() =>
+                                                                handlePostReferenceClick(
+                                                                    debitAccount.account
+                                                                        .accountNumber
+                                                                )
+                                                            }
+                                                            title="Navigate to account in General Ledger"
+                                                        >
+                                                            {debitAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        <span
+                                                            style={{
+                                                                color: "#007bff",
+                                                                cursor: "pointer",
+                                                            }}
+                                                            onClick={() =>
+                                                                handlePostReferenceClick(
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                )
+                                                            }
+                                                            title="Navigate to account in General Ledger"
+                                                        >
+                                                            {creditAccount.account.accountNumber}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                            </td>
+                                        )}
+                                        {(entry.status === "Rejected" ||
+                                            entry.status === "Pending") && <td> </td>}
+                                        <td>
+                                            {entry.debit.map((debitAccount, index) => (
+                                                <div key={index}>
+                                                    <strong>
+                                                        {debitAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            {entry.credit.map((creditAccount, index) => (
+                                                <div key={index} style={{ paddingLeft: "40px" }}>
+                                                    <strong>
+                                                        {creditAccount.account.accountName}
+                                                    </strong>
+                                                </div>
+                                            ))}
+                                            <br />
+                                            <div>
+                                                <span style={{ fontWeight: "bold" }}>
+                                                    Description:{" "}
+                                                </span>
+                                                {entry.description}
+                                            </div>
+                                            <br />
+                                            <div>
+                                                <span
+                                                    style={{
+                                                        color: "#007bff",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={() => handleRowClick(entry)}
+                                                    title="Click to view entry source documentation"
+                                                >
+                                                    Source Documentation
+                                                </span>
                                             </div>
                                         </td>
                                         <td>
@@ -1301,7 +1395,22 @@ const Journalize = () => {
                     <table className="journal-entry-table">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th>
+                                    <button
+                                        onClick={toggleSortOrder}
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {isDescending ? (
+                                            <FontAwesomeIcon icon={faCaretUp} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretDown} />
+                                        )}
+                                    </button>
+                                </th>
                                 <th>Type</th>
                                 <th>Creator</th>
                                 <th>PR</th>
@@ -1312,10 +1421,10 @@ const Journalize = () => {
                         </thead>
                         {storedUserRole === "Manager" && (
                             <tbody className="manager-view">
-                                {filteredJournalEntries
+                                {sortedEntries
                                     .filter((entry) => entry.status === "Approved")
                                     .map((entry, index) => (
-                                        <tr key={index} onClick={() => handleRowClick(entry)}>
+                                        <tr key={index}>
                                             <td>
                                                 <strong>
                                                     {new Date(entry.updatedAt).toLocaleDateString()}
@@ -1355,7 +1464,7 @@ const Journalize = () => {
                                                     entry.status === "Rejected") && (
                                                     <span
                                                         style={{
-                                                            color: "#007bff",
+                                                            color: "black",
                                                             textDecoration: "underline",
                                                         }}
                                                     >
@@ -1369,7 +1478,19 @@ const Journalize = () => {
                                                 <td>
                                                     {entry.debit.map((debitAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        debitAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                                title="Navigate to account in General Ledger"
+                                                            >
                                                                 {debitAccount.account.accountNumber}
                                                             </span>
                                                         </div>
@@ -1377,7 +1498,19 @@ const Journalize = () => {
                                                     <br />
                                                     {entry.credit.map((creditAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        creditAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                                title="Navigate to account in General Ledger"
+                                                            >
                                                                 {
                                                                     creditAccount.account
                                                                         .accountNumber
@@ -1414,7 +1547,21 @@ const Journalize = () => {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         Description:{" "}
                                                     </span>
-                                                    {entry.description}.
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td>
@@ -1450,7 +1597,7 @@ const Journalize = () => {
 
                         {storedUserRole === "Accountant" && (
                             <tbody className="accountant-view">
-                                {filteredJournalEntries
+                                {sortedEntries
                                     .filter((entry) => entry.status === "Approved")
                                     .map((entry, index) => (
                                         <tr key={index}>
@@ -1480,7 +1627,7 @@ const Journalize = () => {
                                                     entry.status === "Rejected") && (
                                                     <span
                                                         style={{
-                                                            color: "#007bff",
+                                                            color: "black",
                                                             textDecoration: "underline",
                                                         }}
                                                     >
@@ -1494,7 +1641,19 @@ const Journalize = () => {
                                                 <td>
                                                     {entry.debit.map((debitAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        debitAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                                title="Navigate to account in General Ledger"
+                                                            >
                                                                 {debitAccount.account.accountNumber}
                                                             </span>
                                                         </div>
@@ -1502,7 +1661,19 @@ const Journalize = () => {
                                                     <br />
                                                     {entry.credit.map((creditAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(creditAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        creditAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                                title="Navigate to account in General Ledger"
+                                                            >
                                                                 {
                                                                     creditAccount.account
                                                                         .accountNumber
@@ -1539,7 +1710,21 @@ const Journalize = () => {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         Description:{" "}
                                                     </span>
-                                                    {entry.description}.
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td>
@@ -1579,7 +1764,22 @@ const Journalize = () => {
                     <table className="journal-entry-table">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th>
+                                    <button
+                                        onClick={toggleSortOrder}
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {isDescending ? (
+                                            <FontAwesomeIcon icon={faCaretUp} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretDown} />
+                                        )}
+                                    </button>
+                                </th>
                                 <th>Type</th>
                                 <th>Creator</th>
                                 <th>PR</th>
@@ -1590,157 +1790,7 @@ const Journalize = () => {
                         </thead>
                         {storedUserRole === "Manager" && (
                             <tbody className="manager-view">
-                                {filteredJournalEntries
-                                    .filter((entry) => entry.status === "Rejected")
-                                    .map((entry, index) => (
-                                        <tr key={index} onClick={() => handleRowClick(entry)}>
-                                            <td>
-                                                <strong>
-                                                    {new Date(entry.updatedAt).toLocaleDateString()}
-                                                </strong>
-                                                <br />
-                                                <br />
-                                                <strong>
-                                                    <span
-                                                        style={{
-                                                            color:
-                                                                entry.status === "Approved"
-                                                                    ? "green"
-                                                                    : entry.status === "Rejected"
-                                                                    ? "red"
-                                                                    : "orange",
-                                                            textDecoration:
-                                                                entry.status === "Pending"
-                                                                    ? "underline"
-                                                                    : "none",
-                                                            cursor:
-                                                                entry.status === "Pending"
-                                                                    ? "pointer"
-                                                                    : "default",
-                                                        }}
-                                                        onClick={
-                                                            entry.status === "Pending"
-                                                                ? () => handleStatusClick(entry)
-                                                                : null
-                                                        }
-                                                    >
-                                                        {entry.status === "Rejected"
-                                                            ? "Denied"
-                                                            : entry.status}
-                                                    </span>
-                                                </strong>
-                                                <br />
-                                                {entry.status === "Rejected" && (
-                                                    <div>
-                                                        <br />
-                                                        <span style={{ fontWeight: "bold" }}>
-                                                            Reason:{" "}
-                                                        </span>
-                                                        <br />
-                                                        {entry.rejectionReason}
-                                                    </div>
-                                                )}
-                                                {(entry.status === "Approved" ||
-                                                    entry.status === "Rejected") && (
-                                                    <span
-                                                        style={{
-                                                            color: "#007bff",
-                                                            textDecoration: "underline",
-                                                        }}
-                                                    >
-                                                        <br />
-                                                        {entry.updatedBy}
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td>{entry.type}</td>
-                                            <td>{entry.createdBy}</td>
-                                            {entry.status === "Approved" && (
-                                                <td>
-                                                    {entry.debit.map((debitAccount, index) => (
-                                                        <div key={index}>
-                                                            <span style={{ color: "#007bff" }}>
-                                                                {debitAccount.account.accountNumber}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                    <br />
-                                                    {entry.credit.map((creditAccount, index) => (
-                                                        <div key={index}>
-                                                            <span style={{ color: "#007bff" }}>
-                                                                {
-                                                                    creditAccount.account
-                                                                        .accountNumber
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                    <br />
-                                                </td>
-                                            )}
-                                            {(entry.status === "Rejected" ||
-                                                entry.status === "Pending") && <td> </td>}
-                                            <td>
-                                                {entry.debit.map((debitAccount, index) => (
-                                                    <div key={index}>
-                                                        <strong>
-                                                            {debitAccount.account.accountName}
-                                                        </strong>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                                {entry.credit.map((creditAccount, index) => (
-                                                    <div
-                                                        key={index}
-                                                        style={{ paddingLeft: "40px" }}
-                                                    >
-                                                        <strong>
-                                                            {creditAccount.account.accountName}
-                                                        </strong>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                                <div>
-                                                    <span style={{ fontWeight: "bold" }}>
-                                                        Description:{" "}
-                                                    </span>
-                                                    {entry.description}.
-                                                </div>
-                                            </td>
-                                            <td>
-                                                {entry.debit.map((debitAccount, index) => (
-                                                    <div key={index}>
-                                                        $
-                                                        {formatWithCommas(
-                                                            debitAccount.amount.toFixed(2)
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </td>
-                                            <td>
-                                                <br />
-                                                {entry.debit.map((_, index) => (
-                                                    <React.Fragment key={index}>
-                                                        <br />
-                                                    </React.Fragment>
-                                                ))}
-                                                {entry.credit.map((creditAccount, index) => (
-                                                    <div key={index}>
-                                                        $
-                                                        {formatWithCommas(
-                                                            creditAccount.amount.toFixed(2)
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        )}
-
-                        {storedUserRole === "Accountant" && (
-                            <tbody className="accountant-view">
-                                {filteredJournalEntries
+                                {sortedEntries
                                     .filter((entry) => entry.status === "Rejected")
                                     .map((entry, index) => (
                                         <tr key={index}>
@@ -1794,7 +1844,7 @@ const Journalize = () => {
                                                     entry.status === "Rejected") && (
                                                     <span
                                                         style={{
-                                                            color: "#007bff",
+                                                            color: "black",
                                                             textDecoration: "underline",
                                                         }}
                                                     >
@@ -1854,7 +1904,185 @@ const Journalize = () => {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         Description:{" "}
                                                     </span>
-                                                    {entry.description}.
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            debitAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <br />
+                                                {entry.debit.map((_, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <br />
+                                                    </React.Fragment>
+                                                ))}
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div key={index}>
+                                                        $
+                                                        {formatWithCommas(
+                                                            creditAccount.amount.toFixed(2)
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        )}
+
+                        {storedUserRole === "Accountant" && (
+                            <tbody className="accountant-view">
+                                {sortedEntries
+                                    .filter((entry) => entry.status === "Rejected")
+                                    .map((entry, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <strong>
+                                                    {new Date(entry.updatedAt).toLocaleDateString()}
+                                                </strong>
+                                                <br />
+                                                <br />
+                                                <strong>
+                                                    <span
+                                                        style={{
+                                                            color:
+                                                                entry.status === "Approved"
+                                                                    ? "green"
+                                                                    : entry.status === "Rejected"
+                                                                    ? "red"
+                                                                    : "orange",
+                                                            textDecoration:
+                                                                entry.status === "Pending"
+                                                                    ? "underline"
+                                                                    : "none",
+                                                            cursor:
+                                                                entry.status === "Pending"
+                                                                    ? "pointer"
+                                                                    : "default",
+                                                        }}
+                                                        onClick={
+                                                            entry.status === "Pending"
+                                                                ? () => handleStatusClick(entry)
+                                                                : null
+                                                        }
+                                                    >
+                                                        {entry.status === "Rejected"
+                                                            ? "Denied"
+                                                            : entry.status}
+                                                    </span>
+                                                </strong>
+                                                <br />
+                                                {entry.status === "Rejected" && (
+                                                    <div>
+                                                        <br />
+                                                        <span style={{ fontWeight: "bold" }}>
+                                                            Reason:{" "}
+                                                        </span>
+                                                        <br />
+                                                        {entry.rejectionReason}
+                                                    </div>
+                                                )}
+                                                {(entry.status === "Approved" ||
+                                                    entry.status === "Rejected") && (
+                                                    <span
+                                                        style={{
+                                                            color: "black",
+                                                            textDecoration: "underline",
+                                                        }}
+                                                    >
+                                                        <br />
+                                                        {entry.updatedBy}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{entry.type}</td>
+                                            <td>{entry.createdBy}</td>
+                                            {entry.status === "Approved" && (
+                                                <td>
+                                                    {entry.debit.map((debitAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {debitAccount.account.accountNumber}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                    {entry.credit.map((creditAccount, index) => (
+                                                        <div key={index}>
+                                                            <span style={{ color: "#007bff" }}>
+                                                                {
+                                                                    creditAccount.account
+                                                                        .accountNumber
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    <br />
+                                                </td>
+                                            )}
+                                            {(entry.status === "Rejected" ||
+                                                entry.status === "Pending") && <td> </td>}
+                                            <td>
+                                                {entry.debit.map((debitAccount, index) => (
+                                                    <div key={index}>
+                                                        <strong>
+                                                            {debitAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                {entry.credit.map((creditAccount, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{ paddingLeft: "40px" }}
+                                                    >
+                                                        <strong>
+                                                            {creditAccount.account.accountName}
+                                                        </strong>
+                                                    </div>
+                                                ))}
+                                                <br />
+                                                <div>
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Description:{" "}
+                                                    </span>
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td>
@@ -1894,7 +2122,22 @@ const Journalize = () => {
                     <table className="journal-entry-table">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th>
+                                    <button
+                                        onClick={toggleSortOrder}
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {isDescending ? (
+                                            <FontAwesomeIcon icon={faCaretUp} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretDown} />
+                                        )}
+                                    </button>
+                                </th>
                                 <th>Type</th>
                                 <th>Creator</th>
                                 <th>PR</th>
@@ -1905,10 +2148,10 @@ const Journalize = () => {
                         </thead>
                         {storedUserRole === "Manager" && (
                             <tbody className="manager-view">
-                                {filteredJournalEntries
+                                {sortedEntries
                                     .filter((entry) => entry.status === "Pending")
                                     .map((entry, index) => (
-                                        <tr key={index} onClick={() => handleRowClick(entry)}>
+                                        <tr key={index}>
                                             <td>
                                                 <strong>
                                                     {new Date(entry.updatedAt).toLocaleDateString()}
@@ -1948,7 +2191,7 @@ const Journalize = () => {
                                                     entry.status === "Rejected") && (
                                                     <span
                                                         style={{
-                                                            color: "#007bff",
+                                                            color: "black",
                                                             textDecoration: "underline",
                                                         }}
                                                     >
@@ -1962,7 +2205,18 @@ const Journalize = () => {
                                                 <td>
                                                     {entry.debit.map((debitAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        debitAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                            >
                                                                 {debitAccount.account.accountNumber}
                                                             </span>
                                                         </div>
@@ -2007,7 +2261,21 @@ const Journalize = () => {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         Description:{" "}
                                                     </span>
-                                                    {entry.description}.
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td>
@@ -2043,7 +2311,7 @@ const Journalize = () => {
 
                         {storedUserRole === "Accountant" && (
                             <tbody className="accountant-view">
-                                {filteredJournalEntries
+                                {sortedEntries
                                     .filter((entry) => entry.status === "Pending")
                                     .map((entry, index) => (
                                         <tr key={index}>
@@ -2074,7 +2342,18 @@ const Journalize = () => {
                                                 <td>
                                                     {entry.debit.map((debitAccount, index) => (
                                                         <div key={index}>
-                                                        <span style={{ color: "#007bff", cursor: "pointer" }} onClick={() => handlePostReferenceClick(debitAccount.account.accountNumber)}>
+                                                            <span
+                                                                style={{
+                                                                    color: "#007bff",
+                                                                    cursor: "pointer",
+                                                                }}
+                                                                onClick={() =>
+                                                                    handlePostReferenceClick(
+                                                                        debitAccount.account
+                                                                            .accountNumber
+                                                                    )
+                                                                }
+                                                            >
                                                                 {debitAccount.account.accountNumber}
                                                             </span>
                                                         </div>
@@ -2119,7 +2398,21 @@ const Journalize = () => {
                                                     <span style={{ fontWeight: "bold" }}>
                                                         Description:{" "}
                                                     </span>
-                                                    {entry.description}.
+                                                    {entry.description}
+                                                </div>
+                                                <br />
+                                                <div>
+                                                    <span
+                                                        style={{
+                                                            color: "#007bff",
+                                                            textDecoration: "underline",
+                                                            cursor: "pointer",
+                                                        }}
+                                                        onClick={() => handleRowClick(entry)}
+                                                        title="Click to view entry source documentation"
+                                                    >
+                                                        Source Documentation
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td>
@@ -2218,7 +2511,7 @@ const Journalize = () => {
                     </div>
                 )}
 
-                {/* Modal for viewing the source documentation of */}
+                {/* Modal for viewing the source documentation */}
                 {viewEntryDetails && (
                     <div className="modal">
                         <div className="modal-view-entry-details-content">
@@ -2236,26 +2529,55 @@ const Journalize = () => {
                                 {files &&
                                     files.map((file) => (
                                         <div key={file._id} className="thumbnail-container">
-                                            <img
-                                                src={file.url}
-                                                alt={file.filename}
-                                                className="thumbnail"
-                                                onClick={() => setFullSizeImage(file.url)} // Set the full size image URL on click
-                                            />
-                                            {/*
-                                            <a
-                                                href={file.url}
-                                                download={file.filename} // Correctly handle file downloading
-                                                className="download-link"
-                                            >
-                                                Download
-                                            </a>
-                                             */}
+                                            {file.type && file.type.includes("image") ? (
+                                                <img
+                                                    src={file.url}
+                                                    alt={file.filename}
+                                                    className="thumbnail"
+                                                    onClick={() => setFullSizeImage(file.url)} // Set the full size image URL on click
+                                                />
+                                            ) : (
+                                                <div className="file-button-container">
+                                                    <a
+                                                        href={file.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="file-button"
+                                                    >
+                                                        {/* Check for file.type before using includes */}
+                                                        {file.type && file.type.includes("pdf") && (
+                                                            <FontAwesomeIcon
+                                                                icon={faFilePdf}
+                                                                className="file-icon"
+                                                            />
+                                                        )}
+                                                        {file.type &&
+                                                            file.type.includes(
+                                                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                                            ) && (
+                                                                <FontAwesomeIcon
+                                                                    icon={faFileExcel}
+                                                                    className="file-icon"
+                                                                />
+                                                            )}
+                                                        {file.type &&
+                                                            file.type.includes("text/plain") && (
+                                                                <FontAwesomeIcon
+                                                                    icon={faFileAlt}
+                                                                    className="file-icon"
+                                                                />
+                                                            )}
+                                                        <div className="file-name">
+                                                            {file.filename}
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                             </div>
                         </div>
-                        {fullSizeImage && ( // This shows the enlarged image
+                        {fullSizeImage && (
                             <div className="full-size-modal">
                                 <span
                                     className="close"
@@ -2474,24 +2796,26 @@ const Journalize = () => {
                                                             key={`debit-input-${index}`}
                                                             className="debit-input"
                                                         >
-                                                            <span>$</span>
-                                                            <input
-                                                                type="tel"
-                                                                name={`debit-amount-${index}`}
-                                                                placeholder="0.00"
-                                                                value={
-                                                                    debitInputValues[index]
-                                                                        ?.amount || "0.00"
-                                                                } // Default to "0.00"
-                                                                onChange={(event) =>
-                                                                    handleInputChange(
-                                                                        event,
-                                                                        index,
-                                                                        "d"
-                                                                    )
-                                                                }
-                                                                inputMode="numeric"
-                                                            />
+                                                            <div className="single-input">
+                                                                <span>$</span>
+                                                                <input
+                                                                    type="tel"
+                                                                    name={`debit-amount-${index}`}
+                                                                    placeholder="0.00"
+                                                                    value={
+                                                                        debitInputValues[index]
+                                                                            ?.amount || "0.00"
+                                                                    } // Default to "0.00"
+                                                                    onChange={(event) =>
+                                                                        handleInputChange(
+                                                                            event,
+                                                                            index,
+                                                                            "d"
+                                                                        )
+                                                                    }
+                                                                    inputMode="numeric"
+                                                                />
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -2587,24 +2911,26 @@ const Journalize = () => {
                                                             key={`credit-input-${index}`}
                                                             className="credit-input"
                                                         >
-                                                            <span>$</span>
-                                                            <input
-                                                                type="tel"
-                                                                name={`credit-amount-${index}`}
-                                                                placeholder="0.00"
-                                                                value={
-                                                                    creditInputValues[index]
-                                                                        ?.amount || "0.00"
-                                                                } // Default to "0.00"
-                                                                onChange={(event) =>
-                                                                    handleInputChange(
-                                                                        event,
-                                                                        index,
-                                                                        "c"
-                                                                    )
-                                                                }
-                                                                inputMode="numeric"
-                                                            />
+                                                            <div className="single-input">
+                                                                <span>$</span>
+                                                                <input
+                                                                    type="tel"
+                                                                    name={`credit-amount-${index}`}
+                                                                    placeholder="0.00"
+                                                                    value={
+                                                                        creditInputValues[index]
+                                                                            ?.amount || "0.00"
+                                                                    } // Default to "0.00"
+                                                                    onChange={(event) =>
+                                                                        handleInputChange(
+                                                                            event,
+                                                                            index,
+                                                                            "c"
+                                                                        )
+                                                                    }
+                                                                    inputMode="numeric"
+                                                                />
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
