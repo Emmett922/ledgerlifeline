@@ -55,15 +55,6 @@ const AccountLedger = () => {
         </button>
     );
 
-    const handleEditInputChange = (event) => {
-        const { name, value } = event.target;
-
-        if (name === "isActive") {
-            setIsActive(value === "true");
-            setChangeIsActive(true);
-        } 
-    };
-
     // Fetch accounts from the database
     useEffect(() => {
         // Get all accounts from database
@@ -119,32 +110,7 @@ const AccountLedger = () => {
 
                 // Handle result
                 if (response.ok) {
-
-                    // Process result to break each debit and credit into their own table entries
-                    // THIS SEGMENT IS BEING WORKED ON
-                    const processedResult = [];
-                    for (let i=0; i < result.length; i++) {
-                        for (let j=0; j<result[i].debit.length; j++) {
-                            processedResult.push({
-                                createdAt: result[i].createdAt,
-                                createdBy: result[i].createdBy, 
-                                debit: result[i].debit[j], 
-                                description: result[i].description,
-                                files: result[i].files, 
-                                postReference: result[i].postReference, 
-                                rejectionReason: result[i].rejectionReason,
-                                status: result[i].status, 
-                                type: result[i].type,
-                                updatedAt: result[i].updatedAt,
-                                updatedBy: result[i].updatedBy, 
-                                __v: result[i].__v,
-                                _id: result[i]._id
-                            });
-                        }
-                    }
-
                     setJournalEntryArray(result);
-
                 } else {
                     // Show toast message
                     toast(`${result.message}`, {
@@ -317,31 +283,6 @@ const AccountLedger = () => {
             }, 500); // Delay by 500ms (can be adjusted as needed)
         }
     }, [selectedAccount]);
-
-    const handleRowClick = async (entry) => {
-        try {
-            setSelectedEntry(entry);
-            const response = await fetch(`${API_URL}/journal-entry/files?id=${entry._id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch entry files");
-            }
-
-            const files = await response.json();
-
-            setFiles(files);
-            console.log(files);
-            setViewEntryDetails(true);
-        } catch (error) {
-            console.error("Error fetching entry files: ", error);
-            alert("Error getting entry files");
-        }
-    };
 
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
@@ -544,6 +485,20 @@ const AccountLedger = () => {
 
     const toggleCalculator = () => {
         setShowCalculator(!showCalculator);
+    };
+
+    let currentBalance = fetchedAccount.balance; // Start with the initial balance
+
+    const calculateBalance = (debits, credits) => {
+        // Calculate total debit and credit for this row
+        const totalDebits = debits.reduce((sum, debit) => sum + debit.amount, 0);
+        const totalCredits = credits.reduce((sum, credit) => sum + credit.amount, 0);
+
+        // Update the current balance by adding debits and subtracting credits
+        currentBalance = currentBalance + totalDebits - totalCredits;
+
+        // Return the formatted balance
+        return `$${formatWithCommas(currentBalance.toFixed(2))}`;
     };
 
     const content = (
@@ -824,310 +779,94 @@ const AccountLedger = () => {
                         />
                     </div>
                 </div>
-
-                {/* Tab Setup */}
-                <div className="tab-container">
-                    <div
-                        className={toggleState === 1 ? "tabs active-tabs" : "tabs"}
-                        title="Show account updates log"
-                        onClick={() => toggleTab(1)}
-                    >
-                        All Entries
-                    </div>
-
-                    <div
-                        className={toggleState === 2 ? "tabs active-tabs" : "tabs"}
-                        title="Show user updates log"
-                        onClick={() => toggleTab(2)}
-                    >
-                        Approved Entries
-                    </div>
-
-                    <div
-                        className={toggleState === 3 ? "tabs active-tabs" : "tabs"}
-                        title="Show login attempts log"
-                        onClick={() => toggleTab(3)}
-                    >
-                        Denied Entries
-                    </div>
-
-                    <div
-                        className={toggleState === 4 ? "tabs active-tabs" : "tabs"}
-                        title="Show login attempts log"
-                        onClick={() => toggleTab(4)}
-                    >
-                        Pending Entries
-                    </div>
-                </div>
-
-                {/* Accounts Log */}
-                {/* Tab Bodies Begin Here */}
-                <div className={toggleState === 1 ? "content active-content" : "content"}>
-                    <div>
-                        <table className="account-table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <button
-                                        onClick={toggleSortOrder}
-                                        style={{
-                                            background: "none",
-                                            border: "none",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        {isDescending ? (
-                                            <FontAwesomeIcon icon={faCaretUp} />
-                                        ) : (
-                                            <FontAwesomeIcon icon={faCaretDown} />
-                                        )}
-                                    </button>
-                                    </th>
-                                    <th>Type</th>
-                                    <th>Creator</th>
-                                    <th>PR</th>
-                                    <th>Accounts</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedEntries.map((entry, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <strong>
-                                                {new Date(entry.updatedAt).toLocaleDateString()}
-                                            </strong>
-                                            <br />
-                                            <br />
-                                            <strong>
-                                                <span
-                                                    style={{
-                                                        color:
-                                                            entry.status === "Approved"
-                                                                ? "green"
-                                                                : entry.status === "Rejected"
-                                                                ? "red"
-                                                                : "orange",
-                                                        textDecoration:
-                                                            "none",
-                                                        cursor:
-                                                            entry.status === "Pending"
-                                                                ? "pointer"
-                                                                : "default",
-                                                    }}
-                                                >
-                                                    {entry.status === "Rejected"
-                                                        ? "Denied"
-                                                        : entry.status}
-                                                </span>
-                                            </strong>
-                                            <br />
-                                            {entry.status === "Rejected" && (
-                                                <div>
-                                                    <br />
-                                                    <span style={{ fontWeight: "bold" }}>
-                                                        Reason:{" "}
-                                                    </span>
-                                                    <br />
-                                                    {entry.rejectionReason}
-                                                </div>
-                                            )}
-                                            {(entry.status === "Approved" ||
-                                                entry.status === "Rejected") && (
-                                                <span
-                                                    style={{
-                                                        color: "black",
-                                                        textDecoration: "underline",
-                                                    }}
-                                                >
-                                                    <br />
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td>{entry.type}</td>
-                                        <td>{entry.createdBy}</td>
-                                        {entry.status === "Approved" && (
-                                            <td>
-                                                {entry.debit.map((debitAccount, index) => (
-                                                    <div key={index}>
-                                                        <span
-                                                            style={{
-                                                                color: "#007bff",
-                                                                cursor: "pointer",
-                                                            }}
-                                                            title="Navigate to account in General Ledger"
-                                                        >
-                                                            {debitAccount.account.accountNumber}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                                {entry.credit.map((creditAccount, index) => (
-                                                    <div key={index}>
-                                                        <span
-                                                            style={{
-                                                                color: "#007bff",
-                                                                cursor: "pointer",
-                                                            }}
-                                                            title="Navigate to account in General Ledger"
-                                                        >
-                                                            {creditAccount.account.accountNumber}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                                <br />
-                                            </td>
-                                        )}
-                                        {(entry.status === "Rejected" ||
-                                            entry.status === "Pending") && <td> </td>}
-                                        <td>
-                                            {entry.debit.map((debitAccount, index) => (
-                                                <div key={index}>
-                                                    <strong>
-                                                        {debitAccount.account.accountName}
-                                                    </strong>
-                                                </div>
-                                            ))}
-                                            <br />
-                                            {entry.credit.map((creditAccount, index) => (
-                                                <div key={index} style={{ paddingLeft: "40px" }}>
-                                                    <strong>
-                                                        {creditAccount.account.accountName}
-                                                    </strong>
-                                                </div>
-                                            ))}
-                                            <br />
-                                            <div>
-                                                <span style={{ fontWeight: "bold" }}>
-                                                    Description:{" "}
-                                                </span>
-                                                {entry.description}
-                                            </div>
-                                            <br />
-                                            <div>
-                                                <span
-                                                    style={{
-                                                        color: "#007bff",
-                                                        textDecoration: "underline",
-                                                        cursor: "pointer",
-                                                    }}
-                                                    title="Click to view entry source documentation"
-                                                    onClick={() => handleRowClick(entry)}
-                                                >
-                                                    Source Documentation
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {entry.debit.map((debitAccount, index) => (
-                                                <div key={index}>
-                                                    $
-                                                    {formatWithCommas(
-                                                        debitAccount.amount.toFixed(2)
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </td>
-                                        <td>
-                                            <br />
-                                            {entry.debit.map((_, index) => (
-                                                <React.Fragment key={index}>
-                                                    <br />
-                                                </React.Fragment>
-                                            ))}
-                                            {entry.credit.map((creditAccount, index) => (
-                                                <div key={index}>
-                                                    $
-                                                    {formatWithCommas(
-                                                        creditAccount.amount.toFixed(2)
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <Link
-                            className="back-btn"
-                            type="button"
-                            id="chart-of-accounts-link"
-                            title="Accounts Page Link"
-                            to="/chart-of-accounts"
-                            onClick={() => {
-                                localStorage.removeItem("account"); // Remove the account ID
-                            }}
-                        >
-                            Back to Chart of Accounts
-                        </Link>
-                    </div>
-                </div>
-
-                <div className={toggleState === 2 ? "content active-content" : "content"}>
-                    <div>
-                        <table className="approved-table">
-                            <thead>
+                <div className="account-table-container">
+                <table className="account-table">
+                        <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>PR</th>
                                     <th>Description</th>
+                                    <th>Added By</th>
                                     <th>Debit</th>
                                     <th>Credit</th>
+                                    <th>Blanace</th>
                                 </tr>
-                            </thead>
-                            <tbody>
                                 <tr>
-                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
-                                    {/* Date the transaction Took place */}
-                                    <td>{1}</td> {/* This will increment per row */}
-                                    <td>Initial Account Balance</td>
-                                    <td>
-                                        {fetchedAccount.debit
-                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>
-                                        {fetchedAccount.credit
-                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if credit is 0 or credit equals debit */}
-                                    <td>
-                                            <Link
-                                                className="entry-active-link"
-                                                title="Change active status"
-                                                onClick={() => {
-                                                    setSelectedEntry(selectedEntry)
-                                                    setIsEditEntryVisible(true);
-                                                    setIsEditEntryActiveVisible(true);
+                                            <td colSpan={5} style={{ textAlign: "right", fontWeight: "bold" }}>
+                                                Closing Balance:
+                                            </td>
+                                            <td
+                                                colSpan={6}
+                                                style={{
+                                                    textAlign: "left",
+                                                    fontWeight: "bold",
+                                                    textDecoration: "double underline",
                                                 }}
                                             >
-                                                InsertStatusHere
-                                            </Link>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
-                                        Total Balance:
-                                    </td>
-                                    <td
-                                        colSpan={4}
-                                        style={{
-                                            textAlign: "left",
-                                            fontWeight: "bold",
-                                            textDecoration: "underline",
-                                        }}
-                                    >
-                                        {fetchedAccount.balance
-                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
-                                            : " "}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <Link
+                                                {fetchedAccount.balance
+                                                    ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
+                                                    : " "}
+                                            </td>
+                                        </tr>
+                        </thead>
+                        <tbody className="manager-view">
+                            {sortedEntries
+                                .filter((entry) => entry.status === "Approved" || entry.status === "Pending")
+                                .filter((entry) => {
+                                    const debitMatch = entry.debit.some(
+                                        (debitAccount) => debitAccount.account.accountName === fetchedAccount.accountName
+                                    );
+                                    const creditMatch = entry.credit.some(
+                                        (creditAccount) => creditAccount.account.accountName === fetchedAccount.accountName
+                                    );
+                                    return debitMatch || creditMatch;
+                                })
+                                .map((entry, index) => {
+                                    const Debits = entry.debit.filter(
+                                        (debitAccount) => debitAccount.account.accountName === fetchedAccount.accountName
+                                    );
+                                    const Credits = entry.credit.filter(
+                                        (creditAccount) => creditAccount.account.accountName === fetchedAccount.accountName
+                                    );
+
+                                    if (Debits.length === 0 && Credits.length === 0) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <tr key={index}>
+                                            <td>{new Date(entry.updatedAt).toLocaleDateString()}</td>
+                                            <td style={{
+                                                    whiteSpace: 'normal',   // Allows wrapping
+                                                    wordWrap: 'break-word', // Breaks long words if necessary
+                                                    maxWidth: '200px',      // Set a max width for better wrapping
+                                                }}
+                                            >
+                                                {entry.description}
+                                            </td>
+                                            <td>{entry.createdBy}</td>
+                                            <td>
+                                                {Debits.map((debitAccount, idx) => (
+                                                    <div key={idx}>
+                                                        ${formatWithCommas(debitAccount.amount.toFixed(2))}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                {Credits.map((creditAccount, idx) => (
+                                                    <div key={idx}>
+                                                        ${formatWithCommas(creditAccount.amount.toFixed(2))}
+                                                    </div>
+                                                ))}
+                                            </td>
+                                            <td>{calculateBalance(Debits, Credits)}</td>
+                                        </tr>
+                                    );  
+                                })}
+                        </tbody>
+
+                    </table>
+                </div>
+                <Link
                             className="back-btn"
                             type="button"
                             id="chart-of-accounts-link"
@@ -1138,298 +877,8 @@ const AccountLedger = () => {
                             }}
                         >
                             Back to Chart of Accounts
-                        </Link>
-                    </div>
-                </div>
-
-                <div className={toggleState === 3 ? "content active-content" : "content"}>
-                    <div>
-                        <table className="debnied-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>PR</th>
-                                    <th>Description</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
-                                    {/* Date the transaction Took place */}
-                                    <td>{1}</td> {/* This will increment per row */}
-                                    <td>Initial Account Balance</td>
-                                    <td>
-                                        {fetchedAccount.debit
-                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>
-                                        {fetchedAccount.credit
-                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if credit is 0 or credit equals debit */}
-                                </tr>
-                                <tr>
-                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
-                                        Total Balance:
-                                    </td>
-                                    <td
-                                        colSpan={4}
-                                        style={{
-                                            textAlign: "left",
-                                            fontWeight: "bold",
-                                            textDecoration: "underline",
-                                        }}
-                                    >
-                                        {fetchedAccount.balance
-                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
-                                            : " "}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <Link
-                            className="back-btn"
-                            type="button"
-                            id="chart-of-accounts-link"
-                            title="Accounts Page Link"
-                            to="/chart-of-accounts"
-                            onClick={() => {
-                                localStorage.removeItem("account"); // Remove the account ID
-                            }}
-                        >
-                            Back to Chart of Accounts
-                        </Link>
-                    </div>
-                </div>
-
-                <div className={toggleState === 4 ? "content active-content" : "content"}>
-                    <div>
-                        <table className="pending-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>PR</th>
-                                    <th>Description</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{`${new Date(fetchedAccount.createdAt).toLocaleString()}`}</td>
-                                    {/* Date the transaction Took place */}
-                                    <td>{1}</td> {/* This will increment per row */}
-                                    <td>Initial Account Balance</td>
-                                    <td>
-                                        {fetchedAccount.debit
-                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>
-                                        {fetchedAccount.credit
-                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
-                                            : " "}
-                                    </td>{" "}
-                                    {/* Show blank if credit is 0 or credit equals debit */}
-                                </tr>
-                                <tr>
-                                    <td colSpan={3} style={{ textAlign: "right", fontWeight: "bold" }}>
-                                        Total Balance:
-                                    </td>
-                                    <td
-                                        colSpan={4}
-                                        style={{
-                                            textAlign: "left",
-                                            fontWeight: "bold",
-                                            textDecoration: "underline",
-                                        }}
-                                    >
-                                        {fetchedAccount.balance
-                                            ? `$${formatWithCommas(fetchedAccount.balance.toFixed(2))}`
-                                            : " "}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <Link
-                            className="back-btn"
-                            type="button"
-                            id="chart-of-accounts-link"
-                            title="Accounts Page Link"
-                            to="/chart-of-accounts"
-                            onClick={() => {
-                                localStorage.removeItem("account"); // Remove the account ID
-                            }}
-                        >
-                            Back to Chart of Accounts
-                        </Link>
-                    </div>
-                </div>
-
-
-                {/* Edit Entry Active Status Modal */}
-                {isEditEntryActiveVisible && (
-                    <div className="modal">
-                        <div className="modal-content">
-                            <span
-                                className="close"
-                                onClick={() => setIsEditEntryActiveVisible(false)}
-                            >
-                                &times;
-                            </span>
-                            <h2>Edit Entry's Approval Status</h2>
-                            <form>
-                                <h3 className="form-sub-title">
-                                    Account: <p className="name">{fetchedAccount.accountNumber} {fetchedAccount.accountName}</p>
-
-                                    <td>
-                                        {fetchedAccount.debit === 0 ? "":"Debit:"}
-                                    </td>
-                                    <p className="name">
-                                        {fetchedAccount.debit
-                                            ? `$${formatWithCommas(fetchedAccount.debit.toFixed(2))}`
-                                            : ""}
-                                    </p>{" "}
-                                    {/* Show blank if debit is 0 or debit equals credit */}
-                                    <td>
-                                        {fetchedAccount.credit === 0 ? "":"Credit:"}
-                                    </td>
-                                    <p className="name">
-                                        {fetchedAccount.credit
-                                            ? `$${formatWithCommas(fetchedAccount.credit.toFixed(2))}`
-                                            : " "}
-                                    </p>{" "}
-                                    {/* Show blank if credit is 0 or credit equals debit */}
-                                </h3>
-                                <label>
-                                    Status:
-                                    <select
-                                        id="isActive"
-                                        name="isActive"
-                                        title="Change the entry's approval status"
-                                        value={isActive ? "true" : "false"}
-                                        onChange={handleEditInputChange}
-                                    >
-                                        <option value="" disabled>
-                                            Select status
-                                        </option>
-                                        <option value="true">Approved</option>
-                                        <option value="false">Denied</option>
-                                    </select>
-                                </label>
-                            </form>
-                            <div className="modal-btns">
-                                <button
-                                    type="button"
-                                    className="action-button2"
-                                    title="Submit the entry status change"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                </Link>
             </main>
-
-            {viewEntryDetails && (
-                    <div className="modal">
-                        <div className="modal-view-entry-details-content">
-                            <span
-                                className="close"
-                                onClick={() => {
-                                    setViewEntryDetails(false);
-                                    setFiles([]);
-                                }}
-                            >
-                                &times;
-                            </span>
-                            <h2>Entry Source Documentation</h2>
-                            <div className="file-thumbnails">
-                                {files &&
-                                    files.map((file) => (
-                                        <div key={file._id} className="thumbnail-container">
-                                            {file.type && file.type.includes("image") ? (
-                                                <img
-                                                    src={file.url}
-                                                    alt={file.filename}
-                                                    className="thumbnail"
-                                                    onClick={() => setFullSizeImage(file.url)} // Set the full size image URL on click
-                                                />
-                                            ) : (
-                                                <div className="file-button-container">
-                                                    <a
-                                                        href={file.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="file-button"
-                                                    >
-                                                        {/* Check for file.type before using includes */}
-                                                        {file.type && file.type.includes("pdf") && (
-                                                            <FontAwesomeIcon
-                                                                icon={faFilePdf}
-                                                                className="file-icon"
-                                                            />
-                                                        )}
-                                                        {file.type &&
-                                                            file.type.includes(
-                                                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                                                            ) && (
-                                                                <FontAwesomeIcon
-                                                                    icon={faFileExcel}
-                                                                    className="file-icon"
-                                                                />
-                                                            )}
-                                                        {file.type &&
-                                                            file.type.includes("text/plain") && (
-                                                                <FontAwesomeIcon
-                                                                    icon={faFileAlt}
-                                                                    className="file-icon"
-                                                                />
-                                                            )}
-                                                        <div className="file-name">
-                                                            {file.filename}
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                            </div>
-                        </div>
-                        {fullSizeImage && (
-                            <div className="full-size-modal">
-                                <span
-                                    className="close"
-                                    onClick={() => setFullSizeImage(null)}
-                                    style={{
-                                        position: "absolute",
-                                        top: "10px",
-                                        right: "20px",
-                                        color: "white",
-                                        fontSize: "24px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    &times;
-                                </span>
-                                <img
-                                    src={fullSizeImage}
-                                    alt="Full size"
-                                    className="full-size-image"
-                                    style={{ maxWidth: "90%", maxHeight: "90%" }} // Ensure the image fits within the modal
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
-
         </section>
     );
     return content;
