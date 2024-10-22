@@ -464,8 +464,13 @@ const Accounts = () => {
         newAccountCatagory &&
         newAccountDescription &&
         newOrder &&
-        newComment
+        newComment &&
+        (
+            (newAccountCatagory !== "Asset" && newAccountCatagory !== "Liability") ||
+            newAccountSubcatagory // If "Asset" or "Liability", check for newAccountSubCatagory
+        )
     );
+    
 
     const formatWithCommas = (value) => {
         const [integerPart, decimalPart] = value.split(".");
@@ -793,9 +798,9 @@ const Accounts = () => {
 
     const filteredAccounts = handleSearch(searchQuery);
 
-    const handleViewLedger = (accountId) => {
+    const handleViewLedger = (account) => {
         // Store the chosen account ID in localStorage
-        localStorage.setItem("account", accountId);
+        localStorage.setItem("PR", JSON.stringify(account.accountNumber));
         // Navigate to the ledger page
         navigate("/account-ledger");
     };
@@ -1414,7 +1419,7 @@ const Accounts = () => {
                                                 className="link-button"
                                                 title="View account in ledger"
                                                 onClick={() => {
-                                                    handleViewLedger(account._id);
+                                                    handleViewLedger(account);
                                                 }}
                                             >
                                                 {account.accountName}
@@ -1654,7 +1659,7 @@ const Accounts = () => {
                                     className="action-button2"
                                     title="View account page in ledger"
                                     onClick={() => {
-                                        handleViewLedger(selectedAccount._id);
+                                        handleViewLedger(selectedAccount);
                                     }}
                                 >
                                     View Ledger
@@ -1866,7 +1871,7 @@ const Accounts = () => {
                                         className="action-button2"
                                         title="View account page in ledger"
                                         onClick={() => {
-                                            handleViewLedger(selectedAccount._id);
+                                            handleViewLedger(selectedAccount);
                                         }}
                                     >
                                         View Ledger

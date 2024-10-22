@@ -436,72 +436,6 @@ const AccountLedger = () => {
     }, []);
 
     useEffect(() => {
-        const fetchAccountById = async () => {
-            try {
-                const response = await fetch(
-                    `${API_URL}/accounts/account-by-id?id=${selectedAccount}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json,",
-                        },
-                    }
-                );
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    setFetchedAccount(result);
-                } else {
-                    toast(`${result.message}`, {
-                        style: {
-                            backgroundColor: "#333",
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                        },
-                        progressStyle: {
-                            backgroundColor: "#2196f3", // Solid blue color for progress bar
-                            backgroundImage: "none",
-                        },
-                        closeButton: <CustomCloseButton />,
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        if (selectedAccount) {
-            fetchAccountById();
-        }
-
-        // Show toast message if present in localStorage
-        const toastMessage = localStorage.getItem("toastMessage");
-        if (toastMessage !== null) {
-            // Show toast message
-            toast(toastMessage, {
-                style: {
-                    backgroundColor: "#333",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                },
-                progressStyle: {
-                    backgroundColor: "#2196f3", // Solid blue color for progress bar
-                    backgroundImage: "none",
-                },
-                closeButton: <CustomCloseButton />,
-            });
-
-            // Delay removal of the message from localStorage
-            setTimeout(() => {
-                localStorage.removeItem("toastMessage");
-            }, 500); // Delay by 500ms (can be adjusted as needed)
-        }
-    }, [selectedAccount]);
-
-    useEffect(() => {
         const fetchEntryById = async () => {
             try {
                 const response = await fetch(
@@ -753,7 +687,7 @@ const AccountLedger = () => {
                     {/* Main heading for admin users to allow new account creation */}
                     {(storedUserRole === "Admin" || storedUserRole === "Manager") && (
                         <div className="header-main">
-                            <h1 className="header-title">Ledger</h1>
+                            <h1 className="header-title">General Ledger</h1>
                             <button
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
@@ -774,7 +708,7 @@ const AccountLedger = () => {
                     {/* Default main heading */}
                     {storedUserRole === "Accountant" && (
                         <div className="header-main">
-                            <h1 className="header-title">Ledger</h1>
+                            <h1 className="header-title">General Ledger</h1>
                             <button
                                 onClick={toggleCalendar}
                                 title="Open/Close pop-up calendar"
