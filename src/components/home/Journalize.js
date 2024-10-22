@@ -268,7 +268,7 @@ const Journalize = () => {
         const fetchAccountById = async () => {
             try {
                 const response = await fetch(
-                    `${API_URL}/accounts/account-by-id?id=${selectedAccount}`,
+                    `${API_URL}/accounts/account-by-id?id=${selectedAccount._id}`,
                     {
                         method: "GET",
                         headers: {
@@ -330,23 +330,6 @@ const Journalize = () => {
         }
     }, [selectedAccount]);
 
-    // Handle the input changes from editing the account
-    const handleEditInputChange = (event) => {
-        const { name, value } = event.target;
-
-        if (name === "accountNumber") {
-            setAccountNumber(value);
-        } else if (name === "accountName") {
-            setAccountName(value);
-        } else if (name === "accountDescription") {
-            setAccountDescription(value);
-        } else if (name === "debit") {
-            setDebit(value);
-        } else if (name === "credit") {
-            setCredit(value);
-        }
-    };
-
     // Get the currently selected accounts from debit and credit inputs
     const selectedDebitAccounts = debitInputValues.map((debit) => debit.account._id);
     const selectedCreditAccounts = creditInputValues.map((credit) => credit.account._id);
@@ -374,7 +357,7 @@ const Journalize = () => {
             journalEntryID: selectedEntry._id,
             status: selectedEntryStatus,
             managerID: storedUserName,
-            reason: rejectionReason ? rejectionReason : null,
+            reason: rejectionReason ? rejectionReason : "",
         };
 
         try {
@@ -749,7 +732,7 @@ const Journalize = () => {
     };
 
     const handleStatusClick = (entry) => {
-        setSelectedAccount(entry);
+        setSelectedEntry(entry);
         setIsEditJournalVisible(true);
     };
 
