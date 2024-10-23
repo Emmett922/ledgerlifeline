@@ -649,57 +649,130 @@ const Journalize = () => {
     );
 
     const isJournalEntrySubmitDisabled = !(
-        journalType &&
-        journalDescription &&
-        files.length > 0 &&
-        areDebitInputsValid &&
-        areCreditInputsValid
+        (
+            journalType &&
+            journalDescription &&
+            areDebitInputsValid &&
+            areCreditInputsValid &&
+            (journalType !== "Regular" || files.length > 0)
+        ) // Only check files.length > 0 if journalType is "Regular"
     );
 
     const isEntryStatusChangeSubmissionDisabled =
         !selectedEntryStatus || (selectedEntryStatus === "Rejected" && !rejectionReason);
 
+    const handleMinBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const minValue = parseFloat(input) / 100;
+
+        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
+    };
+
+    const handleMaxBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const maxValue = parseFloat(input) / 100;
+
+        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
+    };
+
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
         return journalEntryArray.filter((entry) => {
-            const updatedAtDate = new Date(entry.updatedAt).toLocaleDateString();
+            // Extract and convert the entry update date to YYYY-MM-DD string
+            const entryUpdatedDate = new Date(entry.updatedAt);
 
-            // Helper function to check if any term matches a value
+            // Convert fromDate and toDate to Date objects (if they exist)
+            const fromDateObject = fromDate ? new Date(fromDate) : null;
+            const toDateObject = toDate ? new Date(toDate) : null;
+
+            // Adjust fromDate and toDate to be one day earlier
+            if (fromDateObject) {
+                fromDateObject.setDate(fromDateObject.getDate() + 1); // Move fromDate back by 1 day
+            }
+            if (toDateObject) {
+                toDateObject.setDate(toDateObject.getDate() + 1); // Move toDate back by 1 day
+                toDateObject.setHours(23, 59, 59, 999); // Set to the end of the new day
+            }
+
+            // Apply date filter if fromDate or toDate are set
+            const isWithinDateRange = (() => {
+                if (!fromDateObject && !toDateObject) return true; // If no date filters, include all entries
+
+                if (fromDateObject && toDateObject) {
+                    return entryUpdatedDate >= fromDateObject && entryUpdatedDate <= toDateObject;
+                } else if (fromDateObject) {
+                    return entryUpdatedDate >= fromDateObject;
+                } else if (toDateObject) {
+                    return entryUpdatedDate <= toDateObject;
+                }
+                return true;
+            })();
+
+            // Check if the entry falls within the min-max balance range
+            const isWithinBalanceRange = (() => {
+                // Parse min and max balances to floats
+                const minValue = parseFloat(minBalance) || 0; // Default to 0 if NaN
+                const maxValue = parseFloat(maxBalance) || Infinity; // Default to Infinity if NaN
+
+                // Check all debit accounts for values within range
+                const debitValuesInRange = entry.debit.some((debitAccount) => {
+                    const debitValue = debitAccount.amount; // Directly use the amount as a number
+                    return debitValue >= minValue && debitValue <= maxValue;
+                });
+
+                // Check all credit accounts for values within range
+                const creditValuesInRange = entry.credit.some((creditAccount) => {
+                    const creditValue = creditAccount.amount; // Directly use the amount as a number
+                    return creditValue >= minValue && creditValue <= maxValue;
+                });
+
+                // Return true if any debit or credit value is within the specified range
+                return debitValuesInRange || creditValuesInRange;
+            })();
+
+            // Helper function to check if any term exactly matches a value (used for account numbers)
+            const matchesExactSearchTerm = (value) => {
+                return searchTerms.some((term) => value === term);
+            };
+
+            // Helper function to check if any term is part of a value (used for other text fields)
             const matchesSearchTerm = (value) => {
                 return searchTerms.some((term) => value.toLowerCase().includes(term));
             };
 
-            // Check debit accounts for matching account numbers or names
-            const matchesDebit = entry.debit.some(
-                (debitAccount) =>
-                    matchesSearchTerm(debitAccount.account.accountNumber.toString()) ||
-                    matchesSearchTerm(debitAccount.account.accountName)
+            // Check if any search term exactly matches the account number (PR column)
+            const matchesDebitPR = entry.debit.some((debitAccount) =>
+                matchesExactSearchTerm(debitAccount.account.accountNumber.toString())
+            );
+            const matchesCreditPR = entry.credit.some((creditAccount) =>
+                matchesExactSearchTerm(creditAccount.account.accountNumber.toString())
             );
 
-            // Check credit accounts for matching account numbers or names
-            const matchesCredit = entry.credit.some(
-                (creditAccount) =>
-                    matchesSearchTerm(creditAccount.account.accountNumber.toString()) ||
-                    matchesSearchTerm(creditAccount.account.accountName)
+            // Check debit accounts for matching account names (without PR)
+            const matchesDebitAccountName = entry.debit.some((debitAccount) =>
+                matchesSearchTerm(debitAccount.account.accountName)
             );
 
-            // Check if any search term matches the type, creator, status, or date
+            // Check credit accounts for matching account names (without PR)
+            const matchesCreditAccountName = entry.credit.some((creditAccount) =>
+                matchesSearchTerm(creditAccount.account.accountName)
+            );
+
+            // Check if any search term matches the type, creator, or status
             const matchesType = matchesSearchTerm(entry.type.toLowerCase());
             const matchesCreatedBy = matchesSearchTerm(entry.createdBy.toLowerCase());
-            const matchesUpdatedAt = searchTerms.some((term) => updatedAtDate.includes(term));
-            const matchesUpdatedBy = entry.updatedBy
-                ? matchesSearchTerm(entry.updatedBy.toLowerCase())
-                : false;
 
-            // Return true if any of the fields match the search query
+            // Return true if all conditions are satisfied
             return (
-                matchesDebit ||
-                matchesCredit ||
-                matchesType ||
-                matchesCreatedBy ||
-                matchesUpdatedAt ||
-                matchesUpdatedBy
+                isWithinDateRange &&
+                isWithinBalanceRange && // Add this line to include the balance filter
+                (matchesDebitPR ||
+                    matchesCreditPR ||
+                    matchesDebitAccountName ||
+                    matchesCreditAccountName ||
+                    matchesType ||
+                    matchesCreatedBy)
             );
         });
     };
@@ -752,7 +825,7 @@ const Journalize = () => {
     });
 
     const handlePostReferenceClick = (pr) => {
-        localStorage.setItem('PR', JSON.stringify(pr));
+        localStorage.setItem("PR", JSON.stringify(pr));
         navigate("/account-ledger");
     };
 
@@ -951,6 +1024,30 @@ const Journalize = () => {
                             title="Ending date range"
                             value={toDate}
                             onChange={(e) => setToDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="balance-filter">
+                        Min:
+                        <input
+                            type="tel"
+                            id="minBalance"
+                            name="minBalance"
+                            title="Minimum balance range"
+                            value={minBalance}
+                            onChange={handleMinBalanceChange}
+                            placeholder="0.00"
+                            inputMode="numeric"
+                        />
+                        Max:
+                        <input
+                            type="tel"
+                            id="maxBalance"
+                            name="maxBalance"
+                            title="Maximum balance range"
+                            value={maxBalance}
+                            onChange={handleMaxBalanceChange}
+                            placeholder="0.00"
+                            inputMode="numeric"
                         />
                     </div>
                     <div className="search-filter">
@@ -2702,10 +2799,10 @@ const Journalize = () => {
                                                     </div>
                                                     {/* Render the error message below the select input */}
                                                     {!files.length > 0 &&
-                                                        errorForEntryDocumentation && (
+                                                        errorForEntryDocumentation &&
+                                                        journalType === "Regular" && (
                                                             <div className="error-message">
                                                                 {errorForEntryDocumentation.message}{" "}
-                                                                {/* Display the message for ER1 */}
                                                             </div>
                                                         )}
                                                 </div>
