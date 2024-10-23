@@ -19,6 +19,7 @@ const AccountLedger = () => {
     const [fetchedAccount, setFetchedAccount] = useState("");
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
+    const [storedPostReference, setStoredPostReference] = useState("");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState(null);
@@ -28,12 +29,11 @@ const AccountLedger = () => {
     const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
     const [maxBalance, setMaxBalance] = useState("0.00");
-    const [journalEntryArray, setJournalEntryArray] = useState([]);
     const [errorMessageArray, setErrorMessageArray] = useState([]);
     const [accountArray, setAccountArray] = useState([]);
     const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [expandedRow, setExpandedRow] = useState(null);
-    
+
     // -- Code for toggling the table in ascending and descending order -- //
     const [isDescending, setIsDescending] = useState(true); // State for sorting order
 
@@ -61,6 +61,14 @@ const AccountLedger = () => {
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
+        }
+
+        const storedPR = JSON.parse(localStorage.getItem("PR"));
+
+        if (storedPR) {
+            setStoredPostReference(storedPR);
+            setSearchQuery(storedPR.toString());
+            localStorage.removeItem("PR");
         }
     }, []);
 
@@ -320,38 +328,24 @@ const AccountLedger = () => {
         }
     }, [selectedAccount]);
 
+    const handleMinBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const minValue = parseFloat(input) / 100;
+
+        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
+    };
+
+    const handleMaxBalanceChange = (event) => {
+        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
+        const maxValue = parseFloat(input) / 100;
+
+        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
+    };
+
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
         return accountArray.filter((account) => {
-            // Extract and convert the account creation date to YYYY-MM-DD string
-            const accountCreatedDate = new Date(account.createdAt);
-            const accountCreatedDateString = accountCreatedDate.toISOString().split("T")[0]; // Get date in 'YYYY-MM-DD' format
-
-            // Convert fromDate and toDate to YYYY-MM-DD strings (if they exist)
-            const fromDateString = fromDate ? new Date(fromDate).toISOString().split("T")[0] : null;
-            const toDateString = toDate ? new Date(toDate).toISOString().split("T")[0] : null;
-
-            // Apply date filter if fromDate or toDate are set
-            const isWithinDateRange = (() => {
-                if (!fromDateString && !toDateString) return true; // If no date filters, include all accounts
-
-                if (fromDateString && toDateString) {
-                    // Include accounts created between fromDate and toDate (inclusive)
-                    return (
-                        accountCreatedDateString >= fromDateString &&
-                        accountCreatedDateString <= toDateString
-                    );
-                } else if (fromDateString) {
-                    // Include accounts created on or after fromDate
-                    return accountCreatedDateString >= fromDateString;
-                } else if (toDateString) {
-                    // Include accounts created on or before toDate
-                    return accountCreatedDateString <= toDateString;
-                }
-                return true;
-            })();
-
             // Balance filter logic
             const isWithinBalanceRange = (() => {
                 const min = parseFloat(minBalance) || null;
@@ -369,21 +363,14 @@ const AccountLedger = () => {
                 return true;
             })();
 
-            const isActiveStatus = account.isActive ? "active" : "inactive"; // Determine status text
-
             // Check if any search term matches the relevant fields AND the account is within the date and balance range
             return (
-                isWithinDateRange &&
                 isWithinBalanceRange &&
                 searchTerms.every(
                     (term) =>
                         account.accountNumber.toString().includes(term) ||
                         account.accountName.toLowerCase().includes(term) ||
-                        account.accountCatagory.toLowerCase().includes(term) ||
-                        account.accountSubcatagory.toLowerCase().includes(term) ||
-                        term === account.balance.toFixed(2) || //account.balance.toFixed(2).includes(term) ||
-                        account.accountDescription.toLowerCase().includes(term) ||
-                        term === isActiveStatus // isActiveStatus.includes(term)
+                        term === account.balance.toFixed(2)
                 )
             );
         });
@@ -401,17 +388,6 @@ const AccountLedger = () => {
 
         // Return formatted value with the decimal part
         return `${formattedInteger}.${decimalPart}`;
-    };
-
-    // Function to toggle sort order
-    const toggleSortOrder = () => {
-        setIsDescending((prev) => !prev);
-    };
-
-    const [toggleState, setToggleState] = useState(1);
-    
-    const toggleTab = (index) => {
-        setToggleState(index);
     };
 
     const handleLogout = () => {
@@ -432,6 +408,8 @@ const AccountLedger = () => {
         setExpandedRow(expandedRow === index ? null : index);
     };
 
+    {
+        /* 
     let currentBalance = fetchedAccount.balance; // Start with the initial balance
 
     const calculateBalance = (debits, credits) => {
@@ -445,9 +423,11 @@ const AccountLedger = () => {
         // Return the formatted balance
         return `$${formatWithCommas(currentBalance.toFixed(2))}`;
     };
+    */
+    }
 
     const handlePostReferenceClick = (pr) => {
-        localStorage.setItem('PR', JSON.stringify(pr));
+        localStorage.setItem("PR", JSON.stringify(pr));
         navigate("/journalize");
     };
 
@@ -689,6 +669,8 @@ const AccountLedger = () => {
                             id="from"
                             name="from"
                             title="Starting date range"
+                            value={fromDate}
+                            onChange={(e) => setFromDate(e.target.value)}
                         />
                         To:
                         <input
@@ -696,6 +678,8 @@ const AccountLedger = () => {
                             id="to"
                             name="to"
                             title="Ending date range"
+                            value={toDate}
+                            onChange={(e) => setToDate(e.target.value)}
                         />
                     </div>
                     <div className="balance-filter">
@@ -705,6 +689,8 @@ const AccountLedger = () => {
                             id="minBalance"
                             name="minBalance"
                             title="Minimum balance range"
+                            value={minBalance}
+                            onChange={handleMinBalanceChange}
                             placeholder="0.00"
                             inputMode="numeric"
                         />
@@ -714,138 +700,274 @@ const AccountLedger = () => {
                             id="maxBalance"
                             name="maxBalance"
                             title="Maximum balance range"
+                            value={maxBalance}
+                            onChange={handleMaxBalanceChange}
                             placeholder="0.00"
                             inputMode="numeric"
                         />
                     </div>
                     <div className="search-filter">
                         <input
-                            type="text"
+                            type="search"
                             className="search"
-                            title="Search the list of entries"
-                            placeholder="Search entries..."
+                            title="Search General Ledger"
+                            placeholder="Search ledger..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                 </div>
-                <div className="account-table-container">
+                <div className="account-ledger-table-container">
+                    <table className="account-ledger-table">
+                        <tbody>
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
+                                        account.journalEntries && account.journalEntries.length > 0
+                                ) // Only show accounts with journal entries
+                                .sort((a, b) => a.accountNumber - b.accountNumber)
+                                .map((account, index) => {
+                                    const isExpanded = expandedRow === index; // Check if the current row is expanded
 
-
-                <table className="account-table">
-                    <tbody>
-                        {filteredAccounts
-                            .filter(account => account.journalEntries && account.journalEntries.length > 0) // Only show accounts with journal entries
-                            .sort((a, b) => a.accountNumber - b.accountNumber)
-                            .map((account, index) => {
-                            const isExpanded = expandedRow === index; // Check if the current row is expanded
-
-                            return (
-                                <React.Fragment key={index}>
-                                <tr onClick={() => toggleRow(index)} style={{ cursor: 'pointer'}}>
-                                    <td style={{ padding: '20px 0' }}><span>{account.accountNumber} - {account.accountName}</span></td>
-                                    <td style={{ padding: '20px 0' }}><span>Balance: {account.balance
-                                        ? `$${formatWithCommas(account.balance.toFixed(2))}`
-                                        : "$0.00"
-                                    }</span></td>
-                                </tr>
-
-                                {/* Nested table for expanded row */}
-                                {isExpanded && (
-                                    <tr>
-                                    <td colSpan={6}>
-                                        <table className="nested-table">
-                                        <thead>
-                                            <tr>
-                                            <th>Date</th>
-                                            <th>Description</th>
-                                            <th>Added By</th>
-                                            <th>PR</th>
-                                            <th>Debit</th>
-                                            <th>Credit</th>
+                                    return (
+                                        <React.Fragment key={index}>
+                                            <tr
+                                                className="account-ledger-account-row"
+                                                onClick={() => toggleRow(index)}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <td style={{ padding: "20px 0", width: "840px" }}>
+                                                    {" "}
+                                                    {/* Set a fixed width */}
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        {account.accountNumber} -{" "}
+                                                        {account.accountName}
+                                                    </span>
+                                                </td>
+                                                <td
+                                                    style={{ padding: "20px 0", width: "300px" }}
+                                                    colSpan={4}
+                                                >
+                                                    {" "}
+                                                    {/* Set a fixed width */}
+                                                    <span style={{ fontWeight: "bold" }}>
+                                                        Balance:{" "}
+                                                    </span>
+                                                    <span
+                                                        style={{
+                                                            textDecoration: "underline double",
+                                                            textUnderlineOffset: "3px",
+                                                        }}
+                                                    >
+                                                        {account.balance
+                                                            ? `$${formatWithCommas(
+                                                                  account.balance.toFixed(2)
+                                                              )}`
+                                                            : "$0.00"}
+                                                    </span>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {account.journalEntries && account.journalEntries.length > 0 ? (
-                                            account.journalEntries.map((entry, entryIndex) => {
-                                                const isDebit = entry.side === "debit"; // Check if it's debit or credit
-                                                return (
-                                                <React.Fragment key={entryIndex}>
-                                                    <tr>
-                                                    <td>{new Date(entry.date).toLocaleDateString()}</td>
-                                                    <td>
-                                                        {entry.entryDescription}
-                                                    </td>
-                                                    <td>{entry.addedBy}</td>
-                                                    <td>
-                                                        <span
-                                                            style={{
-                                                                color: "#007bff",
-                                                                cursor: "pointer",
-                                                            }}
-                                                            onClick={() =>
-                                                                handlePostReferenceClick()
-                                                            }
-                                                            title="Navigate to journal Entry page"
-                                                        >
-                                                            {entry.postReference}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        {isDebit
-                                                        ? `$${formatWithCommas(entry.amount.toFixed(2))}`
-                                                        : " "}
-                                                    </td>
-                                                    <td>
-                                                        {!isDebit
-                                                        ? `$${formatWithCommas(entry.amount.toFixed(2))}`
-                                                        : " "}
-                                                    </td>
-                                                    </tr>
-                                                </React.Fragment>
-                                                );
-                                            })
-                                            ) : (
-                                            <tr>
-                                                <td colSpan={6}>No journal entries found</td>
-                                            </tr>
-                                            )}
 
-                                            {/* Total Row */}
-                                            {account.journalEntries && account.journalEntries.length > 0 && (
-                                                <tr style={{ fontWeight: "bold", borderTop: "2px solid #000" }}>
-                                                    <td colSpan={4} style={{ textAlign: "right" }}>Total:</td>
-                                                    <td>
-                                                        {/* Calculate total debits */}
-                                                        {`$${formatWithCommas(
-                                                            account.journalEntries
-                                                                .filter(entry => entry.side === "debit")
-                                                                .reduce((sum, entry) => sum + entry.amount, 0)
-                                                                .toFixed(2)
-                                                        )}`}
-                                                    </td>
-                                                    <td>
-                                                        {/* Calculate total credits */}
-                                                        {`$${formatWithCommas(
-                                                            account.journalEntries
-                                                                .filter(entry => entry.side === "credit")
-                                                                .reduce((sum, entry) => sum + entry.amount, 0)
-                                                                .toFixed(2)
-                                                        )}`}
+                                            {/* Nested table for expanded row */}
+                                            {isExpanded && (
+                                                <tr className="account-entry-row">
+                                                    <td colSpan={6}>
+                                                        <table className="nested-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Date</th>
+                                                                    <th>Description</th>
+                                                                    <th>Posted By</th>
+                                                                    <th>PR</th>
+                                                                    <th>Debit</th>
+                                                                    <th>Credit</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {account.journalEntries &&
+                                                                account.journalEntries.length >
+                                                                    0 ? (
+                                                                    account.journalEntries.map(
+                                                                        (entry, entryIndex) => {
+                                                                            const isDebit =
+                                                                                entry.side ===
+                                                                                "debit"; // Check if it's debit or credit
+                                                                            return (
+                                                                                <React.Fragment
+                                                                                    key={entryIndex}
+                                                                                >
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            {new Date(
+                                                                                                entry.date
+                                                                                            ).toLocaleDateString()}
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            {
+                                                                                                entry.entryDescription
+                                                                                            }
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            {
+                                                                                                entry.addedBy
+                                                                                            }
+                                                                                        </td>
+                                                                                        {storedUserRole !==
+                                                                                            "Admin" && (
+                                                                                            <td>
+                                                                                                <span
+                                                                                                    style={{
+                                                                                                        color: "#007bff",
+                                                                                                        cursor: "pointer",
+                                                                                                    }}
+                                                                                                    onClick={() =>
+                                                                                                        handlePostReferenceClick(
+                                                                                                            entry.postReference
+                                                                                                        )
+                                                                                                    }
+                                                                                                    title="Navigate to journal Entry page"
+                                                                                                >
+                                                                                                    {
+                                                                                                        entry.postReference
+                                                                                                    }
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        )}
+                                                                                        {storedUserRole ===
+                                                                                            "Admin" && (
+                                                                                            <td>
+                                                                                                <span>
+                                                                                                    {
+                                                                                                        entry.postReference
+                                                                                                    }
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        )}
+
+                                                                                        <td>
+                                                                                            {isDebit
+                                                                                                ? `$${formatWithCommas(
+                                                                                                      entry.amount.toFixed(
+                                                                                                          2
+                                                                                                      )
+                                                                                                  )}`
+                                                                                                : " "}
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            {!isDebit
+                                                                                                ? `$${formatWithCommas(
+                                                                                                      entry.amount.toFixed(
+                                                                                                          2
+                                                                                                      )
+                                                                                                  )}`
+                                                                                                : " "}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </React.Fragment>
+                                                                            );
+                                                                        }
+                                                                    )
+                                                                ) : (
+                                                                    <tr>
+                                                                        <td colSpan={6}>
+                                                                            No journal entries found
+                                                                        </td>
+                                                                    </tr>
+                                                                )}
+
+                                                                {/* Total Row */}
+                                                                {account.journalEntries &&
+                                                                    account.journalEntries.length >
+                                                                        0 && (
+                                                                        <tr
+                                                                            style={{
+                                                                                borderTop:
+                                                                                    "2px solid #000",
+                                                                            }}
+                                                                        >
+                                                                            <td
+                                                                                colSpan={4}
+                                                                                style={{
+                                                                                    fontWeight:
+                                                                                        "bold",
+                                                                                    textAlign:
+                                                                                        "right",
+                                                                                }}
+                                                                            >
+                                                                                Total:
+                                                                            </td>
+                                                                            <td
+                                                                                style={{
+                                                                                    textDecoration:
+                                                                                        "underline double",
+                                                                                    textUnderlineOffset:
+                                                                                        "3px",
+                                                                                }}
+                                                                            >
+                                                                                {/* Calculate total debits */}
+                                                                                {`$${formatWithCommas(
+                                                                                    account.journalEntries
+                                                                                        .filter(
+                                                                                            (
+                                                                                                entry
+                                                                                            ) =>
+                                                                                                entry.side ===
+                                                                                                "debit"
+                                                                                        )
+                                                                                        .reduce(
+                                                                                            (
+                                                                                                sum,
+                                                                                                entry
+                                                                                            ) =>
+                                                                                                sum +
+                                                                                                entry.amount,
+                                                                                            0
+                                                                                        )
+                                                                                        .toFixed(2)
+                                                                                )}`}
+                                                                            </td>
+                                                                            <td
+                                                                                style={{
+                                                                                    textDecoration:
+                                                                                        "underline double",
+                                                                                    textUnderlineOffset:
+                                                                                        "3px",
+                                                                                }}
+                                                                            >
+                                                                                {/* Calculate total credits */}
+                                                                                {`$${formatWithCommas(
+                                                                                    account.journalEntries
+                                                                                        .filter(
+                                                                                            (
+                                                                                                entry
+                                                                                            ) =>
+                                                                                                entry.side ===
+                                                                                                "credit"
+                                                                                        )
+                                                                                        .reduce(
+                                                                                            (
+                                                                                                sum,
+                                                                                                entry
+                                                                                            ) =>
+                                                                                                sum +
+                                                                                                entry.amount,
+                                                                                            0
+                                                                                        )
+                                                                                        .toFixed(2)
+                                                                                )}`}
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
+                                                            </tbody>
+                                                        </table>
                                                     </td>
                                                 </tr>
                                             )}
-
-                                        </tbody>
-                                        </table>
-                                    </td>
-                                    </tr>
-                                )}
-                                </React.Fragment>
-                            );
-                            })}
+                                        </React.Fragment>
+                                    );
+                                })}
                         </tbody>
-                </table>
+                    </table>
                 </div>
                 <Link
                     className="back-btn"

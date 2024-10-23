@@ -285,7 +285,8 @@ select:disabled {
 .account .modal-content .form-group textarea,
 .account .table-filter .search-filter input,
 .chartOfAccount .table-filter .search-filter input,
-.eventLogs .table-filter .search-filter input {
+.eventLogs .table-filter .search-filter input,
+.journalize .table-filter .search-filter input {
     height: 35px;
     width: 100%;
     /* Adjust width as needed */
@@ -308,7 +309,8 @@ select:disabled {
 .account .modal-content .form-group input:focus,
 .account .modal-content .form-group textarea:focus,
 .account .table-filter .search-filter input:focus,
-.chartOfAccount .table-filter .search-filter input:focus {
+.chartOfAccount .table-filter .search-filter input:focus,
+.journalize .table-filter .search-filter input:focus {
     border-color: #007bff;
 }
 

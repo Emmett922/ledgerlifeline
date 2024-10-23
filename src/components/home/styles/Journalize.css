@@ -8,12 +8,10 @@
     border-collapse: collapse;
     margin-bottom: 20px;
     text-align: left;
-    table-layout: fixed;
 }
 
 .journalize .journal-entry-table tbody {
-    overflow-y: hidden;
-    display: block;
+    display: table;
 }
 
 .journalize .journal-entry-table thead,
@@ -80,10 +78,6 @@
     width: 13%; /* Credit column */
 }
 
-.manager-view tr:hover {
-    background-color: rgb(219, 219, 219);
-}
-
 /* Journal Entry Creation Table Styles */
 .journal-entry-creation-table {
     width: 100%;
@@ -127,36 +121,43 @@
     align-items: center;
 }
 
-.debit-account-input,
-.credit-account-input {
+.debit-account-inputs,
+.credit-account-inputs {
     display: flex;
     flex-direction: column; /* Stack the inputs vertically */
     align-items: flex-start; /* Align items to the start */
-    width: 90%; /* Maintain desired width */
-    margin-bottom: 10px; /* Space between input groups */
+    width: 100%; /* Full width for the input container */
+    flex-grow: 1; /* Allow it to grow */
 }
 
 /* For the individual account inputs */
-.debit-account-input > *,
-.credit-account-input > * {
-    margin-bottom: 5px; /* Add space between inputs */
-    width: 100%; /* Ensure each input takes the full width */
-}
-
-.account-btns {
-    display: flex; /* Keep buttons aligned next to input */
-    gap: 2px; /* Space between buttons */
-    margin-left: 5px; /* Space from input */
-    align-items: center; /* Center buttons vertically */
-}
-
+.debit-account-input,
 .credit-account-input {
-    width: 100%;
+    display: flex;
+    align-items: center; /* Align the Select and buttons on the same line */
+    gap: 10px; /* Space between elements */
+    margin-bottom: 20px; /* Space between input groups */
+    width: 100%; /* Ensure it takes full width */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.debit-account-input .Select__control,
+.credit-account-input .Select__control {
+    width: 600px;
+}
+
+/* For the buttons */
+.account-btns {
+    display: flex;
+    gap: 5px; /* Space between buttons */
 }
 
 .account-btns button {
     padding: 5px 10px;
     color: white;
+    background-color: #007bff; /* Example background color */
+    border: none;
+    cursor: pointer;
 }
 
 .debit-input,

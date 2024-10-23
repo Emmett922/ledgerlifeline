@@ -176,17 +176,27 @@ body {
 
 /* Table styles */
 
-.account .account-table-container {
+.account .account-table-container,
+.account-ledger-table-container {
     width: 100%;
     max-height: 460px; /* Adjust height as necessary */
     overflow-y: auto;
     margin-bottom: 20px;
 }
 
-.account .account-table {
+.account-ledger-table-container {
+    height: 71%;
+}
+
+.account .account-table,
+.account-ledger-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+}
+
+.account-ledger-account-row:hover {
+    background-color: rgb(198, 198, 198);
 }
 
 .account .account-table th,

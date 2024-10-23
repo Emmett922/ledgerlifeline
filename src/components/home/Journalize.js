@@ -24,28 +24,6 @@ const Journalize = () => {
     const [isAddJournalVisible, setIsAddJournalVisible] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [fetchedAccount, setFetchedAccount] = useState("");
-    const [accountNumber, setAccountNumber] = useState("");
-    const [newAccountNumber, setNewAccountNumber] = useState("");
-    const [accountName, setAccountName] = useState("");
-    const [newAccountName, setNewAccountName] = useState("");
-    const [accountDescription, setAccountDescription] = useState("");
-    const [newAccountDescription, setNewAccountDescription] = useState("");
-    const [normalSide, setNormalSide] = useState("");
-    const [newNormalSide, setNewNormalSide] = useState("");
-    const [accountCatagory, setAccountCatagory] = useState("");
-    const [newAccountCatagory, setNewAccountCatagory] = useState("");
-    const [accountSubcatagory, setAccountSubcatagory] = useState("");
-    const [debit, setDebit] = useState("0.00");
-    const [newDebit, setNewDebit] = useState("0.00");
-    const [credit, setCredit] = useState("0.00");
-    const [newCredit, setNewCredit] = useState("0.00");
-    const [balance, setBalance] = useState("0.00");
-    const [newBalance, setNewBalance] = useState("0.00");
-    const [order, setOrder] = useState("");
-    const [newOrder, setNewOrder] = useState("");
-    const [statement, setStatement] = useState("");
-    const [comment, setComment] = useState("");
-    const [newComment, setNewComment] = useState("");
     const [accountArray, setAccountArray] = useState([]);
     const [journalEntryArray, setJournalEntryArray] = useState([]);
     const [errorMessageArray, setErrorMessageArray] = useState([]);
@@ -53,6 +31,7 @@ const Journalize = () => {
     const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
+    const [storedPostReference, setStoredPostReference] = useState("");
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
@@ -61,20 +40,13 @@ const Journalize = () => {
     const [showCalculator, setShowCalculator] = useState(false);
     const [journalType, setJournalType] = useState("");
     const [journalDescription, setJournalDescription] = useState("");
-    const [selectedDebitAccount, setSelectedDebitAccount] = useState("");
-    const [selectedCreditAccount, setSelectedCreditAccount] = useState("");
     const [debitInputValues, setDebitInputValues] = useState([{ account: "", amount: "" }]);
     const [creditInputValues, setCreditInputValues] = useState([{ account: "", amount: "" }]);
-    const [debitValue, setDebitValue] = useState("");
-    const [creditValue, setCreditValue] = useState("");
-    const [entryType, setEntryType] = useState("");
-    const [entryDescription, setEntryDescription] = useState("");
     const [files, setFiles] = useState([]);
     const [fullSizeImage, setFullSizeImage] = useState(null);
     const [selectedEntry, setSelectedEntry] = useState("");
     const [selectedEntryStatus, setSelectedEntryStatus] = useState("");
     const [rejectionReason, setRejectionReason] = useState("");
-    const [hoveredIndex, setHoveredIndex] = useState(null);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -98,6 +70,15 @@ const Journalize = () => {
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
+        }
+
+        const storedPR = JSON.parse(localStorage.getItem("PR"));
+
+        if (storedPR) {
+            setStoredPostReference(storedPR);
+            setSearchQuery(storedPR);
+            localStorage.removeItem("PR");
+            console.log(storedPR);
         }
     });
 
@@ -759,9 +740,14 @@ const Journalize = () => {
                 matchesSearchTerm(creditAccount.account.accountName)
             );
 
+            const matchesPR = searchTerms.some(
+                (term) => entry.postReference.toLowerCase() === term
+            );
+
             // Check if any search term matches the type, creator, or status
             const matchesType = matchesSearchTerm(entry.type.toLowerCase());
             const matchesCreatedBy = matchesSearchTerm(entry.createdBy.toLowerCase());
+            const matchesUpdatedBy = matchesSearchTerm(entry.updatedBy.toLowerCase());
 
             // Return true if all conditions are satisfied
             return (
@@ -772,7 +758,9 @@ const Journalize = () => {
                     matchesDebitAccountName ||
                     matchesCreditAccountName ||
                     matchesType ||
-                    matchesCreatedBy)
+                    matchesCreatedBy ||
+                    matchesUpdatedBy ||
+                    matchesPR)
             );
         });
     };
@@ -819,8 +807,8 @@ const Journalize = () => {
 
     // Sorting logic applied before mapping
     const sortedEntries = [...filteredJournalEntries].sort((a, b) => {
-        const dateA = new Date(a.updatedAt);
-        const dateB = new Date(b.updatedAt);
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
         return isDescending ? dateB - dateA : dateA - dateB; // Sort by updatedAt
     });
 
@@ -1052,7 +1040,7 @@ const Journalize = () => {
                     </div>
                     <div className="search-filter">
                         <input
-                            type="text"
+                            type="search"
                             className="search"
                             title="Search General Journal"
                             placeholder="Search entries..."
@@ -1111,9 +1099,9 @@ const Journalize = () => {
                                         }}
                                     >
                                         {isDescending ? (
-                                            <FontAwesomeIcon icon={faCaretUp} />
-                                        ) : (
                                             <FontAwesomeIcon icon={faCaretDown} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretUp} />
                                         )}
                                     </button>
                                 </th>
@@ -1488,9 +1476,9 @@ const Journalize = () => {
                                         }}
                                     >
                                         {isDescending ? (
-                                            <FontAwesomeIcon icon={faCaretUp} />
-                                        ) : (
                                             <FontAwesomeIcon icon={faCaretDown} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretUp} />
                                         )}
                                     </button>
                                 </th>
@@ -1857,9 +1845,9 @@ const Journalize = () => {
                                         }}
                                     >
                                         {isDescending ? (
-                                            <FontAwesomeIcon icon={faCaretUp} />
-                                        ) : (
                                             <FontAwesomeIcon icon={faCaretDown} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretUp} />
                                         )}
                                     </button>
                                 </th>
@@ -2215,9 +2203,9 @@ const Journalize = () => {
                                         }}
                                     >
                                         {isDescending ? (
-                                            <FontAwesomeIcon icon={faCaretUp} />
-                                        ) : (
                                             <FontAwesomeIcon icon={faCaretDown} />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faCaretUp} />
                                         )}
                                     </button>
                                 </th>
@@ -2810,7 +2798,7 @@ const Journalize = () => {
                                             {/* Debit Row with Existing Inputs */}
                                             <td className="account-column">
                                                 {/* Debit Account */}
-                                                <div className="debit-account-input">
+                                                <div className="debit-account-inputs">
                                                     {debitInputValues.map((debit, index) => (
                                                         <div
                                                             key={`debit-account-${index}`}
@@ -2840,7 +2828,6 @@ const Journalize = () => {
                                                                 required
                                                                 placeholder="Select debit account"
                                                             />
-
                                                             <div className="account-btns">
                                                                 <button
                                                                     type="button"
@@ -2919,7 +2906,7 @@ const Journalize = () => {
                                             <td className="account-column">
                                                 {/* Credit Account */}
                                                 <div
-                                                    className="credit-account-input"
+                                                    className="credit-account-inputs"
                                                     style={{ paddingLeft: "10%" }}
                                                 >
                                                     {creditInputValues.map((credit, index) => (

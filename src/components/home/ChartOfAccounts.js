@@ -98,7 +98,7 @@ const Accounts = () => {
             setStoredUserRole(storedUser.role);
             setStoredUserFullName(`${storedUser.first_name} ${storedUser.last_name}`);
         }
-    });
+    }, [navigate]);
 
     // Fetch accounts from the database
     useEffect(() => {
@@ -1338,7 +1338,7 @@ const Accounts = () => {
                     </div>
                     <div className="search-filter">
                         <input
-                            type="text"
+                            type="search"
                             className="search"
                             title="Search the accounts"
                             placeholder="Search accounts..."
