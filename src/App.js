@@ -12,6 +12,9 @@ import EventLogs from "./components/home/EventLogs";
 import AccountLedger from "./components/home/AccountLedger";
 import Help from "./components/home/Help";
 import Journalize from './components/home/Journalize';
+import IncomeStatement from "./components/home/IncomeStatement";
+import TrialBalance from "./components/home/TrialBalance";
+import BalanceSheet from "./components/home/BalanceSheet";
 
 function App() {
     const location = useLocation();
@@ -51,6 +54,15 @@ function App() {
             case "/journalize":
                 document.title = "Journalize - Ledger Lifeline";
                 break;
+            case "/income-statement":
+                document.title = "Income Statement - Ledger Lifeline";
+                break;
+            case "/trial-balance":
+                document.title = "Trial Balance - Ledger Lifeline";
+                break;
+            case "/balance-sheet":
+                document.title = "Balance Sheet - Ledger Lifeline";
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -76,6 +88,9 @@ function App() {
                 <Route path="account-ledger" element={<AccountLedger />} />
                 <Route path="help" element={<Help />} />
                 <Route path="journalize" element={<Journalize />} />
+                <Route path="income-statement" element={<IncomeStatement />} />
+                <Route path="trial-balance" element={<TrialBalance />} />
+                <Route path="balance-sheet" element={<BalanceSheet />} />
             </Route>
         </Routes>
     );
