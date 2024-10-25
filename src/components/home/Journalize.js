@@ -16,6 +16,7 @@ import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import { faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf, faFileExcel, faFileAlt } from "@fortawesome/free-solid-svg-icons";
+import { width } from "@fortawesome/free-regular-svg-icons/faAddressBook";
 
 const Journalize = () => {
     // Function variables
@@ -65,6 +66,11 @@ const Journalize = () => {
         // If user is not logged in, redirect to login
         if (!storedUser) {
             navigate("/", { replace: true });
+        }
+
+        // Ensure that the user has the proper role to view this page
+        if (storedUser.role === "Admin") {
+            navigate("/dashboard", { replace: true });
         }
 
         // If all other checks are met, get the storedUser's username
@@ -836,6 +842,25 @@ const Journalize = () => {
 
     // Reason for rejection error
     const errorForRejectionReason = errorMessageArray.find((error) => error.errorID === "ER7");
+
+    const selectStyles = {
+        option: (provided, state) => ({
+            ...provided,
+            borderBottom: '2px black',
+            color: state.isSelected ? 'red' : 'black',
+            padding: 20,
+        }),
+        control: (provided) => ({
+            ...provided,        // retain default styles
+            width: 350,         // increase width as needed
+        }),
+        singleValue: (provided, state) => {
+            const opacity = state.isDisabled ? 0.5 : 1;
+            const transition = 'opacity 300ms';
+    
+            return { ...provided, opacity, transition };
+        },
+    };    
 
     const content = (
         <section className="journalize">
@@ -2886,6 +2911,7 @@ const Journalize = () => {
                                                                         option.value
                                                                     )
                                                                 }
+                                                                styles={selectStyles}
                                                                 options={accountOptions}
                                                                 isSearchable={true}
                                                                 required
@@ -2996,6 +3022,7 @@ const Journalize = () => {
                                                                         option.value
                                                                     )
                                                                 }
+                                                                styles={selectStyles}
                                                                 options={accountOptions}
                                                                 isSearchable={true}
                                                                 required

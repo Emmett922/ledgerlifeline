@@ -149,11 +149,6 @@
     flex-shrink: 0; /* Prevent shrinking */
 }
 
-.debit-account-input .Select__control,
-.credit-account-input .Select__control {
-    width: 600px;
-}
-
 /* For the buttons */
 .account-btns {
     display: flex;

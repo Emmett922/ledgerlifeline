@@ -736,7 +736,7 @@ const AccountLedger = () => {
                                                 onClick={() => toggleRow(index)}
                                                 style={{ cursor: "pointer" }}
                                             >
-                                                <td style={{ padding: "20px 0", width: "840px" }}>
+                                                <td style={{ padding: "20px 0" }}>
                                                     {" "}
                                                     {/* Set a fixed width */}
                                                     <span style={{ fontWeight: "bold" }}>
@@ -745,8 +745,7 @@ const AccountLedger = () => {
                                                     </span>
                                                 </td>
                                                 <td
-                                                    style={{ padding: "20px 0", width: "300px" }}
-                                                    colSpan={4}
+                                                    style={{ padding: "20px 0", textAlign: "right", paddingRight: "25px" }}
                                                 >
                                                     {" "}
                                                     {/* Set a fixed width */}
@@ -897,6 +896,7 @@ const AccountLedger = () => {
                                                                             }}
                                                                         >
                                                                             <td
+                                                                                className="blank-column"
                                                                                 colSpan={4}
                                                                                 style={{
                                                                                     fontWeight:
@@ -914,6 +914,8 @@ const AccountLedger = () => {
                                                                                     textUnderlineOffset:
                                                                                         "3px",
                                                                                     color: "green",
+                                                                                    textAlign:
+                                                                                        "right",
                                                                                 }}
                                                                             >
                                                                                 {/* Calculate total debits */}
@@ -945,6 +947,8 @@ const AccountLedger = () => {
                                                                                     textUnderlineOffset:
                                                                                         "3px",
                                                                                     color: "green",
+                                                                                    textAlign:
+                                                                                        "right",
                                                                                 }}
                                                                             >
                                                                                 {/* Calculate total credits */}
