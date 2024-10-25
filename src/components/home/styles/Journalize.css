@@ -21,8 +21,8 @@
     table-layout: fixed;
 }
 
-.journal-entry-table th:nth-child(5),
-.journal-entry-table td:nth-child(5) {
+.journal-entry-table th:nth-child(4),
+.journal-entry-table td:nth-child(4) {
     width: auto;
 }
 
@@ -60,22 +60,30 @@
     width: 9%; /* Creator column */
 }
 
-.journal-entry-table th:nth-child(4),
-.journal-entry-table td:nth-child(4) {
+.journal-entry-table th:nth-child(5),
+.journal-entry-table td:nth-child(5) {
     width: 6%; /* PR column */
-}
-.journal-entry-table th:nth-child(4) {
     text-align: center;
 }
 
 .journal-entry-table th:nth-child(6),
 .journal-entry-table td:nth-child(6) {
-    width: 13%; /* Debit column */
+    width: 12%; /* Debit column */
 }
 
 .journal-entry-table th:nth-child(7),
 .journal-entry-table td:nth-child(7) {
-    width: 13%; /* Credit column */
+    width: 12%; /* Credit column */
+}
+
+.journal-entry-table th:nth-child(6),
+.journal-entry-table th:nth-child(7) {
+    text-align: center;
+}
+
+.journal-entry-table td:nth-child(6),
+.journal-entry-table td:nth-child(7) {
+    text-align: right;
 }
 
 /* Journal Entry Creation Table Styles */
@@ -401,6 +409,12 @@
     font-size: 14px;
     text-align: center;
   }  
+
+.submit-error {
+    color: red;
+    text-align: center;
+    font-weight: bold;
+}
 
 /* Media queries for responsiveness */
 @media (max-width: 768px) {

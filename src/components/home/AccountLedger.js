@@ -751,12 +751,13 @@ const AccountLedger = () => {
                                                     {" "}
                                                     {/* Set a fixed width */}
                                                     <span style={{ fontWeight: "bold" }}>
-                                                        Balance:{" "}
+                                                        Total Balance:{" "}
                                                     </span>
                                                     <span
                                                         style={{
-                                                            textDecoration: "underline double",
+                                                            textDecoration: "underline",
                                                             textUnderlineOffset: "3px",
+                                                            color: "green",
                                                         }}
                                                     >
                                                         {account.balance
@@ -781,6 +782,7 @@ const AccountLedger = () => {
                                                                     <th>PR</th>
                                                                     <th>Debit</th>
                                                                     <th>Credit</th>
+                                                                    <th>Balance History</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -844,7 +846,7 @@ const AccountLedger = () => {
                                                                                             </td>
                                                                                         )}
 
-                                                                                        <td>
+                                                                                        <td className="debit-column">
                                                                                             {isDebit
                                                                                                 ? `$${formatWithCommas(
                                                                                                       entry.amount.toFixed(
@@ -853,10 +855,19 @@ const AccountLedger = () => {
                                                                                                   )}`
                                                                                                 : " "}
                                                                                         </td>
-                                                                                        <td>
+                                                                                        <td className="debit-column">
                                                                                             {!isDebit
                                                                                                 ? `$${formatWithCommas(
                                                                                                       entry.amount.toFixed(
+                                                                                                          2
+                                                                                                      )
+                                                                                                  )}`
+                                                                                                : " "}
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            {entry.currBalance
+                                                                                                ? `$${formatWithCommas(
+                                                                                                      entry.currBalance.toFixed(
                                                                                                           2
                                                                                                       )
                                                                                                   )}`
@@ -892,16 +903,17 @@ const AccountLedger = () => {
                                                                                         "bold",
                                                                                     textAlign:
                                                                                         "right",
+                                                                                    paddingLeft:
+                                                                                        "5%",
                                                                                 }}
-                                                                            >
-                                                                                Total:
-                                                                            </td>
+                                                                            ></td>
                                                                             <td
                                                                                 style={{
                                                                                     textDecoration:
-                                                                                        "underline double",
+                                                                                        "underline",
                                                                                     textUnderlineOffset:
                                                                                         "3px",
+                                                                                    color: "green",
                                                                                 }}
                                                                             >
                                                                                 {/* Calculate total debits */}
@@ -929,9 +941,10 @@ const AccountLedger = () => {
                                                                             <td
                                                                                 style={{
                                                                                     textDecoration:
-                                                                                        "underline double",
+                                                                                        "underline",
                                                                                     textUnderlineOffset:
                                                                                         "3px",
+                                                                                    color: "green",
                                                                                 }}
                                                                             >
                                                                                 {/* Calculate total credits */}
