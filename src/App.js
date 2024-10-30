@@ -11,10 +11,11 @@ import ChartOfAccounts from "./components/home/ChartOfAccounts";
 import EventLogs from "./components/home/EventLogs";
 import AccountLedger from "./components/home/AccountLedger";
 import Help from "./components/home/Help";
-import Journalize from './components/home/Journalize';
+import Journalize from "./components/home/Journalize";
 import IncomeStatement from "./components/home/IncomeStatement";
 import TrialBalance from "./components/home/TrialBalance";
 import BalanceSheet from "./components/home/BalanceSheet";
+import RetainedEarnings from "./components/home/StatRetainedEarnings";
 
 function App() {
     const location = useLocation();
@@ -63,6 +64,9 @@ function App() {
             case "/balance-sheet":
                 document.title = "Balance Sheet - Ledger Lifeline";
                 break;
+            case "/retained-earnings":
+                document.title = "Retained Earnings - Ledger Lifeline";
+                break;
             default:
                 document.title = "Ledger Lifeline";
         }
@@ -91,6 +95,7 @@ function App() {
                 <Route path="income-statement" element={<IncomeStatement />} />
                 <Route path="trial-balance" element={<TrialBalance />} />
                 <Route path="balance-sheet" element={<BalanceSheet />} />
+                <Route path="retained-earnings" element={<RetainedEarnings />} />
             </Route>
         </Routes>
     );

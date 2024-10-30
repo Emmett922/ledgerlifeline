@@ -25,67 +25,74 @@ const AcceptRequest = () => {
     const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const userResponse = await fetch(
-                    `${API_URL}/users/user-by-username?username=${username}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-type": "application/json",
-                        },
+        if (API_URL && username && adminEmail) {
+            const fetchUser = async () => {
+                try {
+                    console.log(
+                        "User API URL:",
+                        `${API_URL}/users/user-by-username?username=${username}`
+                    );
+                    const userResponse = await fetch(
+                        `${API_URL}/users/user-by-username?username=${username}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "Content-type": "application/json",
+                            },
+                        }
+                    );
+
+                    const userDetails = await userResponse.json();
+                    setInitialRole(userDetails.role);
+
+                    if (!userResponse.ok) {
+                        alert("Failed to retrieve user details.");
+                        return;
                     }
-                );
 
-                const userDetails = await userResponse.json();
-                setInitialRole(userDetails.role);
-
-                if (!userResponse.ok) {
-                    alert("Failed to retrieve user details.");
-                    return;
-                }
-
-                if (!userDetails) {
-                    setInitialRole("DELETED");
-                }
-            } catch (error) {
-                console.error("Error submitting form:", error);
-                alert("An error occurred getting user details. Please try again.");
-            }
-        };
-
-        const fetchAdmin = async () => {
-            try {
-                const adminResponse = await fetch(
-                    `${API_URL}/users/user-by-email?email=${adminEmail}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-type": "application/json",
-                        },
+                    if (!userDetails) {
+                        setInitialRole("DELETED");
                     }
-                );
-
-                const userDetails = await adminResponse.json();
-                setAdminUser(userDetails.username);
-                if (!adminResponse.ok) {
-                    alert("Failed to retrieve user details.");
-                    return;
+                } catch (error) {
+                    console.error("Error submitting form:", error);
+                    alert("An error occurred getting user details. Please try again.");
                 }
-            } catch (error) {
-                console.error("Error submitting form:", error);
-                alert("An error occured getting admin details. Please try again.");
-            }
-        };
+            };
 
-        fetchUser();
-        fetchAdmin();
-    }, [API_URL]);
+            const fetchAdmin = async () => {
+                try {
+                    console.log(
+                        "Admin API URL:",
+                        `${API_URL}/users/user-by-email?email=${adminEmail}`
+                    );
+                    const adminResponse = await fetch(
+                        `${API_URL}/users/user-by-email?email=${adminEmail}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "Content-type": "application/json",
+                            },
+                        }
+                    );
+
+                    const userDetails = await adminResponse.json();
+                    setAdminUser(userDetails.username);
+                    if (!adminResponse.ok) {
+                        alert("Failed to retrieve user details.");
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Error submitting form:", error);
+                    alert("An error occured getting admin details. Please try again.");
+                }
+            };
+            fetchUser();
+            fetchAdmin();
+        }
+    }, [API_URL, username, adminEmail]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const API_URL = process.env.REACT_APP_API_URL;
 
         try {
             const response = await fetch(`${API_URL}/admin/accept`, {
@@ -182,7 +189,12 @@ const AcceptRequest = () => {
                         <div className="request-form-subtitle">
                             <p>Click below to return to the app</p>
                         </div>
-                        <Link type="submit" className="form-submit-btn" title="Return to the application" to="/dashboard">
+                        <Link
+                            type="submit"
+                            className="form-submit-btn"
+                            title="Return to the application"
+                            to="/dashboard"
+                        >
                             Return
                         </Link>
                     </form>

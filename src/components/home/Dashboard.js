@@ -223,8 +223,17 @@ const Dashboard = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
+                            id="trial-balance-link"
+                            title="Trial Balance page link"
+                            to="/trial-balance"
+                        >
+                            Trial Balance
+                        </Link>
+                        <Link
+                            className="sidebar-button"
                             id="income-statement-link"
                             title="Income Statement page link"
+                            to="/income-statement"
                         >
                             Income Statement
                         </Link>
@@ -232,6 +241,7 @@ const Dashboard = () => {
                             className="sidebar-button"
                             id="balance-sheet-link"
                             title="Balance Sheet page link"
+                            to="/balance-sheet"
                         >
                             Balance Sheet
                         </Link>
@@ -239,6 +249,7 @@ const Dashboard = () => {
                             className="sidebar-button"
                             id="retained-earnings-link"
                             title="Statement of Retained Earnings page link"
+                            to="/retained-earnings"
                         >
                             Statement of Retained Earnings
                         </Link>

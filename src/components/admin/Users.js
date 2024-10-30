@@ -673,126 +673,132 @@ const Users = () => {
 
                 {/* Main User Table */}
                 {userTable === 1 && (
-                    <table className="user-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Employee</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userArray
-                                .filter((user) => user.role !== "Employee")
-                                .map((user, index) => (
-                                    <tr key={index}>
-                                        <td id="username">
-                                            <button
-                                                className="link-button"
-                                                title="Edit user details"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setActive(user.active);
-                                                    setRole(user.role);
-                                                    setFirstName(user.first_name);
-                                                    setLastName(user.last_name);
-                                                    setStreet(user.address.street);
-                                                    setCity(user.address.city);
-                                                    setState(user.address.state);
-                                                    setPostalCode(user.address.postal_code);
+                    <div className="table-content">
+                        <table className="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Employee</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userArray
+                                    .filter((user) => user.role !== "Employee")
+                                    .map((user, index) => (
+                                        <tr key={index}>
+                                            <td id="username">
+                                                <button
+                                                    className="link-button"
+                                                    title="Edit user details"
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setActive(user.active);
+                                                        setRole(user.role);
+                                                        setFirstName(user.first_name);
+                                                        setLastName(user.last_name);
+                                                        setStreet(user.address.street);
+                                                        setCity(user.address.city);
+                                                        setState(user.address.state);
+                                                        setPostalCode(user.address.postal_code);
 
-                                                    // Convert the DOB to 'YYYY-MM-DD' format
-                                                    const formattedDob = new Date(user.dob)
-                                                        .toISOString()
-                                                        .split("T")[0];
-                                                    setDob(formattedDob);
-                                                    setEmail(user.email);
-                                                    setSecurityQuestion(
-                                                        user.securityQuestion.question
-                                                    );
-                                                    setSecurityAnswer(user.securityQuestion.answer);
+                                                        // Convert the DOB to 'YYYY-MM-DD' format
+                                                        const formattedDob = new Date(user.dob)
+                                                            .toISOString()
+                                                            .split("T")[0];
+                                                        setDob(formattedDob);
+                                                        setEmail(user.email);
+                                                        setSecurityQuestion(
+                                                            user.securityQuestion.question
+                                                        );
+                                                        setSecurityAnswer(
+                                                            user.securityQuestion.answer
+                                                        );
 
-                                                    // Safely handle user.suspended and its properties
-                                                    if (user.suspended) {
-                                                        // Check and convert suspension start and end dates to 'YYYY-MM-DD' format
-                                                        if (user.suspended.start_date !== null) {
-                                                            const formattedStart = new Date(
-                                                                user.suspended.start_date
-                                                            )
-                                                                .toISOString()
-                                                                .split("T")[0];
-                                                            setStartDate(formattedStart);
+                                                        // Safely handle user.suspended and its properties
+                                                        if (user.suspended) {
+                                                            // Check and convert suspension start and end dates to 'YYYY-MM-DD' format
+                                                            if (
+                                                                user.suspended.start_date !== null
+                                                            ) {
+                                                                const formattedStart = new Date(
+                                                                    user.suspended.start_date
+                                                                )
+                                                                    .toISOString()
+                                                                    .split("T")[0];
+                                                                setStartDate(formattedStart);
+                                                            } else {
+                                                                setStartDate(""); // Clear start date if not suspended or date is invalid
+                                                            }
+
+                                                            if (user.suspended.end_date !== null) {
+                                                                const formattedEnd = new Date(
+                                                                    user.suspended.end_date
+                                                                )
+                                                                    .toISOString()
+                                                                    .split("T")[0];
+                                                                setEndDate(formattedEnd);
+                                                            } else {
+                                                                setEndDate(""); // Clear end date if not suspended or date is invalid
+                                                            }
                                                         } else {
-                                                            setStartDate(""); // Clear start date if not suspended or date is invalid
+                                                            setStartDate(""); // Clear both dates if user is not suspended
+                                                            setEndDate("");
                                                         }
 
-                                                        if (user.suspended.end_date !== null) {
-                                                            const formattedEnd = new Date(
-                                                                user.suspended.end_date
-                                                            )
-                                                                .toISOString()
-                                                                .split("T")[0];
-                                                            setEndDate(formattedEnd);
-                                                        } else {
-                                                            setEndDate(""); // Clear end date if not suspended or date is invalid
-                                                        }
-                                                    } else {
-                                                        setStartDate(""); // Clear both dates if user is not suspended
-                                                        setEndDate("");
-                                                    }
-
-                                                    setIsEditUserVisible(true);
-                                                }}
-                                            >
-                                                {user.username}
-                                            </button>
-                                        </td>
-                                        <td className="users-name">
-                                            {`${user.first_name} ${user.last_name}`}{" "}
-                                            <button
-                                                className="action-button1"
-                                                id="single-email"
-                                                title="Email user"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setIsEmailUserVisible(true);
-                                                    setEmail(user.email);
-                                                }}
-                                            >
-                                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <Link
-                                                className="user-role-link"
-                                                title="Change user's role"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setRole(user.role);
-                                                    setIsEditUserRoleVisible(true);
-                                                }}
-                                            >
-                                                {user.role}
-                                            </Link>
-                                        </td>
-                                        <td>
-                                            <Link
-                                                className="user-active-link"
-                                                title="Change user's active status"
-                                                onClick={() => {
-                                                    setSelectedUser(user);
-                                                    setActive(user.active);
-                                                    setIsEditUserActiveVisible(true);
-                                                }}
-                                            >
-                                                {user.active ? "Active" : "Inactive"}
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
+                                                        setIsEditUserVisible(true);
+                                                    }}
+                                                >
+                                                    {user.username}
+                                                </button>
+                                            </td>
+                                            <td className="users-name">
+                                                {`${user.first_name} ${user.last_name}`}{" "}
+                                                <button
+                                                    className="action-button1"
+                                                    id="single-email"
+                                                    title="Email user"
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setIsEmailUserVisible(true);
+                                                        setEmail(user.email);
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <Link
+                                                    className="user-role-link"
+                                                    title="Change user's role"
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setRole(user.role);
+                                                        setIsEditUserRoleVisible(true);
+                                                    }}
+                                                >
+                                                    {user.role}
+                                                </Link>
+                                            </td>
+                                            <td>
+                                                <Link
+                                                    className="user-active-link"
+                                                    title="Change user's active status"
+                                                    onClick={() => {
+                                                        setSelectedUser(user);
+                                                        setActive(user.active);
+                                                        setIsEditUserActiveVisible(true);
+                                                    }}
+                                                >
+                                                    {user.active ? "Active" : "Inactive"}
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
 
                 {/* Edit User Modal */}

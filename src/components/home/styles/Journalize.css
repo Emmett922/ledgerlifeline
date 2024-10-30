@@ -57,7 +57,7 @@
 
 .journal-entry-table th:nth-child(3),
 .journal-entry-table td:nth-child(3) {
-    width: 9%; /* Creator column */
+    width: 12%; /* Creator column */
 }
 
 .journal-entry-table th:nth-child(5),
