@@ -539,8 +539,17 @@ const AccountLedger = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Trial balance Page Link"
+                            id="trial-balance-link"
+                            to="/trial-balance"
+                        >
+                            Trial Balance
+                        </Link>
+                        <Link
+                            className="sidebar-button"
                             title="Income Statement Page Link"
                             id="income-statement-link"
+                            to="/income-statement"
                         >
                             Income Statement
                         </Link>
@@ -548,6 +557,7 @@ const AccountLedger = () => {
                             className="sidebar-button"
                             title="Balance Sheet Page Link"
                             id="balance-sheet-link"
+                            to="/balance-sheet"
                         >
                             Balance Sheet
                         </Link>
@@ -555,6 +565,7 @@ const AccountLedger = () => {
                             className="sidebar-button"
                             title="Statement of Retained Earnings Page Link"
                             id="retained-earnings-link"
+                            to="/retained-earnings"
                         >
                             Statement of Retained Earnings
                         </Link>
@@ -745,7 +756,11 @@ const AccountLedger = () => {
                                                     </span>
                                                 </td>
                                                 <td
-                                                    style={{ padding: "20px 0", textAlign: "right", paddingRight: "25px" }}
+                                                    style={{
+                                                        padding: "20px 0",
+                                                        textAlign: "right",
+                                                        paddingRight: "25px",
+                                                    }}
                                                 >
                                                     {" "}
                                                     {/* Set a fixed width */}

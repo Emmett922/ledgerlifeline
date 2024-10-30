@@ -65,12 +65,8 @@ const BalanceSheet = () => {
             setStoredUserRole(storedUser.role);
         }
 
-        const storedPR = JSON.parse(localStorage.getItem("PR"));
-
-        if (storedPR) {
-            setStoredPostReference(storedPR);
-            setSearchQuery(storedPR.toString());
-            localStorage.removeItem("PR");
+        if (storedUserRole === "Admin") {
+            navigate("/dashbord");
         }
     }, []);
 
@@ -425,33 +421,30 @@ const BalanceSheet = () => {
         // Helper function to safely get balance as a number
         const getBalance = (account) => {
             const balance = account.balance || 0; // Default to 0 if undefined
-            return typeof balance === 'number' ? balance : 0; // Ensure it's a number
+            return typeof balance === "number" ? balance : 0; // Ensure it's a number
         };
-    
+
         // Calculate total revenue
         const totalAsset = accounts
-            .filter(account => 
-                account.accountCatagory.toLowerCase().includes("asset")
-            )
+            .filter((account) => account.accountCatagory.toLowerCase().includes("asset"))
             .reduce((total, account) => total + getBalance(account), 0);
-    
+
         // Calculate total expenses
         const totalEquity = accounts
-            .filter(account => 
-                account.accountCatagory.toLowerCase().includes("equity")
-            )
+            .filter((account) => account.accountCatagory.toLowerCase().includes("equity"))
             .reduce((total, account) => total + getBalance(account), 0);
 
         // Calculate total expenses
         const totalLiability = accounts
-        .filter(account => 
-            account.accountCatagory.toLowerCase().includes("liability") &&
-            account.accountSubcatagory.toLowerCase().includes("current")
-        )
-        .reduce((total, account) => total + getBalance(account), 0);
+            .filter(
+                (account) =>
+                    account.accountCatagory.toLowerCase().includes("liability") &&
+                    account.accountSubcatagory.toLowerCase().includes("current")
+            )
+            .reduce((total, account) => total + getBalance(account), 0);
 
         // NetEquityandLiability (Liabilities + Equity)
-        const netEquityandLiability = (totalLiability + totalEquity);
+        const netEquityandLiability = totalLiability + totalEquity;
 
         return netEquityandLiability.toFixed(2);
     };
@@ -461,150 +454,84 @@ const BalanceSheet = () => {
     const netEquityandLiability = calculateTotals(filteredAccounts);
 
     const content = (
-        <section className="account ledger">
+        <section className="balance-sheet">
             <ToastContainer />
-            {/* Side nav for admin */}
-            {storedUserRole === "Admin" && (
-                <aside className="sidebar">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="users-link"
-                            title="Users Page Link"
-                            to="/users"
-                        >
-                            Users
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="event-log-link"
-                            title="Event Logs Page Link"
-                            to="/event-logs"
-                        >
-                            Event Logs
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
-
-            {/* Side nav for accountand && manager */}
-            {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
-                <aside className="sidebar accountant">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Journalize Page Link"
-                            id="journalize-link"
-                            to="/journalize"
-                        >
-                            Journalize
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/trial-balance"
-                        >
-                            Trial Balance
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/income-statement"
-                        >
-                            Income Statement
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Balance Sheet Page Link"
-                            id="balance-sheet-link"
-                            to="/balance-sheet"
-                        >
-                            Balance Sheet
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Statement of Retained Earnings Page Link"
-                            id="retained-earnings-link"
-                        >
-                            Statement of Retained Earnings
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
+            <aside className="sidebar accountant">
+                <div className="app-logo">
+                    <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+                </div>
+                <ul className="sidebar-btns">
+                    <Link
+                        className="sidebar-button"
+                        id="dashboard-link"
+                        title="Dashboard Page Link"
+                        to="/dashboard"
+                    >
+                        Dashboard
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="ledger-link"
+                        title="Ledger page link"
+                        to="/account-ledger"
+                    >
+                        Ledger
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="accounts-link"
+                        title="Chart of Accounts Page Link"
+                        to="/chart-of-accounts"
+                    >
+                        Chart of Accounts
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Journalize Page Link"
+                        id="journalize-link"
+                        to="/journalize"
+                    >
+                        Journalize
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Trial balance Page Link"
+                        id="trial-balance-link"
+                        to="/trial-balance"
+                    >
+                        Trial Balance
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Income Statement Page Link"
+                        id="income-statement-link"
+                        to="/income-statement"
+                    >
+                        Income Statement
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Balance Sheet Page Link"
+                        id="balance-sheet-link"
+                        to="/balance-sheet"
+                    >
+                        Balance Sheet
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Statement of Retained Earnings Page Link"
+                        id="retained-earnings-link"
+                        to="/retained-earnings"
+                    >
+                        Statement of Retained Earnings
+                    </Link>
+                </ul>
+                <div className="help-btn">
+                    <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                        <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
+                    </Link>
+                </div>
+            </aside>
 
             <main className="main-content">
                 <header className="header">
@@ -700,101 +627,125 @@ const BalanceSheet = () => {
                     </div>
                 </header>
                 <div className="account-ledger-table-container">
-                <div style={{
-                    backgroundColor: '#007bff',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textAlign: 'center' // Ensures text is centered
-                }}>
-                    <div className="company-title" style={{
-                        fontWeight: 'bold',
-                        color: 'white',
-                        fontSize: '24px'
-                    }}>
-                        Addams & Family Inc.
+                    <div
+                        style={{
+                            backgroundColor: "#007bff",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            textAlign: "center", // Ensures text is centered
+                        }}
+                    >
+                        <div
+                            className="company-title"
+                            style={{
+                                fontWeight: "bold",
+                                color: "white",
+                                fontSize: "24px",
+                            }}
+                        >
+                            Addams & Family Inc.
+                        </div>
+                        <div
+                            className="page-title"
+                            style={{
+                                color: "white",
+                                fontSize: "20px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            Balance Sheet
+                        </div>
+                        <div
+                            className="as-of-date"
+                            style={{
+                                color: "white",
+                                fontSize: "18px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            For the period ending {getLastDayOfMonth()}{" "}
+                            {/* Needs to change to end of month */}
+                        </div>
                     </div>
-                    <div className="page-title" style={{
-                        color: 'white',
-                        fontSize: '20px',
-                        marginTop: '10px'
-                    }}>
-                        Balance Sheet
-                    </div>
-                    <div className="as-of-date" style={{
-                        color: 'white',
-                        fontSize: '18px',
-                        marginTop: '10px'
-                    }}>
-                        For the period ending {getLastDayOfMonth()} {/* Needs to change to end of month */}
-                    </div>
-                </div>
                     <table className="account-ledger-table">
                         <thead>
                             <tr>
                                 <th
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Assests
                                 </th>
                                 <th
                                     style={{
-                                        textAlign: 'right',
-                                        paddingRight: '50px',
+                                        textAlign: "right",
+                                        paddingRight: "50px",
                                     }}
                                 >
                                     Total Amount
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>{/* Flexbox for Total Assets and Total Balance aligned to table columns */}
+                        <tbody>
+                            {/* Flexbox for Total Assets and Total Balance aligned to table columns */}
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Current Assets
+                                    Current Assets
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px'
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
-                                        account.accountCatagory.toLowerCase().includes("asset") &&
-                                        account.accountSubcatagory.toLowerCase().includes("current") && 
-                                        account.balance > 0
-                                    )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                                )}`}
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("asset") &&
+                                                    account.accountSubcatagory
+                                                        .toLowerCase()
+                                                        .includes("current") &&
+                                                    account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
                                 </td>
                             </tr>
                             {filteredAccounts
-                                .filter((account) =>
-                                    account.accountCatagory.toLowerCase().includes("asset") &&
-                                    account.accountSubcatagory.toLowerCase().includes("current") && 
-                                    account.balance > 0
+                                .filter(
+                                    (account) =>
+                                        account.accountCatagory.toLowerCase().includes("asset") &&
+                                        account.accountSubcatagory
+                                            .toLowerCase()
+                                            .includes("current") &&
+                                        account.balance > 0
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
                                         <tr>
-                                            <td
-                                                style={{ padding: "20px 50px", width: "600px" }}
-                                            >
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
                                                 {account.accountName}
                                             </td>
                                             <td
@@ -802,70 +753,87 @@ const BalanceSheet = () => {
                                                     padding: "20px 0",
                                                     width: "200px",
                                                     textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: '250px', // Match the padding of Total Amount
+                                                    paddingRight: "250px", // Match the padding of Total Amount
                                                 }}
                                             >
                                                 {account.balance
                                                     ? `$${formatWithCommas(
-                                                        account.balance.toFixed(2)
-                                                    )}`
+                                                          account.balance.toFixed(2)
+                                                      )}`
                                                     : "$0.00"}
                                             </td>
                                         </tr>
                                     </React.Fragment>
                                 ))}
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Non-Current Assets
+                                    Non-Current Assets
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px'
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
-                                        account.accountCatagory.toLowerCase().includes("asset") &&
-                                        !account.accountSubcatagory.toLowerCase().includes("current") && 
-                                        account.balance > 0
-                                    )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                                )}`}
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("asset") &&
+                                                    !account.accountSubcatagory
+                                                        .toLowerCase()
+                                                        .includes("current") &&
+                                                    account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
                                 </td>
                             </tr>
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Total Assets
+                                    Total Assets
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px',
-                                    textDecoration: 'double underline',
-                                    textUnderlineOffset: "3px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                        textDecoration: "double underline",
+                                        textUnderlineOffset: "3px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
-                                        account.accountCatagory.toLowerCase().includes("asset")
-                                    )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                                )}`}
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter((account) =>
+                                                account.accountCatagory
+                                                    .toLowerCase()
+                                                    .includes("asset")
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
                                 </td>
                             </tr>
                         </tbody>
@@ -876,54 +844,61 @@ const BalanceSheet = () => {
                                 <th
                                     colSpan={2}
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Equity & liabilities
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>{/* Flexbox for Total Assets and Total Balance aligned to table columns */}
+                        <tbody>
+                            {/* Flexbox for Total Assets and Total Balance aligned to table columns */}
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Owners Equity
+                                    Owners Equity
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px'
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("equity") && account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
+                                </td>
+                            </tr>
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
                                         account.accountCatagory.toLowerCase().includes("equity") &&
                                         account.balance > 0
-                                    )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                                )}`}
-                                </td>
-                            </tr>
-                            {filteredAccounts
-                                .filter((account) =>
-                                    account.accountCatagory.toLowerCase().includes("equity") &&
-                                    account.balance > 0
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
                                         <tr>
-                                            <td
-                                                style={{ padding: "20px 50px", width: "600px" }}
-                                            >
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
                                                 {account.accountName}
                                             </td>
                                             <td
@@ -931,58 +906,71 @@ const BalanceSheet = () => {
                                                     padding: "20px 0",
                                                     width: "200px",
                                                     textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: '250px', // Match the padding of Total Amount
+                                                    paddingRight: "250px", // Match the padding of Total Amount
                                                 }}
                                             >
                                                 {account.balance
                                                     ? `$${formatWithCommas(
-                                                        account.balance.toFixed(2)
-                                                    )}`
+                                                          account.balance.toFixed(2)
+                                                      )}`
                                                     : "$0.00"}
                                             </td>
                                         </tr>
                                     </React.Fragment>
                                 ))}
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Current liabilities
+                                    Current liabilities
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px'
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
-                                        account.accountCatagory.toLowerCase().includes("liability") &&
-                                        account.accountSubcatagory.toLowerCase().includes("current") && 
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("liability") &&
+                                                    account.accountSubcatagory
+                                                        .toLowerCase()
+                                                        .includes("current") &&
+                                                    account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
+                                </td>
+                            </tr>
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
+                                        account.accountCatagory
+                                            .toLowerCase()
+                                            .includes("liability") &&
+                                        account.accountSubcatagory
+                                            .toLowerCase()
+                                            .includes("current") &&
                                         account.balance > 0
-                                    )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                                )}`}
-                                </td>
-                            </tr>
-                            {filteredAccounts
-                                .filter((account) =>
-                                    account.accountCatagory.toLowerCase().includes("liability") &&
-                                    account.accountSubcatagory.toLowerCase().includes("current") && 
-                                    account.balance > 0
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
                                         <tr>
-                                            <td
-                                                style={{ padding: "20px 50px", width: "600px" }}
-                                            >
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
                                                 {account.accountName}
                                             </td>
                                             <td
@@ -990,40 +978,42 @@ const BalanceSheet = () => {
                                                     padding: "20px 0",
                                                     width: "200px",
                                                     textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: '250px', // Match the padding of Total Amount
+                                                    paddingRight: "250px", // Match the padding of Total Amount
                                                 }}
                                             >
                                                 {account.balance
                                                     ? `$${formatWithCommas(
-                                                        account.balance.toFixed(2)
-                                                    )}`
+                                                          account.balance.toFixed(2)
+                                                      )}`
                                                     : "$0.00"}
                                             </td>
                                         </tr>
                                     </React.Fragment>
                                 ))}
                             <tr>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
                                 >
-                                Total Equity & liabilities
+                                    Total Equity & liabilities
                                 </td>
-                                <td style={{
-                                    fontWeight: 'bold',
-                                    paddingLeft: "25px",
-                                    textAlign: 'right',
-                                    paddingRight: '50px',
-                                    textDecoration: 'double underline',
-                                    textUnderlineOffset: "3px",
-                                }}
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                        textDecoration: "double underline",
+                                        textUnderlineOffset: "3px",
+                                    }}
                                 >
-                                {`$${formatWithCommas(netEquityandLiability)}`}
+                                    {`$${formatWithCommas(netEquityandLiability)}`}
                                 </td>
                             </tr>
                         </tbody>
-                    </table> 
+                    </table>
                 </div>
             </main>
         </section>

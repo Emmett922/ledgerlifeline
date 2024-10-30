@@ -63,12 +63,8 @@ const IncomeStatement = () => {
             setStoredUserRole(storedUser.role);
         }
 
-        const storedPR = JSON.parse(localStorage.getItem("PR"));
-
-        if (storedPR) {
-            setStoredPostReference(storedPR);
-            setSearchQuery(storedPR.toString());
-            localStorage.removeItem("PR");
+        if (storedUserRole === "Admin") {
+            navigate("/dashbord");
         }
     }, []);
 
@@ -423,178 +419,111 @@ const IncomeStatement = () => {
         // Helper function to safely get balance as a number
         const getBalance = (account) => {
             const balance = account.balance || 0; // Default to 0 if undefined
-            return typeof balance === 'number' ? balance : 0; // Ensure it's a number
+            return typeof balance === "number" ? balance : 0; // Ensure it's a number
         };
-    
+
         // Calculate total revenue
         const totalRevenue = accounts
-            .filter(account => 
-                account.accountName.toLowerCase().includes("revenue") &&
-                !account.accountName.toLowerCase().includes("unearned")
+            .filter(
+                (account) =>
+                    account.accountName.toLowerCase().includes("revenue") &&
+                    !account.accountName.toLowerCase().includes("unearned")
             )
             .reduce((total, account) => total + getBalance(account), 0);
-    
+
         // Calculate total expenses
         const totalExpenses = accounts
-            .filter(account => 
-                account.accountName.toLowerCase().includes("expense")
-            )
+            .filter((account) => account.accountName.toLowerCase().includes("expense"))
             .reduce((total, account) => total + getBalance(account), 0);
-    
+
         // Calculate net income
         const netIncome = totalRevenue - totalExpenses;
-    
+
         return netIncome.toFixed(2); // Return as a string formatted to 2 decimal places
     };
-    
+
     // Usage in the component
     const netIncome = calculateNetIncome(filteredAccounts);
 
     const content = (
-        <section className="account ledger">
+        <section className="income-statement">
             <ToastContainer />
-            {/* Side nav for admin */}
-            {storedUserRole === "Admin" && (
-                <aside className="sidebar">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="users-link"
-                            title="Users Page Link"
-                            to="/users"
-                        >
-                            Users
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="event-log-link"
-                            title="Event Logs Page Link"
-                            to="/event-logs"
-                        >
-                            Event Logs
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
-
             {/* Side nav for accountand && manager */}
-            {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
-                <aside className="sidebar accountant">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Journalize Page Link"
-                            id="journalize-link"
-                            to="/journalize"
-                        >
-                            Journalize
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/trial-balance"
-                        >
-                            Trial Balance
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/income-statement"
-                        >
-                            Income Statement
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Balance Sheet Page Link"
-                            id="balance-sheet-link"
-                            to="/balance-sheet"
-                        >
-                            Balance Sheet
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Statement of Retained Earnings Page Link"
-                            id="retained-earnings-link"
-                        >
-                            Statement of Retained Earnings
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
+            <aside className="sidebar accountant">
+                <div className="app-logo">
+                    <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+                </div>
+                <ul className="sidebar-btns">
+                    <Link
+                        className="sidebar-button"
+                        id="dashboard-link"
+                        title="Dashboard Page Link"
+                        to="/dashboard"
+                    >
+                        Dashboard
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="ledger-link"
+                        title="Ledger page link"
+                        to="/account-ledger"
+                    >
+                        Ledger
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="accounts-link"
+                        title="Chart of Accounts Page Link"
+                        to="/chart-of-accounts"
+                    >
+                        Chart of Accounts
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Journalize Page Link"
+                        id="journalize-link"
+                        to="/journalize"
+                    >
+                        Journalize
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Trial Balance Page Link"
+                        id="trial-balance-link"
+                        to="/trial-balance"
+                    >
+                        Trial Balance
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Income Statement Page Link"
+                        id="income-statement-link"
+                        to="/income-statement"
+                    >
+                        Income Statement
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Balance Sheet Page Link"
+                        id="balance-sheet-link"
+                        to="/balance-sheet"
+                    >
+                        Balance Sheet
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Statement of Retained Earnings Page Link"
+                        id="retained-earnings-link"
+                    >
+                        Statement of Retained Earnings
+                    </Link>
+                </ul>
+                <div className="help-btn">
+                    <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                        <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
+                    </Link>
+                </div>
+            </aside>
 
             <main className="main-content">
                 <header className="header">
@@ -690,54 +619,66 @@ const IncomeStatement = () => {
                     </div>
                 </header>
                 <div className="account-ledger-table-container">
-                <div style={{
-                    backgroundColor: '#007bff',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textAlign: 'center' // Ensures text is centered
-                }}>
-                    <div className="company-title" style={{
-                        fontWeight: 'bold',
-                        color: 'white',
-                        fontSize: '24px'
-                    }}>
-                        Addams & Family Inc.
+                    <div
+                        style={{
+                            backgroundColor: "#007bff",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            textAlign: "center", // Ensures text is centered
+                        }}
+                    >
+                        <div
+                            className="company-title"
+                            style={{
+                                fontWeight: "bold",
+                                color: "white",
+                                fontSize: "24px",
+                            }}
+                        >
+                            Addams & Family Inc.
+                        </div>
+                        <div
+                            className="page-title"
+                            style={{
+                                color: "white",
+                                fontSize: "20px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            Income Statement
+                        </div>
+                        <div
+                            className="as-of-date"
+                            style={{
+                                color: "white",
+                                fontSize: "18px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            For the period ending {getLastDayOfMonth()}{" "}
+                            {/* Needs to change to end of month */}
+                        </div>
                     </div>
-                    <div className="page-title" style={{
-                        color: 'white',
-                        fontSize: '20px',
-                        marginTop: '10px'
-                    }}>
-                        Income Statement
-                    </div>
-                    <div className="as-of-date" style={{
-                        color: 'white',
-                        fontSize: '18px',
-                        marginTop: '10px'
-                    }}>
-                        For the period ending {getLastDayOfMonth()} {/* Needs to change to end of month */}
-                    </div>
-                </div>
                     <table className="account-ledger-table">
                         <thead>
                             <tr>
                                 <th
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Revenue
                                 </th>
                                 <th
                                     style={{
-                                        textAlign: 'right',
-                                        paddingRight: '50px',
+                                        textAlign: "right",
+                                        paddingRight: "50px",
                                     }}
                                 >
                                     Total Amount
@@ -746,17 +687,16 @@ const IncomeStatement = () => {
                         </thead>
                         <tbody>
                             {filteredAccounts
-                                .filter((account) =>
-                                    account.accountName.toLowerCase().includes("revenue") &&
-                                    !account.accountName.toLowerCase().includes("unearned")
+                                .filter(
+                                    (account) =>
+                                        account.accountName.toLowerCase().includes("revenue") &&
+                                        !account.accountName.toLowerCase().includes("unearned")
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
                                         <tr>
-                                            <td
-                                                style={{ padding: "20px 50px", width: "600px" }}
-                                            >
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
                                                 {account.accountName}
                                             </td>
                                             <td
@@ -764,13 +704,13 @@ const IncomeStatement = () => {
                                                     padding: "20px 0",
                                                     width: "200px",
                                                     textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: '250px', // Match the padding of Total Amount
+                                                    paddingRight: "250px", // Match the padding of Total Amount
                                                 }}
                                             >
                                                 {account.balance
                                                     ? `$${formatWithCommas(
-                                                        account.balance.toFixed(2)
-                                                    )}`
+                                                          account.balance.toFixed(2)
+                                                      )}`
                                                     : "$0.00"}
                                             </td>
                                         </tr>
@@ -783,16 +723,16 @@ const IncomeStatement = () => {
                     <div
                         className="total-revenue-container"
                         style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            fontWeight: 'bold',
-                            marginTop: '20px',
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                            marginTop: "20px",
                         }}
                     >
-                        <div 
-                            className="total-revenue" 
-                            style={{ 
+                        <div
+                            className="total-revenue"
+                            style={{
                                 width: "600px",
                                 textAlign: "left",
                                 paddingLeft: "50px",
@@ -803,28 +743,29 @@ const IncomeStatement = () => {
                         <div
                             className="total-balance"
                             style={{
-                                textAlign: 'right',
+                                textAlign: "right",
                                 width: "200px",
-                                paddingRight: '50px',
+                                paddingRight: "50px",
                                 textDecoration: "double underline",
                                 textUnderlineOffset: "3px",
                             }}
                         >
                             {`$${formatWithCommas(
                                 filteredAccounts
-                                    .filter((account) =>
-                                        account.accountName.toLowerCase().includes("revenue") &&
-                                        !account.accountName.toLowerCase().includes("unearned")
+                                    .filter(
+                                        (account) =>
+                                            account.accountName.toLowerCase().includes("revenue") &&
+                                            !account.accountName.toLowerCase().includes("unearned")
                                     )
                                     .reduce((total, account) => total + (account.balance || 0), 0)
                                     .toFixed(2)
                             )}`}
                         </div>
                     </div>
-                    <table 
+                    <table
                         className="account-ledger-table"
                         style={{
-                            marginTop: '10px',
+                            marginTop: "10px",
                         }}
                     >
                         <thead>
@@ -832,9 +773,9 @@ const IncomeStatement = () => {
                                 <th
                                     colSpan={2}
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Expenses
@@ -843,16 +784,16 @@ const IncomeStatement = () => {
                         </thead>
                         <tbody>
                             {filteredAccounts
-                                .filter((account) =>
-                                    account.accountName.toLowerCase().includes("expense") && account.balance > 0
+                                .filter(
+                                    (account) =>
+                                        account.accountName.toLowerCase().includes("expense") &&
+                                        account.balance > 0
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
                                         <tr>
-                                            <td
-                                                style={{ padding: "20px 50px", width: "600px" }}
-                                            >
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
                                                 {account.accountName}
                                             </td>
                                             <td
@@ -860,13 +801,13 @@ const IncomeStatement = () => {
                                                     padding: "20px 0",
                                                     width: "200px",
                                                     textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: '250px', // Match the padding of Total Amount
+                                                    paddingRight: "250px", // Match the padding of Total Amount
                                                 }}
                                             >
                                                 {account.balance
                                                     ? `$${formatWithCommas(
-                                                        account.balance.toFixed(2)
-                                                    )}`
+                                                          account.balance.toFixed(2)
+                                                      )}`
                                                     : "$0.00"}
                                             </td>
                                         </tr>
@@ -879,16 +820,16 @@ const IncomeStatement = () => {
                     <div
                         className="total-expense-container"
                         style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            fontWeight: 'bold',
-                            marginTop: '20px',
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                            marginTop: "20px",
                         }}
                     >
-                        <div 
-                            className="total-expense" 
-                            style={{ 
+                        <div
+                            className="total-expense"
+                            style={{
                                 width: "600px",
                                 textAlign: "left",
                                 paddingLeft: "50px",
@@ -899,9 +840,9 @@ const IncomeStatement = () => {
                         <div
                             className="total-balance"
                             style={{
-                                textAlign: 'right',
+                                textAlign: "right",
                                 width: "200px",
-                                paddingRight: '50px',
+                                paddingRight: "50px",
                                 textDecoration: "double underline",
                                 textUnderlineOffset: "3px",
                             }}
@@ -916,10 +857,10 @@ const IncomeStatement = () => {
                             )}`}
                         </div>
                     </div>
-                    <table 
+                    <table
                         className="account-ledger-table"
                         style={{
-                            marginTop: '10px',
+                            marginTop: "10px",
                         }}
                     >
                         <thead>
@@ -927,9 +868,9 @@ const IncomeStatement = () => {
                                 <th
                                     colSpan={2}
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Net Income
@@ -942,17 +883,17 @@ const IncomeStatement = () => {
                     <div
                         className="total-revenue-container"
                         style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            fontWeight: 'bold',
-                            marginTop: '20px',
-                            paddingBottom: '10px',
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                            marginTop: "20px",
+                            paddingBottom: "10px",
                         }}
                     >
-                        <div 
-                            className="total-revenue" 
-                            style={{ 
+                        <div
+                            className="total-revenue"
+                            style={{
                                 width: "600px",
                                 textAlign: "left",
                                 paddingLeft: "50px",
@@ -963,9 +904,9 @@ const IncomeStatement = () => {
                         <div
                             className="total-balance"
                             style={{
-                                textAlign: 'right',
+                                textAlign: "right",
                                 width: "200px",
-                                paddingRight: '50px',
+                                paddingRight: "50px",
                                 textDecoration: "double underline",
                                 textUnderlineOffset: "3px",
                             }}

@@ -193,7 +193,8 @@ const Dashboard = () => {
                         <Link
                             className="sidebar-button"
                             id="dashboard-link"
-                            title="Dashboard page link"
+                            title="Dashboard Page Link"
+                            to="/dashboard"
                         >
                             Dashboard
                         </Link>
@@ -215,40 +216,40 @@ const Dashboard = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Journalize Page Link"
                             id="journalize-link"
-                            title="Journalize page link"
                             to="/journalize"
                         >
                             Journalize
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Trial balance Page Link"
                             id="trial-balance-link"
-                            title="Trial Balance page link"
                             to="/trial-balance"
                         >
                             Trial Balance
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Income Statement Page Link"
                             id="income-statement-link"
-                            title="Income Statement page link"
                             to="/income-statement"
                         >
                             Income Statement
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Balance Sheet Page Link"
                             id="balance-sheet-link"
-                            title="Balance Sheet page link"
                             to="/balance-sheet"
                         >
                             Balance Sheet
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Statement of Retained Earnings Page Link"
                             id="retained-earnings-link"
-                            title="Statement of Retained Earnings page link"
                             to="/retained-earnings"
                         >
                             Statement of Retained Earnings
@@ -256,7 +257,7 @@ const Dashboard = () => {
                     </ul>
                     <div className="help-btn">
                         <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="Question mark button" />
+                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
                         </Link>
                     </div>
                 </aside>

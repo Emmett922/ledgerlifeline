@@ -846,21 +846,21 @@ const Journalize = () => {
     const selectStyles = {
         option: (provided, state) => ({
             ...provided,
-            borderBottom: '2px black',
-            color: state.isSelected ? 'red' : 'black',
+            borderBottom: "2px black",
+            color: state.isSelected ? "red" : "black",
             padding: 20,
         }),
         control: (provided) => ({
-            ...provided,        // retain default styles
-            width: 350,         // increase width as needed
+            ...provided, // retain default styles
+            width: 350, // increase width as needed
         }),
         singleValue: (provided, state) => {
             const opacity = state.isDisabled ? 0.5 : 1;
-            const transition = 'opacity 300ms';
-    
+            const transition = "opacity 300ms";
+
             return { ...provided, opacity, transition };
         },
-    };    
+    };
 
     const content = (
         <section className="journalize">
@@ -904,8 +904,17 @@ const Journalize = () => {
                     </Link>
                     <Link
                         className="sidebar-button"
+                        title="Trial balance Page Link"
+                        id="trial-balance-link"
+                        to="/trial-balance"
+                    >
+                        Trial Balance
+                    </Link>
+                    <Link
+                        className="sidebar-button"
                         title="Income Statement Page Link"
                         id="income-statement-link"
+                        to="/income-statement"
                     >
                         Income Statement
                     </Link>
@@ -913,6 +922,7 @@ const Journalize = () => {
                         className="sidebar-button"
                         title="Balance Sheet Page Link"
                         id="balance-sheet-link"
+                        to="/balance-sheet"
                     >
                         Balance Sheet
                     </Link>
@@ -920,6 +930,7 @@ const Journalize = () => {
                         className="sidebar-button"
                         title="Statement of Retained Earnings Page Link"
                         id="retained-earnings-link"
+                        to="/retained-earnings"
                     >
                         Statement of Retained Earnings
                     </Link>

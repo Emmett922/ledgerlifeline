@@ -465,12 +465,9 @@ const Accounts = () => {
         newAccountDescription &&
         newOrder &&
         newComment &&
-        (
-            (newAccountCatagory !== "Asset" && newAccountCatagory !== "Liability") ||
-            newAccountSubcatagory // If "Asset" or "Liability", check for newAccountSubCatagory
-        )
+        ((newAccountCatagory !== "Asset" && newAccountCatagory !== "Liability") ||
+            newAccountSubcatagory) // If "Asset" or "Liability", check for newAccountSubCatagory
     );
-    
 
     const formatWithCommas = (value) => {
         const [integerPart, decimalPart] = value.split(".");
@@ -1114,8 +1111,17 @@ const Accounts = () => {
                         </Link>
                         <Link
                             className="sidebar-button"
+                            title="Trial balance Page Link"
+                            id="trial-balance-link"
+                            to="/trial-balance"
+                        >
+                            Trial Balance
+                        </Link>
+                        <Link
+                            className="sidebar-button"
                             title="Income Statement Page Link"
                             id="income-statement-link"
+                            to="/income-statement"
                         >
                             Income Statement
                         </Link>
@@ -1123,6 +1129,7 @@ const Accounts = () => {
                             className="sidebar-button"
                             title="Balance Sheet Page Link"
                             id="balance-sheet-link"
+                            to="/balance-sheet"
                         >
                             Balance Sheet
                         </Link>
@@ -1130,6 +1137,7 @@ const Accounts = () => {
                             className="sidebar-button"
                             title="Statement of Retained Earnings Page Link"
                             id="retained-earnings-link"
+                            to="/retained-earnings"
                         >
                             Statement of Retained Earnings
                         </Link>

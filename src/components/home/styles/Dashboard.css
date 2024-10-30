@@ -151,6 +151,9 @@ body {
 .chartOfAccount #chart-of-accounts-link,
 .account.ledger #ledger-link,
 .journalize #journalize-link,
+.trial-balance #trial-balance-link,
+.income-statement #income-statement-link,
+.balance-sheet #balance-sheet-link,
 .eventLogs #event-log-link {
     background-color: #1c4a7c;
 }

@@ -21,7 +21,10 @@ body {
 
 /* Dashboard layout */
 .account,
-.journalize {
+.journalize,
+.trial-balance,
+.income-statement,
+.balance-sheet {
     display: flex;
     width: 100%;
     max-width: 1550px;
@@ -29,7 +32,10 @@ body {
 
 /* Main content styles */
 .account .main-content,
-.journalize .main-content {
+.journalize .main-content,
+.trial-balance .main-content,
+.income-statement .main-content,
+.balance-sheet .main-content {
     width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
@@ -41,14 +47,20 @@ body {
 }
 
 .account .header,
-.journalize .header {
+.journalize .header,
+.trial-balance .header,
+.income-statement .header,
+.balance-sheet .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .account .header-main,
-.journalize .header-main {
+.journalize .header-main,
+.trial-balance .header-main,
+.income-statement .header-main,
+.balance-sheet .header-main {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -63,7 +75,10 @@ body {
 
 /* Flexbox alignment for header and button */
 .account .header-title,
-.journalize .header-title {
+.journalize .header-title,
+.trial-balance .header-title,
+.income-statement .header-title,
+.balance-sheet .header-title {
     font-size: 2em;
     display: flex;
     align-items: center;

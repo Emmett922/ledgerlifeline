@@ -64,12 +64,8 @@ const TrialBalance = () => {
             setStoredUserRole(storedUser.role);
         }
 
-        const storedPR = JSON.parse(localStorage.getItem("PR"));
-
-        if (storedPR) {
-            setStoredPostReference(storedPR);
-            setSearchQuery(storedPR.toString());
-            localStorage.removeItem("PR");
+        if (storedUserRole === "Admin") {
+            navigate("/dashbord");
         }
     }, []);
 
@@ -175,93 +171,7 @@ const TrialBalance = () => {
                 localStorage.removeItem("toastMessage");
             }, 500); // Delay by 500ms (can be adjusted as needed)
         }
-
-        const JournalCreationResult = localStorage.getItem("JournalCreated");
-        if (JournalCreationResult) {
-            toast("New Journal Entry Created!", {
-                style: {
-                    backgroundColor: "#333",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                },
-                progressStyle: {
-                    backgroundColor: "#2196f3", // Solid blue color for progress bar
-                    backgroundImage: "none",
-                },
-                closeButton: <CustomCloseButton />,
-            });
-            setTimeout(() => {
-                localStorage.removeItem("journalCreated");
-            }, 500);
-        }
     }, [API_URL]);
-
-    useEffect(() => {
-        const fetchEntryById = async () => {
-            try {
-                const response = await fetch(
-                    `${API_URL}/accounts/account-by-id?id=${selectedEntry}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json,",
-                        },
-                    }
-                );
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    setFetchedEntry(result);
-                } else {
-                    toast(`${result.message}`, {
-                        style: {
-                            backgroundColor: "#333",
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                        },
-                        progressStyle: {
-                            backgroundColor: "#2196f3", // Solid blue color for progress bar
-                            backgroundImage: "none",
-                        },
-                        closeButton: <CustomCloseButton />,
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        if (selectedEntry) {
-            fetchEntryById();
-        }
-
-        // Show toast message if present in localStorage
-        const toastMessage = localStorage.getItem("toastMessage");
-        if (toastMessage !== null) {
-            // Show toast message
-            toast(toastMessage, {
-                style: {
-                    backgroundColor: "#333",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                },
-                progressStyle: {
-                    backgroundColor: "#2196f3", // Solid blue color for progress bar
-                    backgroundImage: "none",
-                },
-                closeButton: <CustomCloseButton />,
-            });
-
-            // Delay removal of the message from localStorage
-            setTimeout(() => {
-                localStorage.removeItem("toastMessage");
-            }, 500); // Delay by 500ms (can be adjusted as needed)
-        }
-    }, [selectedEntry]);
 
     useEffect(() => {
         const fetchAccountById = async () => {
@@ -329,20 +239,6 @@ const TrialBalance = () => {
         }
     }, [selectedAccount]);
 
-    const handleMinBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const minValue = parseFloat(input) / 100;
-
-        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
-    };
-
-    const handleMaxBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const maxValue = parseFloat(input) / 100;
-
-        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
-    };
-
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
@@ -409,157 +305,91 @@ const TrialBalance = () => {
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
         return lastDay.toLocaleDateString(); // Format the date as needed
     };
-    
+
     const handlePostReferenceClick = (pr) => {
         localStorage.setItem("PR", JSON.stringify(pr));
         navigate("/account-ledger");
     };
 
     const content = (
-        <section className="account ledger">
+        <section className="trial-balance">
             <ToastContainer />
-            {/* Side nav for admin */}
-            {storedUserRole === "Admin" && (
-                <aside className="sidebar">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="users-link"
-                            title="Users Page Link"
-                            to="/users"
-                        >
-                            Users
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="event-log-link"
-                            title="Event Logs Page Link"
-                            to="/event-logs"
-                        >
-                            Event Logs
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
-
-            {/* Side nav for accountand && manager */}
-            {(storedUserRole === "Accountant" || storedUserRole === "Manager") && (
-                <aside className="sidebar accountant">
-                    <div className="app-logo">
-                        <img
-                            className="logo"
-                            src="/ledgerlifelinelogo.png"
-                            alt="LedgerLifeline Logo"
-                        />
-                    </div>
-                    <ul className="sidebar-btns">
-                        <Link
-                            className="sidebar-button"
-                            id="dashboard-link"
-                            title="Dashboard Page Link"
-                            to="/dashboard"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="ledger-link"
-                            title="Ledger page link"
-                            to="/account-ledger"
-                        >
-                            Ledger
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            id="accounts-link"
-                            title="Chart of Accounts Page Link"
-                            to="/chart-of-accounts"
-                        >
-                            Chart of Accounts
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Journalize Page Link"
-                            id="journalize-link"
-                            to="/journalize"
-                        >
-                            Journalize
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/trial-balance"
-                        >
-                            Trial Balance
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Income Statement Page Link"
-                            id="income-statement-link"
-                            to="/income-statement"
-                        >
-                            Income Statement
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Balance Sheet Page Link"
-                            id="balance-sheet-link"
-                            to="/balance-sheet"
-                        >
-                            Balance Sheet
-                        </Link>
-                        <Link
-                            className="sidebar-button"
-                            title="Statement of Retained Earnings Page Link"
-                            id="retained-earnings-link"
-                        >
-                            Statement of Retained Earnings
-                        </Link>
-                    </ul>
-                    <div className="help-btn">
-                        <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
-                            <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
-                        </Link>
-                    </div>
-                </aside>
-            )}
+            <aside className="sidebar accountant">
+                <div className="app-logo">
+                    <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
+                </div>
+                <ul className="sidebar-btns">
+                    <Link
+                        className="sidebar-button"
+                        id="dashboard-link"
+                        title="Dashboard Page Link"
+                        to="/dashboard"
+                    >
+                        Dashboard
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="ledger-link"
+                        title="Ledger page link"
+                        to="/account-ledger"
+                    >
+                        Ledger
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        id="accounts-link"
+                        title="Chart of Accounts Page Link"
+                        to="/chart-of-accounts"
+                    >
+                        Chart of Accounts
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Journalize Page Link"
+                        id="journalize-link"
+                        to="/journalize"
+                    >
+                        Journalize
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Trial balance Page Link"
+                        id="trial-balance-link"
+                        to="/trial-balance"
+                    >
+                        Trial Balance
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Income Statement Page Link"
+                        id="income-statement-link"
+                        to="/income-statement"
+                    >
+                        Income Statement
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Balance Sheet Page Link"
+                        id="balance-sheet-link"
+                        to="/balance-sheet"
+                    >
+                        Balance Sheet
+                    </Link>
+                    <Link
+                        className="sidebar-button"
+                        title="Statement of Retained Earnings Page Link"
+                        id="retained-earnings-link"
+                        to="/retained-earnings"
+                    >
+                        Statement of Retained Earnings
+                    </Link>
+                </ul>
+                <div className="help-btn">
+                    <Link type="help-button" id="help-link" title="Help Page Link" to="/help">
+                        <img className="pfp2" src="/question2.png" alt="LedgerLifeline Logo" />
+                    </Link>
+                </div>
+            </aside>
 
             <main className="main-content">
                 <header className="header">
@@ -655,46 +485,58 @@ const TrialBalance = () => {
                     </div>
                 </header>
                 <div className="account-ledger-table-container">
-                <div style={{
-                    backgroundColor: '#007bff',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                }}>
-                    <div className="company-title" style={{
-                        fontWeight: 'bold',
-                        color: 'white',
-                        fontSize: '24px'
-                    }}>
-                        Addams & Family Inc.
+                    <div
+                        style={{
+                            backgroundColor: "#007bff",
+                            padding: "20px",
+                            borderRadius: "8px",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            textAlign: "center",
+                        }}
+                    >
+                        <div
+                            className="company-title"
+                            style={{
+                                fontWeight: "bold",
+                                color: "white",
+                                fontSize: "24px",
+                            }}
+                        >
+                            Addams & Family Inc.
+                        </div>
+                        <div
+                            className="page-title"
+                            style={{
+                                color: "white",
+                                fontSize: "20px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            Trial Balance
+                        </div>
+                        <div
+                            className="as-of-date"
+                            style={{
+                                color: "white",
+                                fontSize: "18px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            For the period ending {getLastDayOfMonth()}{" "}
+                            {/* Needs to change to end of month */}
+                        </div>
                     </div>
-                    <div className="page-title" style={{
-                        color: 'white',
-                        fontSize: '20px',
-                        marginTop: '10px'
-                    }}>
-                        Trial Balance
-                    </div>
-                    <div className="as-of-date" style={{
-                        color: 'white',
-                        fontSize: '18px',
-                        marginTop: '10px'
-                    }}>
-                        For the period ending {getLastDayOfMonth()} {/* Needs to change to end of month */}
-                    </div>
-                </div>
                     <table className="account-ledger-table">
                         <thead>
                             <tr>
                                 <th
                                     style={{
-                                        textAlign: 'left',
-                                        fontWeight: 'bold',
-                                        fontSize: '22px',
+                                        textAlign: "left",
+                                        fontWeight: "bold",
+                                        fontSize: "22px",
                                     }}
                                 >
                                     Accounts
@@ -718,12 +560,17 @@ const TrialBalance = () => {
                                                             color: "#007bff",
                                                             cursor: "pointer",
                                                         }}
-                                                        onClick={() => {handlePostReferenceClick(account.accountNumber)}}
+                                                        onClick={() => {
+                                                            handlePostReferenceClick(
+                                                                account.accountNumber
+                                                            );
+                                                        }}
                                                         title="Navigate to Account's Ledger"
                                                     >
                                                         {account.accountNumber}
                                                     </span>
-                                                    {" - "} {/* Separator between account number and name */}
+                                                    {" - "}{" "}
+                                                    {/* Separator between account number and name */}
                                                     <span>{account.accountName}</span>
                                                 </span>
                                             </td>
@@ -735,11 +582,14 @@ const TrialBalance = () => {
                                                             padding: "20px 0",
                                                             width: "200px",
                                                             textAlign: "right",
-                                                            paddingRight: '250px',
+                                                            paddingRight: "250px",
                                                         }}
                                                     >
                                                         <div>
-                                                            ${formatWithCommas(account.balance.toFixed(2))}
+                                                            $
+                                                            {formatWithCommas(
+                                                                account.balance.toFixed(2)
+                                                            )}
                                                         </div>
                                                     </td>
                                                     {/* Empty cell for alignment */}
@@ -752,11 +602,14 @@ const TrialBalance = () => {
                                                         padding: "20px 0",
                                                         width: "200px",
                                                         textAlign: "right",
-                                                        paddingRight: '250px',
+                                                        paddingRight: "250px",
                                                     }}
                                                 >
                                                     <div>
-                                                        ${formatWithCommas(account.balance.toFixed(2))}
+                                                        $
+                                                        {formatWithCommas(
+                                                            account.balance.toFixed(2)
+                                                        )}
                                                     </div>
                                                 </td>
                                             )}
@@ -764,25 +617,24 @@ const TrialBalance = () => {
                                     </React.Fragment>
                                 ))}
                         </tbody>
-
                     </table>
 
                     {/* Flexbox for Total Revenue and Total Balance aligned to table columns */}
                     <div
                         className="total-revenue-container"
                         style={{
-                            display: 'flex',
-                            backgroundColor: 'light gray',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            fontWeight: 'bold',
-                            marginTop: '20px',
-                            paddingBottom: '10px',
+                            display: "flex",
+                            backgroundColor: "light gray",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                            marginTop: "20px",
+                            paddingBottom: "10px",
                         }}
                     >
-                        <div 
-                            className="total-revenue" 
-                            style={{ 
+                        <div
+                            className="total-revenue"
+                            style={{
                                 width: "600px",
                                 textAlign: "left",
                                 paddingLeft: "50px",
@@ -793,9 +645,9 @@ const TrialBalance = () => {
                         <div
                             className="total-balance"
                             style={{
-                                textAlign: 'right',
+                                textAlign: "right",
                                 width: "200px",
-                                paddingRight: '50px',
+                                paddingRight: "50px",
                                 textDecoration: "double underline",
                                 textUnderlineOffset: "3px",
                             }}
