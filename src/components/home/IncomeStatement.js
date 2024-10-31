@@ -681,7 +681,6 @@ const IncomeStatement = () => {
                                         paddingRight: "50px",
                                     }}
                                 >
-                                    Total Amount
                                 </th>
                             </tr>
                         </thead>
@@ -746,7 +745,7 @@ const IncomeStatement = () => {
                                 textAlign: "right",
                                 width: "200px",
                                 paddingRight: "50px",
-                                textDecoration: "double underline",
+                                textDecoration: "underline",
                                 textUnderlineOffset: "3px",
                             }}
                         >
@@ -843,7 +842,7 @@ const IncomeStatement = () => {
                                 textAlign: "right",
                                 width: "200px",
                                 paddingRight: "50px",
-                                textDecoration: "double underline",
+                                textDecoration: "underline",
                                 textUnderlineOffset: "3px",
                             }}
                         >

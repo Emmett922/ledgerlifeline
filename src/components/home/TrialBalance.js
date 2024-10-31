@@ -547,7 +547,6 @@ const TrialBalance = () => {
                         </thead>
                         <tbody>
                             {filteredAccounts
-                                .filter((account) => account.balance > 0)
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
                                     <React.Fragment key={index}>
@@ -575,7 +574,7 @@ const TrialBalance = () => {
                                                 </span>
                                             </td>
                                             {/* If the account's normal side is "L" (Debit), display balance and an empty cell */}
-                                            {account.normalSide === "L" ? (
+                                            {account.normalSide === "L" && account.balance >= 0 ? (
                                                 <>
                                                     <td
                                                         style={{
@@ -596,22 +595,37 @@ const TrialBalance = () => {
                                                     <td style={{ width: "200px" }}></td>
                                                 </>
                                             ) : (
-                                                <td
-                                                    colSpan={2}
-                                                    style={{
-                                                        padding: "20px 0",
-                                                        width: "200px",
-                                                        textAlign: "right",
-                                                        paddingRight: "250px",
-                                                    }}
-                                                >
-                                                    <div>
-                                                        $
-                                                        {formatWithCommas(
-                                                            account.balance.toFixed(2)
+                                                <>
+                                                    {/* Empty cell for Debit side when normalSide is not "L" */}
+                                                    <td style={{ width: "200px" }}>{""}</td>
+                                                    <td
+                                                        colSpan={2}
+                                                        style={{
+                                                            padding: "20px 0",
+                                                            width: "200px",
+                                                            textAlign: "right",
+                                                            paddingRight: "250px",
+                                                        }}
+                                                    >
+                                                        {account.normalSide === "L" ? (
+                                                            <div>
+                                                                $
+                                                                {formatWithCommas(
+                                                                    (account.balance * -1).toFixed(
+                                                                        2
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                $
+                                                                {formatWithCommas(
+                                                                    account.balance.toFixed(2)
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </div>
-                                                </td>
+                                                    </td>
+                                                </>
                                             )}
                                         </tr>
                                     </React.Fragment>
@@ -621,11 +635,10 @@ const TrialBalance = () => {
 
                     {/* Flexbox for Total Revenue and Total Balance aligned to table columns */}
                     <div
-                        className="total-revenue-container"
+                        className="total-balance-container"
                         style={{
                             display: "flex",
                             backgroundColor: "light gray",
-                            justifyContent: "space-between",
                             alignItems: "center",
                             fontWeight: "bold",
                             marginTop: "20px",
@@ -633,7 +646,7 @@ const TrialBalance = () => {
                         }}
                     >
                         <div
-                            className="total-revenue"
+                            className="total-balance"
                             style={{
                                 width: "600px",
                                 textAlign: "left",
@@ -643,19 +656,58 @@ const TrialBalance = () => {
                             Total:
                         </div>
                         <div
-                            className="total-balance"
+                            className="total-debit"
                             style={{
-                                textAlign: "right",
+                                textAlign: "right", // Aligns text to the right for consistency with Debit column
                                 width: "200px",
-                                paddingRight: "50px",
+                                paddingRight: "330px", // Matches the Debit column's paddingRight
                                 textDecoration: "double underline",
                                 textUnderlineOffset: "3px",
                             }}
                         >
                             {`$${formatWithCommas(
                                 filteredAccounts
-                                    .filter((account) => account.balance > 0)
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
+                                    .filter(
+                                        (account) =>
+                                            (account.normalSide === "L" && account.balance > 0) ||
+                                            (account.normalSide === "R" && account.balance < 0)
+                                    )
+                                    .reduce(
+                                        (total, account) =>
+                                            total +
+                                            (account.normalSide === "R"
+                                                ? Math.abs(account.balance)
+                                                : account.balance),
+                                        0
+                                    )
+                                    .toFixed(2)
+                            )}`}
+                        </div>
+                        <div
+                            className="total-credit"
+                            style={{
+                                textAlign: "right",
+                                width: "200px",
+                                paddingRight: "330px", // Ensures alignment for the Credit column
+                                textDecoration: "double underline",
+                                textUnderlineOffset: "3px",
+                            }}
+                        >
+                            {`$${formatWithCommas(
+                                filteredAccounts
+                                    .filter(
+                                        (account) =>
+                                            (account.normalSide === "R" && account.balance < 0) ||
+                                            (account.normalSide === "L" && account.balance > 0)
+                                    )
+                                    .reduce(
+                                        (total, account) =>
+                                            total +
+                                            (account.normalSide === "R"
+                                                ? Math.abs(account.balance)
+                                                : account.balance),
+                                        0
+                                    )
                                     .toFixed(2)
                             )}`}
                         </div>

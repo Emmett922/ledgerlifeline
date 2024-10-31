@@ -108,7 +108,7 @@ table th {
 
 .users .table-content {
     overflow-y: auto;
-    height: 75vh;
+    height: 80vh;
 }
 
 .users .user-table .users-name #single-email {

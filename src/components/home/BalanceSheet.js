@@ -35,6 +35,7 @@ const BalanceSheet = () => {
     const [expandedRow, setExpandedRow] = useState(null);
     const [accountCatagory, setAccountCatagory] = useState("");
     const [accountSubcatagory, setAccountSubcatagory] = useState("");
+    const divRef = useRef(null);
 
     // -- Code for toggling the table in ascending and descending order -- //
     const [isDescending, setIsDescending] = useState(true); // State for sorting order
@@ -412,11 +413,6 @@ const BalanceSheet = () => {
         return lastDay.toLocaleDateString(); // Format the date as needed
     };
 
-    const handlePostReferenceClick = (pr) => {
-        localStorage.setItem("PR", JSON.stringify(pr));
-        navigate("/journalize");
-    };
-
     const calculateTotals = (accounts) => {
         // Helper function to safely get balance as a number
         const getBalance = (account) => {
@@ -452,6 +448,27 @@ const BalanceSheet = () => {
     // Usage in the component
 
     const netEquityandLiability = calculateTotals(filteredAccounts);
+
+    const formatNegativeBalance = (value) => {
+        // Check if the value is negative
+        const isNegative = parseFloat(value) < 0;
+
+        // Remove negative sign if it exists
+        const absoluteValue = Math.abs(parseFloat(value)).toString();
+
+        const [integerPart, decimalPart] = absoluteValue.split(".");
+
+        // Format the integer part with commas
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        // Construct the final formatted value
+        const formattedValue = decimalPart
+            ? `${formattedInteger}.${decimalPart}`
+            : formattedInteger;
+
+        // Return the formatted value with parentheses if it was originally negative
+        return isNegative ? `(${formattedValue})` : formattedValue;
+    };
 
     const content = (
         <section className="balance-sheet">
@@ -626,7 +643,7 @@ const BalanceSheet = () => {
                         </a>
                     </div>
                 </header>
-                <div className="account-ledger-table-container">
+                <div ref={divRef} className="account-ledger-table-container">
                     <div
                         style={{
                             backgroundColor: "#007bff",
@@ -688,9 +705,7 @@ const BalanceSheet = () => {
                                         textAlign: "right",
                                         paddingRight: "50px",
                                     }}
-                                >
-                                    Total Amount
-                                </th>
+                                ></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -704,33 +719,7 @@ const BalanceSheet = () => {
                                 >
                                     Current Assets
                                 </td>
-                                <td
-                                    style={{
-                                        fontWeight: "bold",
-                                        paddingLeft: "25px",
-                                        textAlign: "right",
-                                        paddingRight: "50px",
-                                    }}
-                                >
-                                    {`$${formatWithCommas(
-                                        filteredAccounts
-                                            .filter(
-                                                (account) =>
-                                                    account.accountCatagory
-                                                        .toLowerCase()
-                                                        .includes("asset") &&
-                                                    account.accountSubcatagory
-                                                        .toLowerCase()
-                                                        .includes("current") &&
-                                                    account.balance > 0
-                                            )
-                                            .reduce(
-                                                (total, account) => total + (account.balance || 0),
-                                                0
-                                            )
-                                            .toFixed(2)
-                                    )}`}
-                                </td>
+                                <td></td>
                             </tr>
                             {filteredAccounts
                                 .filter(
@@ -772,7 +761,96 @@ const BalanceSheet = () => {
                                         paddingLeft: "25px",
                                     }}
                                 >
+                                    Total Current Assets
+                                </td>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
+                                >
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("asset") &&
+                                                    account.accountSubcatagory
+                                                        .toLowerCase()
+                                                        .includes("current") &&
+                                                    account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
+                                >
                                     Non-Current Assets
+                                </td>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
+                                ></td>
+                            </tr>
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
+                                        account.accountCatagory.toLowerCase().includes("asset") &&
+                                        !account.accountSubcatagory
+                                            .toLowerCase()
+                                            .includes("current")
+                                )
+                                .sort((a, b) => a.accountNumber - b.accountNumber)
+                                .map((account, index) => (
+                                    <React.Fragment key={index}>
+                                        <tr>
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
+                                                {account.accountName}
+                                            </td>
+                                            <td
+                                                style={{
+                                                    padding: "20px 0",
+                                                    width: "200px",
+                                                    textAlign: "right", // Ensure text is right-aligned
+                                                    paddingRight: "250px", // Match the padding of Total Amount
+                                                }}
+                                            >
+                                                {account.balance > 0
+                                                    ? `$${formatWithCommas(
+                                                          account.balance.toFixed(2)
+                                                      )}`
+                                                    : `$${formatNegativeBalance(
+                                                          account.balance.toFixed(2)
+                                                      )}`}
+                                            </td>
+                                        </tr>
+                                    </React.Fragment>
+                                ))}
+                            <tr>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
+                                >
+                                    Total Non-Current Assets
                                 </td>
                                 <td
                                     style={{
@@ -791,8 +869,7 @@ const BalanceSheet = () => {
                                                         .includes("asset") &&
                                                     !account.accountSubcatagory
                                                         .toLowerCase()
-                                                        .includes("current") &&
-                                                    account.balance > 0
+                                                        .includes("current")
                                             )
                                             .reduce(
                                                 (total, account) => total + (account.balance || 0),
@@ -862,69 +939,6 @@ const BalanceSheet = () => {
                                         paddingLeft: "25px",
                                     }}
                                 >
-                                    Owners Equity
-                                </td>
-                                <td
-                                    style={{
-                                        fontWeight: "bold",
-                                        paddingLeft: "25px",
-                                        textAlign: "right",
-                                        paddingRight: "50px",
-                                    }}
-                                >
-                                    {`$${formatWithCommas(
-                                        filteredAccounts
-                                            .filter(
-                                                (account) =>
-                                                    account.accountCatagory
-                                                        .toLowerCase()
-                                                        .includes("equity") && account.balance > 0
-                                            )
-                                            .reduce(
-                                                (total, account) => total + (account.balance || 0),
-                                                0
-                                            )
-                                            .toFixed(2)
-                                    )}`}
-                                </td>
-                            </tr>
-                            {filteredAccounts
-                                .filter(
-                                    (account) =>
-                                        account.accountCatagory.toLowerCase().includes("equity") &&
-                                        account.balance > 0
-                                )
-                                .sort((a, b) => a.accountNumber - b.accountNumber)
-                                .map((account, index) => (
-                                    <React.Fragment key={index}>
-                                        <tr>
-                                            <td style={{ padding: "20px 50px", width: "600px" }}>
-                                                {account.accountName}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    padding: "20px 0",
-                                                    width: "200px",
-                                                    textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: "250px", // Match the padding of Total Amount
-                                                }}
-                                            >
-                                                {account.balance
-                                                    ? `$${formatWithCommas(
-                                                          account.balance.toFixed(2)
-                                                      )}`
-                                                    : "$0.00"}
-                                            </td>
-                                        </tr>
-                                    </React.Fragment>
-                                ))}
-                            <tr>
-                                <td
-                                    style={{
-                                        fontWeight: "bold",
-                                        paddingLeft: "25px",
-                                    }}
-                                >
                                     Current liabilities
                                 </td>
                                 <td
@@ -934,26 +948,7 @@ const BalanceSheet = () => {
                                         textAlign: "right",
                                         paddingRight: "50px",
                                     }}
-                                >
-                                    {`$${formatWithCommas(
-                                        filteredAccounts
-                                            .filter(
-                                                (account) =>
-                                                    account.accountCatagory
-                                                        .toLowerCase()
-                                                        .includes("liability") &&
-                                                    account.accountSubcatagory
-                                                        .toLowerCase()
-                                                        .includes("current") &&
-                                                    account.balance > 0
-                                            )
-                                            .reduce(
-                                                (total, account) => total + (account.balance || 0),
-                                                0
-                                            )
-                                            .toFixed(2)
-                                    )}`}
-                                </td>
+                                ></td>
                             </tr>
                             {filteredAccounts
                                 .filter(
@@ -997,7 +992,126 @@ const BalanceSheet = () => {
                                         paddingLeft: "25px",
                                     }}
                                 >
-                                    Total Equity & liabilities
+                                    Total Liabilities
+                                </td>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
+                                >
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("liability") &&
+                                                    account.accountSubcatagory
+                                                        .toLowerCase()
+                                                        .includes("current") &&
+                                                    account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
+                                >
+                                    Owners Equity
+                                </td>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
+                                ></td>
+                            </tr>
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
+                                        account.accountCatagory.toLowerCase().includes("equity")
+                                )
+                                .sort((a, b) => a.accountNumber - b.accountNumber)
+                                .map((account, index) => (
+                                    <React.Fragment key={index}>
+                                        <tr>
+                                            <td style={{ padding: "20px 50px", width: "600px" }}>
+                                                {account.accountName}
+                                            </td>
+                                            <td
+                                                style={{
+                                                    padding: "20px 0",
+                                                    width: "200px",
+                                                    textAlign: "right", // Ensure text is right-aligned
+                                                    paddingRight: "250px", // Match the padding of Total Amount
+                                                }}
+                                            >
+                                                {account.balance
+                                                    ? `$${formatWithCommas(
+                                                          account.balance.toFixed(2)
+                                                      )}`
+                                                    : "$0.00"}
+                                            </td>
+                                        </tr>
+                                    </React.Fragment>
+                                ))}
+                            <tr>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
+                                >
+                                    Total Equity
+                                </td>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                        textAlign: "right",
+                                        paddingRight: "50px",
+                                    }}
+                                >
+                                    {`$${formatWithCommas(
+                                        filteredAccounts
+                                            .filter(
+                                                (account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("equity") && account.balance > 0
+                                            )
+                                            .reduce(
+                                                (total, account) => total + (account.balance || 0),
+                                                0
+                                            )
+                                            .toFixed(2)
+                                    )}`}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "25px",
+                                    }}
+                                >
+                                    Total Liabilities & Equity
                                 </td>
                                 <td
                                     style={{
