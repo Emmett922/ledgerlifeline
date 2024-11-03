@@ -459,14 +459,16 @@ const Accounts = () => {
     const isDisabled2 = !newAccountCatagory;
 
     const isAddNewDisabled = !(
-        newAccountName &&
-        newAccountNumber &&
-        newAccountCatagory &&
-        newAccountDescription &&
-        newOrder &&
-        newComment &&
-        ((newAccountCatagory !== "Asset" && newAccountCatagory !== "Liability") ||
-            newAccountSubcatagory) // If "Asset" or "Liability", check for newAccountSubCatagory
+        (
+            newAccountName &&
+            newAccountNumber &&
+            newAccountCatagory &&
+            newAccountDescription &&
+            newOrder &&
+            newComment &&
+            ((newAccountCatagory !== "Asset" && newAccountCatagory !== "Liability") ||
+                newAccountSubcatagory)
+        ) // If "Asset" or "Liability", check for newAccountSubCatagory
     );
 
     const formatWithCommas = (value) => {
@@ -870,7 +872,7 @@ const Accounts = () => {
             const changes = [];
 
             if (!prevUpdate) {
-                // First update (latest one), treat as initial update
+                // Use currUpdate fields directly or "None" if not defined
                 changes.push(
                     {
                         field: "Account Number",
@@ -911,16 +913,22 @@ const Accounts = () => {
                     }
                 );
             } else {
-                // Compare each field between the current and previous update
+                // If a previous update exists, compare each field
                 const compareField = (field, displayName) => {
-                    const prevValue = prevUpdate[field] !== undefined ? prevUpdate[field] : "None";
-                    const currValue = currUpdate[field] !== undefined ? currUpdate[field] : "None";
+                    const prevValue = prevUpdate[field] !== undefined ? prevUpdate[field] : "None"; // Default to "None"
+                    const currValue = currUpdate[field] !== undefined ? currUpdate[field] : "None"; // Default to "None"
 
+                    // Only add to changes if they differ
                     if (prevValue !== currValue) {
-                        changes.push({ field: displayName, from: prevValue, to: currValue });
+                        changes.push({
+                            field: displayName,
+                            from: prevValue,
+                            to: currValue,
+                        });
                     }
                 };
 
+                // Compare fields
                 compareField("accountNumber", "Account Number");
                 compareField("accountName", "Account Name");
                 compareField("accountDescription", "Account Description");
@@ -934,12 +942,11 @@ const Accounts = () => {
                 compareField("statement", "Account Statement");
                 compareField("comment", "Account Comment");
 
-                // Special handling for isActive (true/false)
+                // Special handling for isActive
                 const prevIsActive =
-                    prevUpdate.isActive !== undefined ? prevUpdate.isActive : false;
+                    prevUpdate.isActive !== undefined ? prevUpdate.isActive : false; // Previous isActive value
                 const currIsActive =
-                    currUpdate.isActive !== undefined ? currUpdate.isActive : false;
-
+                    currUpdate.isActive !== undefined ? currUpdate.isActive : false; // Current isActive value
                 if (prevIsActive !== currIsActive) {
                     changes.push({
                         field: "Account Active Status",

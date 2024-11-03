@@ -34,6 +34,7 @@ const TrialBalance = () => {
     const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [expandedRow, setExpandedRow] = useState(null);
     const [normalSide, setNormalSide] = useState("");
+    const divRef = useRef(null);
 
     // -- Code for toggling the table in ascending and descending order -- //
     const [isDescending, setIsDescending] = useState(true); // State for sorting order
@@ -309,6 +310,33 @@ const TrialBalance = () => {
     const handlePostReferenceClick = (pr) => {
         localStorage.setItem("PR", JSON.stringify(pr));
         navigate("/account-ledger");
+    };
+
+    const handleGeneratePDF = async () => {
+        if (divRef.current) {
+            const htmlContent = divRef.current.innerHTML;
+
+            try {
+                // Send HTML content to api
+                const response = await fetch(`${API_URL}/files/generate-trial-balance`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        htmlContent,
+                    }),
+                });
+
+                if (response.formData.pdfUrl) {
+                    const pdfUrl = response.formData.pdfUrl;
+                    console.log("PDF is available at:", pdfUrl);
+                }
+                // Handle PDF download
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+            }
+        }
     };
 
     const content = (
@@ -713,6 +741,9 @@ const TrialBalance = () => {
                         </div>
                     </div>
                 </div>
+                <button className="action-button1" onClick={handleGeneratePDF}>
+                    Generate
+                </button>
             </main>
         </section>
     );

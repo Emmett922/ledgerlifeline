@@ -33,6 +33,7 @@ const IncomeStatement = () => {
     const [accountArray, setAccountArray] = useState([]);
     const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [expandedRow, setExpandedRow] = useState(null);
+    const divRef = useRef(null);
 
     // -- Code for toggling the table in ascending and descending order -- //
     const [isDescending, setIsDescending] = useState(true); // State for sorting order
@@ -445,6 +446,33 @@ const IncomeStatement = () => {
     // Usage in the component
     const netIncome = calculateNetIncome(filteredAccounts);
 
+    const handleGeneratePDF = async () => {
+        if (divRef.current) {
+            const htmlContent = divRef.current.innerHTML;
+
+            try {
+                // Send HTML content to api
+                const response = await fetch(`${API_URL}/files/generate-income-statement`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        htmlContent,
+                    }),
+                });
+
+                if (response.formData.pdfUrl) {
+                    const pdfUrl = response.formData.pdfUrl;
+                    console.log("PDF is available at:", pdfUrl);
+                }
+                // Handle PDF download
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+            }
+        }
+    };
+
     const content = (
         <section className="income-statement">
             <ToastContainer />
@@ -680,8 +708,7 @@ const IncomeStatement = () => {
                                         textAlign: "right",
                                         paddingRight: "50px",
                                     }}
-                                >
-                                </th>
+                                ></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -914,6 +941,9 @@ const IncomeStatement = () => {
                         </div>
                     </div>
                 </div>
+                <button className="action-button1" onClick={handleGeneratePDF}>
+                    Generate
+                </button>
             </main>
         </section>
     );

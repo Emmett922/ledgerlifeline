@@ -327,20 +327,6 @@ const BalanceSheet = () => {
         }
     }, [selectedAccount]);
 
-    const handleMinBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const minValue = parseFloat(input) / 100;
-
-        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
-    };
-
-    const handleMaxBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const maxValue = parseFloat(input) / 100;
-
-        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
-    };
-
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
@@ -468,6 +454,33 @@ const BalanceSheet = () => {
 
         // Return the formatted value with parentheses if it was originally negative
         return isNegative ? `(${formattedValue})` : formattedValue;
+    };
+
+    const handleGeneratePDF = async () => {
+        if (divRef.current) {
+            const htmlContent = divRef.current.innerHTML;
+
+            try {
+                // Send HTML content to api
+                const response = await fetch(`${API_URL}/files/generate-balance-sheet`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        htmlContent,
+                    }),
+                });
+
+                if (response.formData.pdfUrl) {
+                    const pdfUrl = response.formData.pdfUrl;
+                    console.log("PDF is available at:", pdfUrl);
+                }
+                // Handle PDF download
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+            }
+        }
     };
 
     const content = (
@@ -1042,9 +1055,8 @@ const BalanceSheet = () => {
                                 ></td>
                             </tr>
                             {filteredAccounts
-                                .filter(
-                                    (account) =>
-                                        account.accountCatagory.toLowerCase().includes("equity")
+                                .filter((account) =>
+                                    account.accountCatagory.toLowerCase().includes("equity")
                                 )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => (
@@ -1129,6 +1141,9 @@ const BalanceSheet = () => {
                         </tbody>
                     </table>
                 </div>
+                <button className="action-button1" onClick={handleGeneratePDF}>
+                    Generate
+                </button>
             </main>
         </section>
     );
