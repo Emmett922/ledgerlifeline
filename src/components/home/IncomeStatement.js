@@ -542,6 +542,7 @@ const IncomeStatement = () => {
                         className="sidebar-button"
                         title="Statement of Retained Earnings Page Link"
                         id="retained-earnings-link"
+                        to="/retained-earnings"
                     >
                         Statement of Retained Earnings
                     </Link>
