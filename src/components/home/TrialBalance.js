@@ -19,6 +19,7 @@ const TrialBalance = () => {
     const [fetchedAccount, setFetchedAccount] = useState("");
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
+    const [storedUserEmail, setStoredUserEmail] = useState("");
     const [storedPostReference, setStoredPostReference] = useState("");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
@@ -34,7 +35,9 @@ const TrialBalance = () => {
     const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [expandedRow, setExpandedRow] = useState(null);
     const [normalSide, setNormalSide] = useState("");
-    const divRef = useRef(null);
+    const trialBalanceRef = useRef(null);
+    const [isViewGeneratedFileVisible, setIsViewGeneratedFileVisible] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState("");
 
     // -- Code for toggling the table in ascending and descending order -- //
     const [isDescending, setIsDescending] = useState(true); // State for sorting order
@@ -63,6 +66,7 @@ const TrialBalance = () => {
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
+            setStoredUserEmail(storedUser.email);
         }
 
         if (storedUserRole === "Admin") {
@@ -313,8 +317,8 @@ const TrialBalance = () => {
     };
 
     const handleGeneratePDF = async () => {
-        if (divRef.current) {
-            const htmlContent = divRef.current.innerHTML;
+        if (trialBalanceRef.current) {
+            const htmlContent = trialBalanceRef.current.innerHTML;
 
             try {
                 // Send HTML content to api
@@ -328,14 +332,110 @@ const TrialBalance = () => {
                     }),
                 });
 
-                if (response.formData.pdfUrl) {
-                    const pdfUrl = response.formData.pdfUrl;
-                    console.log("PDF is available at:", pdfUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    setPdfUrl(data.pdfUrl);
                 }
                 // Handle PDF download
             } catch (error) {
                 console.error("Error generating PDF:", error);
             }
+            setIsViewGeneratedFileVisible(true);
+        }
+    };
+
+    const emailFinancialStatementFile = async () => {
+        const emailContent = {
+            userEmail: storedUserEmail,
+            pdfUrl,
+            statementType: "Trial Balance",
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/email/email-financial-statement`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ emailContent }),
+            });
+
+            if (response.ok) {
+                toast("Financial statement emailed successfully!", {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
+            }
+        } catch (error) {
+            console.error("Error emailing the file:", error);
+        }
+    };
+
+    const downloadFinancialStatementFile = async () => {
+        try {
+            // Call the backend download endpoint
+            const response = await fetch(`${API_URL}/files/download/${pdfUrl.split("/").pop()}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/pdf",
+                },
+            });
+
+            if (response.ok) {
+                const blob = await response.blob(); // Convert response to a Blob
+                const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+                const link = document.createElement("a"); // Create a link element
+                link.href = url;
+                link.download = `${pdfUrl.split("/").pop()}`; // Use filename from URL
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link); // Clean up
+                window.URL.revokeObjectURL(url); // Release URL
+            } else {
+                console.error("Failed to download PDF:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error downloading the file:", error);
+        }
+    };
+
+    const openAndPrintPDF = async () => {
+        if (!pdfUrl) {
+            console.error("PDF URL not set.");
+            return;
+        }
+
+        try {
+            // Fetch the PDF file
+            const response = await fetch(pdfUrl);
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch PDF.");
+            }
+
+            // Create a Blob from the response
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Open the Blob URL in a new window/tab to trigger printing
+            const printWindow = window.open(blobUrl);
+
+            printWindow.onload = () => {
+                // Wait for the PDF to load and then print
+                printWindow.print();
+                URL.revokeObjectURL(blobUrl); // Clean up the Blob URL
+            };
+        } catch (error) {
+            console.error("Error downloading and printing the PDF:", error);
         }
     };
 
@@ -512,7 +612,7 @@ const TrialBalance = () => {
                         </a>
                     </div>
                 </header>
-                <div className="account-ledger-table-container">
+                <div ref={trialBalanceRef} className="account-ledger-table-container">
                     <div
                         style={{
                             backgroundColor: "#007bff",
@@ -744,6 +844,104 @@ const TrialBalance = () => {
                 <button className="action-button1" onClick={handleGeneratePDF}>
                     Generate
                 </button>
+
+                {/* Pop-up modal to view the generated file */}
+                {isViewGeneratedFileVisible && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsViewGeneratedFileVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2 style={{ marginBottom: "10%" }}>Trial Balance File Generated</h2>
+                            <div
+                                className="main-button"
+                                style={{
+                                    marginBottom: "10%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <button
+                                    className="action-button1"
+                                    title="View the contents of the generated file"
+                                    style={{
+                                        width: "50%",
+                                        padding: "12px 0",
+                                        backgroundColor: "#d0d0d0", // Darker grey background
+                                        color: "black",
+                                        fontSize: "16px",
+                                        fontWeight: "bold",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                        textAlign: "center", // Ensures text is centered within the button
+                                    }}
+                                    onClick={() => window.open(pdfUrl, "_blank")}
+                                >
+                                    View File
+                                </button>
+                            </div>
+
+                            <div
+                                className="minor-buttons"
+                                style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+                            >
+                                <button
+                                    className="action-button1"
+                                    title="Download the file"
+                                    style={{
+                                        padding: "10px 20px",
+                                        fontSize: "14px",
+                                        backgroundColor: "#007bff",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={downloadFinancialStatementFile}
+                                >
+                                    Download
+                                </button>
+                                <button
+                                    className="action-button1"
+                                    title="Email the file to yourself"
+                                    style={{
+                                        padding: "10px 20px",
+                                        fontSize: "14px",
+                                        backgroundColor: "#007bff",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={emailFinancialStatementFile}
+                                >
+                                    Email
+                                </button>
+                                <button
+                                    className="action-button1"
+                                    title="Print the file"
+                                    style={{
+                                        padding: "10px 20px",
+                                        fontSize: "14px",
+                                        backgroundColor: "#007bff",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={openAndPrintPDF}
+                                >
+                                    Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </section>
     );

@@ -167,6 +167,7 @@ const Login = () => {
                     last_name: userDetails.last_name,
                     username: userDetails.username,
                     role: userDetails.role,
+                    email: userDetails.email,
                     active: userDetails.active,
                     passwordExpiration: userDetails.password
                         ? userDetails.password.expiresAt
