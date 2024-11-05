@@ -1172,6 +1172,7 @@ const Journalize = () => {
                                                             ? () => handleStatusClick(entry)
                                                             : null
                                                     }
+                                                    title={entry.status === "Pending" ? "Approve or deny the journal entry" : ""}
                                                 >
                                                     {entry.status === "Rejected"
                                                         ? "Denied"
@@ -2806,6 +2807,7 @@ const Journalize = () => {
                                                             setJournalType(event.target.value);
                                                         }}
                                                         required
+                                                        title="Select Journal Entry Type"
                                                     >
                                                         <option value="" disabled>
                                                             Select Type

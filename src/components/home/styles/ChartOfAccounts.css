@@ -24,7 +24,8 @@ body {
 .journalize,
 .trial-balance,
 .income-statement,
-.balance-sheet {
+.balance-sheet,
+.retained-earnings {
     display: flex;
     width: 100%;
     max-width: 1550px;
@@ -35,7 +36,8 @@ body {
 .journalize .main-content,
 .trial-balance .main-content,
 .income-statement .main-content,
-.balance-sheet .main-content {
+.balance-sheet .main-content,
+.retained-earnings .main-content {
     width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
@@ -50,7 +52,8 @@ body {
 .journalize .header,
 .trial-balance .header,
 .income-statement .header,
-.balance-sheet .header {
+.balance-sheet .header,
+.retained-earnings .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -60,7 +63,8 @@ body {
 .journalize .header-main,
 .trial-balance .header-main,
 .income-statement .header-main,
-.balance-sheet .header-main {
+.balance-sheet .header-main,
+.retained-earnings .header-main {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -78,7 +82,8 @@ body {
 .journalize .header-title,
 .trial-balance .header-title,
 .income-statement .header-title,
-.balance-sheet .header-title {
+.balance-sheet .header-title,
+.retained-earnings .header-title {
     font-size: 2em;
     display: flex;
     align-items: center;
@@ -170,6 +175,10 @@ body {
 .action-button1:hover
 .email-btn:hover {
     background-color: #1c4a7c;
+}
+
+.action-button1:disabled:hover {
+    background-color: #858484;
 }
 
 .action-button2 {
@@ -267,6 +276,10 @@ body {
     cursor: pointer;
     text-decoration: none;
     font-size: 1em;
+}
+
+.account .link-button.accNum {
+    text-decoration: underline;
 }
 
 .account .account-role-link,

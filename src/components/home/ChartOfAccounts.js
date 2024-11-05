@@ -1211,18 +1211,18 @@ const Accounts = () => {
                                 <FontAwesomeIcon icon={faEnvelope} size="lg" />
                             </button>
                             <button
-                                onClick={toggleCalculator}
-                                style={{ background: "none", border: "none", cursor: "pointer" }}
-                                title="Open/Close pop-up calculator"
-                            >
-                                <FontAwesomeIcon icon={faCalculator} size="2x" />
-                            </button>
-                            <button
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calendar"
                             >
                                 <FontAwesomeIcon icon={faCalendar} size="2x" />
+                            </button>
+                            <button
+                                onClick={toggleCalculator}
+                                style={{ background: "none", border: "none", cursor: "pointer" }}
+                                title="Open/Close pop-up calculator"
+                            >
+                                <FontAwesomeIcon icon={faCalculator} size="2x" />
                             </button>
                         </div>
                     )}
@@ -1385,7 +1385,7 @@ const Accounts = () => {
                                     <tr key={index}>
                                         <td id="accountNumber">
                                             <button
-                                                className="link-button"
+                                                className="link-button accNum"
                                                 title="View account details"
                                                 onClick={() => {
                                                     setSelectedAccount(account);

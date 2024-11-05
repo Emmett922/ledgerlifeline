@@ -38,10 +38,8 @@ const RetainedEarnings = () => {
     const retainedEarningsRef = useRef(null);
     const [isViewGeneratedFileVisible, setIsViewGeneratedFileVisible] = useState(false);
     const [pdfUrl, setPdfUrl] = useState("");
-
-    // -- Code for toggling the table in ascending and descending order -- //
-    const [isDescending, setIsDescending] = useState(true); // State for sorting order
-
+    const [asOfDate, setAsOfDate] = useState("");
+    const isTableEnabled = asOfDate;
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
@@ -392,6 +390,14 @@ const RetainedEarnings = () => {
         return `${formattedInteger}.${decimalPart}`;
     };
 
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+
+        if (name === "as-of-date") {
+            setAsOfDate(value);
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/"); // Redirect to login
@@ -405,29 +411,46 @@ const RetainedEarnings = () => {
         setShowCalculator(!showCalculator);
     };
 
-    const toggleRow = (index) => {
-        // Toggle the expanded state for the clicked row
-        setExpandedRow(expandedRow === index ? null : index);
+    // Helper function to convert a date to "YYYY-MM-DD" format
+    const formatDateString = (date) => {
+        const dateObj = new Date(date); // Ensure date is a Date object
+        if (isNaN(dateObj)) {
+            console.error("Invalid date encountered:", date);
+            return null;
+        }
+        // Format date to "YYYY-MM-DD"
+        return dateObj.toISOString().split("T")[0];
     };
 
-    const getLastDayOfMonth = () => {
-        const date = new Date();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        return lastDay.toLocaleDateString(); // Format the date as needed
-    };
+    // Function to find the closest balance based on asOfDate
+    const findClosestBalance = (journalEntries, asOfDate) => {
+        const asOfDateString = formatDateString(asOfDate);
 
-    const handlePostReferenceClick = (pr) => {
-        localStorage.setItem("PR", JSON.stringify(pr));
-        navigate("/journalize");
+        if (!asOfDateString) {
+            console.error("Invalid asOfDate provided:", asOfDate);
+            return 0;
+        }
+
+        console.log("Formatted asOfDate:", asOfDateString);
+
+        // Filter entries with dates less than or equal to the asOfDateString
+        const validEntries = journalEntries
+            .filter((entry) => {
+                const entryDateString = formatDateString(entry.date);
+                console.log("Entry date:", entryDateString, "CurrBalance:", entry.currBalance);
+
+                return entryDateString && entryDateString <= asOfDateString;
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
+
+        // Log sorted valid entries for debugging
+        console.log("Filtered and sorted entries:", validEntries);
+
+        // Get the closest entry's currBalance, take its absolute value if available, or default to 0 if none found
+        return validEntries.length > 0 ? Math.abs(validEntries[0].currBalance) : 0;
     };
 
     const calculateNetIncome = (accounts) => {
-        // Helper function to safely get balance as a number
-        const getBalance = (account) => {
-            const balance = account.balance || 0; // Default to 0 if undefined
-            return typeof balance === "number" ? balance : 0; // Ensure it's a number
-        };
-
         // Calculate total revenue
         const totalRevenue = accounts
             .filter(
@@ -435,12 +458,12 @@ const RetainedEarnings = () => {
                     account.accountName.toLowerCase().includes("revenue") &&
                     !account.accountName.toLowerCase().includes("unearned")
             )
-            .reduce((total, account) => total + getBalance(account), 0);
+            .reduce((total, account) => total + findClosestBalance(account.journalEntries, asOfDate), 0);
 
         // Calculate total expenses
         const totalExpenses = accounts
             .filter((account) => account.accountName.toLowerCase().includes("expense"))
-            .reduce((total, account) => total + getBalance(account), 0);
+            .reduce((total, account) => total + findClosestBalance(account.journalEntries, asOfDate), 0);
 
         // Calculate net income
         const netIncome = totalRevenue - totalExpenses;
@@ -575,7 +598,7 @@ const RetainedEarnings = () => {
     };
 
     const content = (
-        <section className="income-statement">
+        <section className="retained-earnings">
             <ToastContainer />
             {/* Side nav for accountand && manager */}
             <aside className="sidebar accountant">
@@ -789,140 +812,165 @@ const RetainedEarnings = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            For the period ending {getLastDayOfMonth()}{" "}
-                            {/* Needs to change to end of month */}
+                            As of
+                            <input
+                                type="date"
+                                id="as-of-date"
+                                name="as-of-date"
+                                value={asOfDate}
+                                onChange={handleInputChange}
+                                required
+                                title="Chose as of date"
+                                style={{
+                                    borderRadius: "5px",
+                                    background: "none",
+                                    marginLeft: "5px",
+                                    fontSize: "18px",
+                                    textAlign: "center",
+                                    border: "2px solid",
+                                    filter: "invert(1)",
+                                }}
+                            />
                         </div>
                     </div>
 
-                    {/* Flexbox for Total Revenue and Total Balance aligned to table columns */}
-                    <div
-                        className="total-amount-container"
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginTop: "20px",
-                        }}
-                    >
+                    {isTableEnabled && (
                         <div
-                            className="total-amount"
+                            className="total-amount-container"
                             style={{
-                                textAlign: "right",
-                                width: "85%",
-                                paddingRight: "50px",
-                                marginBottom: "20px",
-                                fontWeight: "bold",
+                                display: "flex",
+                                flexDirection: "column",
+                                marginTop: "20px",
                             }}
                         >
-                            Total Amount
+                            <div
+                                className="total-amount"
+                                style={{
+                                    textAlign: "right",
+                                    width: "85%",
+                                    paddingRight: "50px",
+                                    marginBottom: "20px",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Total Amount
+                            </div>
+
+                            {filteredAccounts
+                                .filter(
+                                    (account) =>
+                                        account.accountName.toLowerCase().includes("retained") &&
+                                        account.accountName.toLowerCase().includes("earnings")
+                                )
+                                .map((account, index) => {
+                                    // Calculate ending balance
+                                    const beginningBalance = account.initialBalance || 0;
+                                    const netIncomeValue = netIncome || 0;
+                                    const drawings = account.initialBalance || 0; // Adjust if there is a specific drawings field
+                                    const endingBalance =
+                                        beginningBalance + netIncomeValue - drawings;
+
+                                    return (
+                                        <React.Fragment key={index}>
+                                            {/* Beginning Balance */}
+                                            <div
+                                                className="balance-row"
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    width: "85%",
+                                                    padding: "10px 50px",
+                                                }}
+                                            >
+                                                <div className="label">Beginning Balance:</div>
+                                                <div
+                                                    className="value"
+                                                    style={{
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    {`$${formatWithCommas(
+                                                        beginningBalance.toFixed(2)
+                                                    )}`}
+                                                </div>
+                                            </div>
+
+                                            {/* Net Income */}
+                                            <div
+                                                className="balance-row"
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    width: "85%",
+                                                    padding: "10px 50px",
+                                                }}
+                                            >
+                                                <div className="label">Net Income:</div>
+                                                <div
+                                                    className="value"
+                                                    style={{
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    {`$${formatWithCommas(netIncome)}`}
+                                                </div>
+                                            </div>
+
+                                            {/* Less Drawings */}
+                                            <div
+                                                className="balance-row"
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    width: "85%",
+                                                    padding: "10px 50px",
+                                                }}
+                                            >
+                                                <div className="label">Less Drawings:</div>
+                                                <div
+                                                    className="value"
+                                                    style={{
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    {`$${formatWithCommas(drawings.toFixed(2))}`}
+                                                </div>
+                                            </div>
+
+                                            {/* Ending Balance */}
+                                            <div
+                                                className="balance-row"
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    width: "85%",
+                                                    padding: "10px 50px",
+                                                }}
+                                            >
+                                                <div className="label">Ending Balance:</div>
+                                                <div
+                                                    className="value"
+                                                    style={{
+                                                        fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    {`$${formatWithCommas(
+                                                        endingBalance.toFixed(2)
+                                                    )}`}
+                                                </div>
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })}
                         </div>
-
-                        {filteredAccounts
-                            .filter(
-                                (account) =>
-                                    account.accountName.toLowerCase().includes("retained") &&
-                                    account.accountName.toLowerCase().includes("earnings")
-                            )
-                            .map((account, index) => {
-                                // Calculate ending balance
-                                const beginningBalance = account.initialBalance || 0;
-                                const netIncomeValue = netIncome || 0;
-                                const drawings = account.initialBalance || 0; // Adjust if there is a specific drawings field
-                                const endingBalance = beginningBalance + netIncomeValue - drawings;
-
-                                return (
-                                    <React.Fragment key={index}>
-                                        {/* Beginning Balance */}
-                                        <div
-                                            className="balance-row"
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                width: "85%",
-                                                padding: "10px 50px",
-                                            }}
-                                        >
-                                            <div className="label">Beginning Balance:</div>
-                                            <div
-                                                className="value"
-                                                style={{
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                {`$${formatWithCommas(
-                                                    beginningBalance.toFixed(2)
-                                                )}`}
-                                            </div>
-                                        </div>
-
-                                        {/* Net Income */}
-                                        <div
-                                            className="balance-row"
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                width: "85%",
-                                                padding: "10px 50px",
-                                            }}
-                                        >
-                                            <div className="label">Net Income:</div>
-                                            <div
-                                                className="value"
-                                                style={{
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                {`$${formatWithCommas(netIncome)}`}
-                                            </div>
-                                        </div>
-
-                                        {/* Less Drawings */}
-                                        <div
-                                            className="balance-row"
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                width: "85%",
-                                                padding: "10px 50px",
-                                            }}
-                                        >
-                                            <div className="label">Less Drawings:</div>
-                                            <div
-                                                className="value"
-                                                style={{
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                {`$${formatWithCommas(drawings.toFixed(2))}`}
-                                            </div>
-                                        </div>
-
-                                        {/* Ending Balance */}
-                                        <div
-                                            className="balance-row"
-                                            style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                width: "85%",
-                                                padding: "10px 50px",
-                                            }}
-                                        >
-                                            <div className="label">Ending Balance:</div>
-                                            <div
-                                                className="value"
-                                                style={{
-                                                    fontWeight: "bold",
-                                                }}
-                                            >
-                                                {`$${formatWithCommas(endingBalance.toFixed(2))}`}
-                                            </div>
-                                        </div>
-                                    </React.Fragment>
-                                );
-                            })}
-                    </div>
+                    )}
                 </div>
-                <button className="action-button1" onClick={handleGeneratePDF}>
-                    Generate
+                <button
+                    className="action-button1"
+                    onClick={handleGeneratePDF}
+                    disabled={!isTableEnabled}
+                >
+                    Generate Document
                 </button>
 
                 {/* Pop-up modal to view the generated file */}
@@ -936,7 +984,9 @@ const RetainedEarnings = () => {
                             >
                                 &times;
                             </span>
-                            <h2 style={{ marginBottom: "10%" }}>Trial Balance File Generated</h2>
+                            <h2 style={{ marginBottom: "10%" }}>
+                                Statement of Retained Earnings File Generated
+                            </h2>
                             <div
                                 className="main-button"
                                 style={{

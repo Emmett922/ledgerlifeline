@@ -154,6 +154,7 @@ body {
 .trial-balance #trial-balance-link,
 .income-statement #income-statement-link,
 .balance-sheet #balance-sheet-link,
+.retained-earnings #retained-earnings-link,
 .eventLogs #event-log-link {
     background-color: #1c4a7c;
 }

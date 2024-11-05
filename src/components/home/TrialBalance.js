@@ -38,9 +38,9 @@ const TrialBalance = () => {
     const trialBalanceRef = useRef(null);
     const [isViewGeneratedFileVisible, setIsViewGeneratedFileVisible] = useState(false);
     const [pdfUrl, setPdfUrl] = useState("");
-
-    // -- Code for toggling the table in ascending and descending order -- //
-    const [isDescending, setIsDescending] = useState(true); // State for sorting order
+    const [trialBalanceType, setTrialBalanceType] = useState("Regular");
+    const [asOfDate, setAsOfDate] = useState("");
+    const isTableEnabled = trialBalanceType && asOfDate;
 
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -292,6 +292,16 @@ const TrialBalance = () => {
         return `${formattedInteger}.${decimalPart}`;
     };
 
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+
+        if (name === "trialBalanceType") {
+            setTrialBalanceType(value);
+        } else if (name === "as-of-date") {
+            setAsOfDate(value);
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/"); // Redirect to login
@@ -303,12 +313,6 @@ const TrialBalance = () => {
 
     const toggleCalculator = () => {
         setShowCalculator(!showCalculator);
-    };
-
-    const getLastDayOfMonth = () => {
-        const date = new Date();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        return lastDay.toLocaleDateString(); // Format the date as needed
     };
 
     const handlePostReferenceClick = (pr) => {
@@ -437,6 +441,45 @@ const TrialBalance = () => {
         } catch (error) {
             console.error("Error downloading and printing the PDF:", error);
         }
+    };
+
+    // Helper function to convert a date to "YYYY-MM-DD" format
+    const formatDateString = (date) => {
+        const dateObj = new Date(date); // Ensure date is a Date object
+        if (isNaN(dateObj)) {
+            console.error("Invalid date encountered:", date);
+            return null;
+        }
+        // Format date to "YYYY-MM-DD"
+        return dateObj.toISOString().split("T")[0];
+    };
+
+    // Function to find the closest balance based on asOfDate
+    const findClosestBalance = (journalEntries, asOfDate) => {
+        const asOfDateString = formatDateString(asOfDate);
+
+        if (!asOfDateString) {
+            console.error("Invalid asOfDate provided:", asOfDate);
+            return 0;
+        }
+
+        console.log("Formatted asOfDate:", asOfDateString);
+
+        // Filter entries with dates less than or equal to the asOfDateString
+        const validEntries = journalEntries
+            .filter((entry) => {
+                const entryDateString = formatDateString(entry.date);
+                console.log("Entry date:", entryDateString, "CurrBalance:", entry.currBalance);
+
+                return entryDateString && entryDateString <= asOfDateString;
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
+
+        // Log sorted valid entries for debugging
+        console.log("Filtered and sorted entries:", validEntries);
+
+        // Get the closest entry's currBalance, take its absolute value if available, or default to 0 if none found
+        return validEntries.length > 0 ? Math.abs(validEntries[0].currBalance) : 0;
     };
 
     const content = (
@@ -643,6 +686,36 @@ const TrialBalance = () => {
                                 marginTop: "10px",
                             }}
                         >
+                            <select
+                                id="trialBalanceType"
+                                name="trialBalanceType"
+                                value={trialBalanceType}
+                                onChange={handleInputChange}
+                                required
+                                title="Select Trial Balance Type"
+                                style={{
+                                    borderRadius: "5px",
+                                    background: "none",
+                                    color: "white",
+                                    marginRight: "5px",
+                                    fontSize: "18px",
+                                    textAlign: "center",
+                                    border: "2px white solid",
+                                }}
+                            >
+                                <option value="" disabled>
+                                    Select Type
+                                </option>
+                                <option value="Regular" style={{ color: "black" }}>
+                                    Regular
+                                </option>
+                                <option value="Adjusted" style={{ color: "black" }}>
+                                    Adjusted
+                                </option>
+                                <option value="Post-Closing" style={{ color: "black" }}>
+                                    Post-Closing
+                                </option>
+                            </select>
                             Trial Balance
                         </div>
                         <div
@@ -653,196 +726,266 @@ const TrialBalance = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            For the period ending {getLastDayOfMonth()}{" "}
-                            {/* Needs to change to end of month */}
+                            As of
+                            <input
+                                type="date"
+                                id="as-of-date"
+                                name="as-of-date"
+                                value={asOfDate}
+                                onChange={handleInputChange}
+                                required
+                                title="Chose as of date"
+                                style={{
+                                    borderRadius: "5px",
+                                    background: "none",
+                                    marginLeft: "5px",
+                                    fontSize: "18px",
+                                    textAlign: "center",
+                                    border: "2px solid",
+                                    filter: "invert(1)",
+                                }}
+                            />
                         </div>
                     </div>
-                    <table className="account-ledger-table">
-                        <thead>
-                            <tr>
-                                <th
-                                    style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                        fontSize: "22px",
-                                    }}
-                                >
-                                    Accounts
-                                </th>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredAccounts
-                                .sort((a, b) => a.accountNumber - b.accountNumber)
-                                .map((account, index) => (
-                                    <React.Fragment key={index}>
-                                        <tr>
-                                            <td style={{ padding: "20px 50px", width: "600px" }}>
-                                                <span>
-                                                    {/* Make the account number clickable and trigger navigation */}
-                                                    <span
-                                                        style={{
-                                                            color: "#007bff",
-                                                            cursor: "pointer",
-                                                        }}
-                                                        onClick={() => {
-                                                            handlePostReferenceClick(
-                                                                account.accountNumber
-                                                            );
-                                                        }}
-                                                        title="Navigate to Account's Ledger"
-                                                    >
-                                                        {account.accountNumber}
-                                                    </span>
-                                                    {" - "}{" "}
-                                                    {/* Separator between account number and name */}
-                                                    <span>{account.accountName}</span>
-                                                </span>
-                                            </td>
-                                            {/* If the account's normal side is "L" (Debit), display balance and an empty cell */}
-                                            {account.normalSide === "L" && account.balance >= 0 ? (
-                                                <>
-                                                    <td
-                                                        style={{
-                                                            padding: "20px 0",
-                                                            width: "200px",
-                                                            textAlign: "right",
-                                                            paddingRight: "250px",
-                                                        }}
-                                                    >
-                                                        <div>
-                                                            $
-                                                            {formatWithCommas(
-                                                                account.balance.toFixed(2)
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    {/* Empty cell for alignment */}
-                                                    <td style={{ width: "200px" }}></td>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {/* Empty cell for Debit side when normalSide is not "L" */}
-                                                    <td style={{ width: "200px" }}>{""}</td>
-                                                    <td
-                                                        colSpan={2}
-                                                        style={{
-                                                            padding: "20px 0",
-                                                            width: "200px",
-                                                            textAlign: "right",
-                                                            paddingRight: "250px",
-                                                        }}
-                                                    >
-                                                        {account.normalSide === "L" ? (
-                                                            <div>
-                                                                $
-                                                                {formatWithCommas(
-                                                                    (account.balance * -1).toFixed(
-                                                                        2
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <div>
-                                                                $
-                                                                {formatWithCommas(
-                                                                    account.balance.toFixed(2)
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                </>
-                                            )}
-                                        </tr>
-                                    </React.Fragment>
-                                ))}
-                        </tbody>
-                    </table>
 
-                    {/* Flexbox for Total Revenue and Total Balance aligned to table columns */}
-                    <div
-                        className="total-balance-container"
-                        style={{
-                            display: "flex",
-                            backgroundColor: "light gray",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                            marginTop: "20px",
-                            paddingBottom: "10px",
-                        }}
-                    >
+                    {isTableEnabled && (
+                        <table className="account-ledger-table">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            fontSize: "22px",
+                                        }}
+                                    >
+                                        Accounts
+                                    </th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredAccounts
+                                    .sort((a, b) => a.accountNumber - b.accountNumber)
+                                    .map((account, index) => (
+                                        <React.Fragment key={index}>
+                                            <tr>
+                                                <td
+                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                >
+                                                    <span>
+                                                        {/* Make the account number clickable and trigger navigation */}
+                                                        <span
+                                                            style={{
+                                                                color: "#007bff",
+                                                                cursor: "pointer",
+                                                            }}
+                                                            onClick={() => {
+                                                                handlePostReferenceClick(
+                                                                    account.accountNumber
+                                                                );
+                                                            }}
+                                                            title="Navigate to Account's Ledger"
+                                                        >
+                                                            {account.accountNumber}
+                                                        </span>
+                                                        {" - "}{" "}
+                                                        {/* Separator between account number and name */}
+                                                        <span>{account.accountName}</span>
+                                                    </span>
+                                                </td>
+                                                {/* If the account's normal side is "L" (Debit), display balance and an empty cell */}
+                                                {account.normalSide === "L" &&
+                                                findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) >= 0 ? (
+                                                    <>
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px",
+                                                            }}
+                                                        >
+                                                            <div>
+                                                                $
+                                                                {formatWithCommas(
+                                                                    findClosestBalance(
+                                                                        account.journalEntries,
+                                                                        asOfDate
+                                                                    ).toFixed(2)
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        {/* Empty cell for alignment */}
+                                                        <td style={{ width: "200px" }}></td>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {/* Empty cell for Debit side when normalSide is not "L" */}
+                                                        <td style={{ width: "200px" }}>{""}</td>
+                                                        <td
+                                                            colSpan={2}
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px",
+                                                            }}
+                                                        >
+                                                            {account.normalSide === "L" ? (
+                                                                <div>
+                                                                    $
+                                                                    {formatWithCommas(
+                                                                        findClosestBalance(
+                                                                            account.journalEntries,
+                                                                            asOfDate
+                                                                        ).toFixed(2)
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <div>
+                                                                    $
+                                                                    {formatWithCommas(
+                                                                        findClosestBalance(
+                                                                            account.journalEntries,
+                                                                            asOfDate
+                                                                        ).toFixed(2)
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    </>
+                                                )}
+                                            </tr>
+                                        </React.Fragment>
+                                    ))}
+                            </tbody>
+                        </table>
+                    )}
+
+                    {isTableEnabled && (
                         <div
-                            className="total-balance"
+                            className="total-balance-container"
                             style={{
-                                width: "600px",
-                                textAlign: "left",
-                                paddingLeft: "50px",
+                                display: "flex",
+                                backgroundColor: "light gray",
+                                alignItems: "center",
+                                fontWeight: "bold",
+                                marginTop: "20px",
+                                paddingBottom: "10px",
                             }}
                         >
-                            Total:
+                            <div
+                                className="total-balance"
+                                style={{
+                                    width: "600px",
+                                    textAlign: "left",
+                                    paddingLeft: "50px",
+                                }}
+                            >
+                                Total:
+                            </div>
+                            <div
+                                className="total-debit"
+                                style={{
+                                    textAlign: "right", // Aligns text to the right for consistency with Debit column
+                                    width: "200px",
+                                    paddingRight: "330px", // Matches the Debit column's paddingRight
+                                    textDecoration: "double underline",
+                                    textUnderlineOffset: "3px",
+                                }}
+                            >
+                                {`$${formatWithCommas(
+                                    filteredAccounts
+                                        .filter(
+                                            (account) =>
+                                                (account.normalSide === "L" &&
+                                                    findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    ) > 0) ||
+                                                (account.normalSide === "R" &&
+                                                    findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    ) < 0)
+                                        )
+                                        .reduce(
+                                            (total, account) =>
+                                                total +
+                                                (account.normalSide === "R"
+                                                    ? Math.abs(
+                                                          findClosestBalance(
+                                                              account.journalEntries,
+                                                              asOfDate
+                                                          )
+                                                      )
+                                                    : findClosestBalance(
+                                                          account.journalEntries,
+                                                          asOfDate
+                                                      )),
+                                            0
+                                        )
+                                        .toFixed(2)
+                                )}`}
+                            </div>
+                            <div
+                                className="total-credit"
+                                style={{
+                                    textAlign: "right",
+                                    width: "200px",
+                                    paddingRight: "330px", // Ensures alignment for the Credit column
+                                    textDecoration: "double underline",
+                                    textUnderlineOffset: "3px",
+                                }}
+                            >
+                                {`$${formatWithCommas(
+                                    filteredAccounts
+                                        .filter(
+                                            (account) =>
+                                                (account.normalSide === "R" &&
+                                                    findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    ) < 0) ||
+                                                (account.normalSide === "L" &&
+                                                    findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    ) > 0)
+                                        )
+                                        .reduce(
+                                            (total, account) =>
+                                                total +
+                                                (account.normalSide === "R"
+                                                    ? Math.abs(
+                                                          findClosestBalance(
+                                                              account.journalEntries,
+                                                              asOfDate
+                                                          )
+                                                      )
+                                                    : findClosestBalance(
+                                                          account.journalEntries,
+                                                          asOfDate
+                                                      )),
+                                            0
+                                        )
+                                        .toFixed(2)
+                                )}`}
+                            </div>
                         </div>
-                        <div
-                            className="total-debit"
-                            style={{
-                                textAlign: "right", // Aligns text to the right for consistency with Debit column
-                                width: "200px",
-                                paddingRight: "330px", // Matches the Debit column's paddingRight
-                                textDecoration: "double underline",
-                                textUnderlineOffset: "3px",
-                            }}
-                        >
-                            {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter(
-                                        (account) =>
-                                            (account.normalSide === "L" && account.balance > 0) ||
-                                            (account.normalSide === "R" && account.balance < 0)
-                                    )
-                                    .reduce(
-                                        (total, account) =>
-                                            total +
-                                            (account.normalSide === "R"
-                                                ? Math.abs(account.balance)
-                                                : account.balance),
-                                        0
-                                    )
-                                    .toFixed(2)
-                            )}`}
-                        </div>
-                        <div
-                            className="total-credit"
-                            style={{
-                                textAlign: "right",
-                                width: "200px",
-                                paddingRight: "330px", // Ensures alignment for the Credit column
-                                textDecoration: "double underline",
-                                textUnderlineOffset: "3px",
-                            }}
-                        >
-                            {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter(
-                                        (account) =>
-                                            (account.normalSide === "R" && account.balance < 0) ||
-                                            (account.normalSide === "L" && account.balance > 0)
-                                    )
-                                    .reduce(
-                                        (total, account) =>
-                                            total +
-                                            (account.normalSide === "R"
-                                                ? Math.abs(account.balance)
-                                                : account.balance),
-                                        0
-                                    )
-                                    .toFixed(2)
-                            )}`}
-                        </div>
-                    </div>
+                    )}
                 </div>
-                <button className="action-button1" onClick={handleGeneratePDF}>
-                    Generate
+                <button
+                    className="action-button1"
+                    onClick={handleGeneratePDF}
+                    disabled={!isTableEnabled}
+                >
+                    Generate Document
                 </button>
 
                 {/* Pop-up modal to view the generated file */}

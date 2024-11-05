@@ -37,10 +37,8 @@ const IncomeStatement = () => {
     const incomeStatementRef = useRef(null);
     const [isViewGeneratedFileVisible, setIsViewGeneratedFileVisible] = useState(false);
     const [pdfUrl, setPdfUrl] = useState("");
-
-    // -- Code for toggling the table in ascending and descending order -- //
-    const [isDescending, setIsDescending] = useState(true); // State for sorting order
-
+    const [asOfDate, setAsOfDate] = useState("");
+    const isTableEnabled = asOfDate;
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
@@ -329,20 +327,6 @@ const IncomeStatement = () => {
         }
     }, [selectedAccount]);
 
-    const handleMinBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const minValue = parseFloat(input) / 100;
-
-        setMinBalance(minValue.toFixed(2)); // Set with two decimal places
-    };
-
-    const handleMaxBalanceChange = (event) => {
-        const input = event.target.value.replace(/\D/g, ""); // Remove non-digit characters
-        const maxValue = parseFloat(input) / 100;
-
-        setMaxBalance(maxValue.toFixed(2)); // Set with two decimal places
-    };
-
     const handleSearch = (query) => {
         const searchTerms = query.toLowerCase().split(/[\s,]+/); // Split by space or comma
 
@@ -391,6 +375,14 @@ const IncomeStatement = () => {
         return `${formattedInteger}.${decimalPart}`;
     };
 
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+
+        if (name === "as-of-date") {
+            setAsOfDate(value);
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         navigate("/"); // Redirect to login
@@ -404,29 +396,46 @@ const IncomeStatement = () => {
         setShowCalculator(!showCalculator);
     };
 
-    const toggleRow = (index) => {
-        // Toggle the expanded state for the clicked row
-        setExpandedRow(expandedRow === index ? null : index);
+    // Helper function to convert a date to "YYYY-MM-DD" format
+    const formatDateString = (date) => {
+        const dateObj = new Date(date); // Ensure date is a Date object
+        if (isNaN(dateObj)) {
+            console.error("Invalid date encountered:", date);
+            return null;
+        }
+        // Format date to "YYYY-MM-DD"
+        return dateObj.toISOString().split("T")[0];
     };
 
-    const getLastDayOfMonth = () => {
-        const date = new Date();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        return lastDay.toLocaleDateString(); // Format the date as needed
-    };
+    // Function to find the closest balance based on asOfDate
+    const findClosestBalance = (journalEntries, asOfDate) => {
+        const asOfDateString = formatDateString(asOfDate);
 
-    const handlePostReferenceClick = (pr) => {
-        localStorage.setItem("PR", JSON.stringify(pr));
-        navigate("/journalize");
+        if (!asOfDateString) {
+            console.error("Invalid asOfDate provided:", asOfDate);
+            return 0;
+        }
+
+        console.log("Formatted asOfDate:", asOfDateString);
+
+        // Filter entries with dates less than or equal to the asOfDateString
+        const validEntries = journalEntries
+            .filter((entry) => {
+                const entryDateString = formatDateString(entry.date);
+                console.log("Entry date:", entryDateString, "CurrBalance:", entry.currBalance);
+
+                return entryDateString && entryDateString <= asOfDateString;
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
+
+        // Log sorted valid entries for debugging
+        console.log("Filtered and sorted entries:", validEntries);
+
+        // Get the closest entry's currBalance, take its absolute value if available, or default to 0 if none found
+        return validEntries.length > 0 ? Math.abs(validEntries[0].currBalance) : 0;
     };
 
     const calculateNetIncome = (accounts) => {
-        // Helper function to safely get balance as a number
-        const getBalance = (account) => {
-            const balance = account.balance || 0; // Default to 0 if undefined
-            return typeof balance === "number" ? balance : 0; // Ensure it's a number
-        };
-
         // Calculate total revenue
         const totalRevenue = accounts
             .filter(
@@ -434,12 +443,18 @@ const IncomeStatement = () => {
                     account.accountName.toLowerCase().includes("revenue") &&
                     !account.accountName.toLowerCase().includes("unearned")
             )
-            .reduce((total, account) => total + getBalance(account), 0);
+            .reduce(
+                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
+                0
+            );
 
         // Calculate total expenses
         const totalExpenses = accounts
             .filter((account) => account.accountName.toLowerCase().includes("expense"))
-            .reduce((total, account) => total + getBalance(account), 0);
+            .reduce(
+                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
+                0
+            );
 
         // Calculate net income
         const netIncome = totalRevenue - totalExpenses;
@@ -788,262 +803,331 @@ const IncomeStatement = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            For the period ending {getLastDayOfMonth()}{" "}
-                            {/* Needs to change to end of month */}
+                            As of
+                            <input
+                                type="date"
+                                id="as-of-date"
+                                name="as-of-date"
+                                value={asOfDate}
+                                onChange={handleInputChange}
+                                required
+                                title="Chose as of date"
+                                style={{
+                                    borderRadius: "5px",
+                                    background: "none",
+                                    marginLeft: "5px",
+                                    fontSize: "18px",
+                                    textAlign: "center",
+                                    border: "2px solid",
+                                    filter: "invert(1)",
+                                }}
+                            />
                         </div>
                     </div>
-                    <table className="account-ledger-table">
-                        <thead>
-                            <tr>
-                                <th
-                                    style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                        fontSize: "22px",
-                                    }}
-                                >
-                                    Revenue
-                                </th>
-                                <th
-                                    style={{
-                                        textAlign: "right",
-                                        paddingRight: "50px",
-                                    }}
-                                ></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredAccounts
-                                .filter(
-                                    (account) =>
-                                        account.accountName.toLowerCase().includes("revenue") &&
-                                        !account.accountName.toLowerCase().includes("unearned")
-                                )
-                                .sort((a, b) => a.accountNumber - b.accountNumber)
-                                .map((account, index) => (
-                                    <React.Fragment key={index}>
-                                        <tr>
-                                            <td style={{ padding: "20px 50px", width: "600px" }}>
-                                                {account.accountName}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    padding: "20px 0",
-                                                    width: "200px",
-                                                    textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: "250px", // Match the padding of Total Amount
-                                                }}
-                                            >
-                                                {account.balance
-                                                    ? `$${formatWithCommas(
-                                                          account.balance.toFixed(2)
-                                                      )}`
-                                                    : "$0.00"}
-                                            </td>
-                                        </tr>
-                                    </React.Fragment>
-                                ))}
-                        </tbody>
-                    </table>
 
-                    {/* Flexbox for Total Revenue and Total Balance aligned to table columns */}
-                    <div
-                        className="total-revenue-container"
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                            marginTop: "20px",
-                        }}
-                    >
-                        <div
-                            className="total-revenue"
-                            style={{
-                                width: "600px",
-                                textAlign: "left",
-                                paddingLeft: "50px",
-                            }}
-                        >
-                            Total Revenue:
-                        </div>
-                        <div
-                            className="total-balance"
-                            style={{
-                                textAlign: "right",
-                                width: "200px",
-                                paddingRight: "50px",
-                                textDecoration: "underline",
-                                textUnderlineOffset: "3px",
-                            }}
-                        >
-                            {`$${formatWithCommas(
-                                filteredAccounts
+                    {isTableEnabled && (
+                        <table className="account-ledger-table">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            fontSize: "22px",
+                                        }}
+                                    >
+                                        Revenue
+                                    </th>
+                                    <th
+                                        style={{
+                                            textAlign: "right",
+                                            paddingRight: "50px",
+                                        }}
+                                    ></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredAccounts
                                     .filter(
                                         (account) =>
                                             account.accountName.toLowerCase().includes("revenue") &&
                                             !account.accountName.toLowerCase().includes("unearned")
                                     )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                            )}`}
-                        </div>
-                    </div>
-                    <table
-                        className="account-ledger-table"
-                        style={{
-                            marginTop: "10px",
-                        }}
-                    >
-                        <thead>
-                            <tr>
-                                <th
-                                    colSpan={2}
-                                    style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                        fontSize: "22px",
-                                    }}
-                                >
-                                    Expenses
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredAccounts
-                                .filter(
-                                    (account) =>
-                                        account.accountName.toLowerCase().includes("expense") &&
-                                        account.balance > 0
-                                )
-                                .sort((a, b) => a.accountNumber - b.accountNumber)
-                                .map((account, index) => (
-                                    <React.Fragment key={index}>
-                                        <tr>
-                                            <td style={{ padding: "20px 50px", width: "600px" }}>
-                                                {account.accountName}
-                                            </td>
-                                            <td
-                                                style={{
-                                                    padding: "20px 0",
-                                                    width: "200px",
-                                                    textAlign: "right", // Ensure text is right-aligned
-                                                    paddingRight: "250px", // Match the padding of Total Amount
-                                                }}
-                                            >
-                                                {account.balance
-                                                    ? `$${formatWithCommas(
-                                                          account.balance.toFixed(2)
-                                                      )}`
-                                                    : "$0.00"}
-                                            </td>
-                                        </tr>
-                                    </React.Fragment>
-                                ))}
-                        </tbody>
-                    </table>
+                                    .sort((a, b) => a.accountNumber - b.accountNumber)
+                                    .map((account, index) => (
+                                        <React.Fragment key={index}>
+                                            <tr>
+                                                <td
+                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                >
+                                                    {account.accountName}
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        padding: "20px 0",
+                                                        width: "200px",
+                                                        textAlign: "right", // Ensure text is right-aligned
+                                                        paddingRight: "250px", // Match the padding of Total Amount
+                                                    }}
+                                                >
+                                                    {findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    )
+                                                        ? `$${formatWithCommas(
+                                                              findClosestBalance(
+                                                                  account.journalEntries,
+                                                                  asOfDate
+                                                              ).toFixed(2)
+                                                          )}`
+                                                        : "$0.00"}
+                                                </td>
+                                            </tr>
+                                        </React.Fragment>
+                                    ))}
+                            </tbody>
+                        </table>
+                    )}
 
-                    {/* Flexbox for Total Expenses and Total Balance aligned to table columns */}
-                    <div
-                        className="total-expense-container"
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                            marginTop: "20px",
-                        }}
-                    >
+                    {isTableEnabled && (
                         <div
-                            className="total-expense"
+                            className="total-revenue-container"
                             style={{
-                                width: "600px",
-                                textAlign: "left",
-                                paddingLeft: "50px",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontWeight: "bold",
+                                marginTop: "20px",
                             }}
                         >
-                            Total Expenses:
+                            <div
+                                className="total-revenue"
+                                style={{
+                                    width: "600px",
+                                    textAlign: "left",
+                                    paddingLeft: "50px",
+                                }}
+                            >
+                                Total Revenue:
+                            </div>
+                            <div
+                                className="total-balance"
+                                style={{
+                                    textAlign: "right",
+                                    width: "200px",
+                                    paddingRight: "50px",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: "3px",
+                                }}
+                            >
+                                {`$${formatWithCommas(
+                                    filteredAccounts
+                                        .filter(
+                                            (account) =>
+                                                account.accountName
+                                                    .toLowerCase()
+                                                    .includes("revenue") &&
+                                                !account.accountName
+                                                    .toLowerCase()
+                                                    .includes("unearned")
+                                        )
+                                        .reduce(
+                                            (total, account) =>
+                                                total +
+                                                (findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) || 0),
+                                            0
+                                        )
+                                        .toFixed(2)
+                                )}`}
+                            </div>
                         </div>
-                        <div
-                            className="total-balance"
+                    )}
+
+                    {isTableEnabled && (
+                        <table
+                            className="account-ledger-table"
                             style={{
-                                textAlign: "right",
-                                width: "200px",
-                                paddingRight: "50px",
-                                textDecoration: "underline",
-                                textUnderlineOffset: "3px",
+                                marginTop: "10px",
                             }}
                         >
-                            {`$${formatWithCommas(
-                                filteredAccounts
-                                    .filter((account) =>
-                                        account.accountName.toLowerCase().includes("expense")
+                            <thead>
+                                <tr>
+                                    <th
+                                        colSpan={2}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            fontSize: "22px",
+                                        }}
+                                    >
+                                        Expenses
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredAccounts
+                                    .filter(
+                                        (account) =>
+                                            account.accountName.toLowerCase().includes("expense") &&
+                                            findClosestBalance(account.journalEntries, asOfDate) > 0
                                     )
-                                    .reduce((total, account) => total + (account.balance || 0), 0)
-                                    .toFixed(2)
-                            )}`}
-                        </div>
-                    </div>
-                    <table
-                        className="account-ledger-table"
-                        style={{
-                            marginTop: "10px",
-                        }}
-                    >
-                        <thead>
-                            <tr>
-                                <th
-                                    colSpan={2}
-                                    style={{
-                                        textAlign: "left",
-                                        fontWeight: "bold",
-                                        fontSize: "22px",
-                                    }}
-                                >
-                                    Net Income
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
+                                    .sort((a, b) => a.accountNumber - b.accountNumber)
+                                    .map((account, index) => (
+                                        <React.Fragment key={index}>
+                                            <tr>
+                                                <td
+                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                >
+                                                    {account.accountName}
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        padding: "20px 0",
+                                                        width: "200px",
+                                                        textAlign: "right", // Ensure text is right-aligned
+                                                        paddingRight: "250px", // Match the padding of Total Amount
+                                                    }}
+                                                >
+                                                    {findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    )
+                                                        ? `$${formatWithCommas(
+                                                              findClosestBalance(
+                                                                  account.journalEntries,
+                                                                  asOfDate
+                                                              ).toFixed(2)
+                                                          )}`
+                                                        : "$0.00"}
+                                                </td>
+                                            </tr>
+                                        </React.Fragment>
+                                    ))}
+                            </tbody>
+                        </table>
+                    )}
 
-                    {/* Flexbox for net income aligned to table columns */}
-                    <div
-                        className="total-revenue-container"
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            fontWeight: "bold",
-                            marginTop: "20px",
-                            paddingBottom: "10px",
-                        }}
-                    >
+                    {isTableEnabled && (
                         <div
-                            className="total-revenue"
+                            className="total-expense-container"
                             style={{
-                                width: "600px",
-                                textAlign: "left",
-                                paddingLeft: "50px",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontWeight: "bold",
+                                marginTop: "20px",
                             }}
                         >
-                            Total Income:
+                            <div
+                                className="total-expense"
+                                style={{
+                                    width: "600px",
+                                    textAlign: "left",
+                                    paddingLeft: "50px",
+                                }}
+                            >
+                                Total Expenses:
+                            </div>
+                            <div
+                                className="total-balance"
+                                style={{
+                                    textAlign: "right",
+                                    width: "200px",
+                                    paddingRight: "50px",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: "3px",
+                                }}
+                            >
+                                {`$${formatWithCommas(
+                                    filteredAccounts
+                                        .filter((account) =>
+                                            account.accountName.toLowerCase().includes("expense")
+                                        )
+                                        .reduce(
+                                            (total, account) =>
+                                                total +
+                                                (findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) || 0),
+                                            0
+                                        )
+                                        .toFixed(2)
+                                )}`}
+                            </div>
                         </div>
-                        <div
-                            className="total-balance"
+                    )}
+
+                    {isTableEnabled && (
+                        <table
+                            className="account-ledger-table"
                             style={{
-                                textAlign: "right",
-                                width: "200px",
-                                paddingRight: "50px",
-                                textDecoration: "double underline",
-                                textUnderlineOffset: "3px",
+                                marginTop: "10px",
                             }}
                         >
-                            {`$${formatWithCommas(netIncome)}`}
+                            <thead>
+                                <tr>
+                                    <th
+                                        colSpan={2}
+                                        style={{
+                                            textAlign: "left",
+                                            fontWeight: "bold",
+                                            fontSize: "22px",
+                                        }}
+                                    >
+                                        Net Income
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    )}
+
+                    {isTableEnabled && (
+                        <div
+                            className="total-revenue-container"
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontWeight: "bold",
+                                marginTop: "20px",
+                                paddingBottom: "10px",
+                            }}
+                        >
+                            <div
+                                className="total-revenue"
+                                style={{
+                                    width: "600px",
+                                    textAlign: "left",
+                                    paddingLeft: "50px",
+                                }}
+                            >
+                                Total Income:
+                            </div>
+                            <div
+                                className="total-balance"
+                                style={{
+                                    textAlign: "right",
+                                    width: "200px",
+                                    paddingRight: "50px",
+                                    textDecoration: "double underline",
+                                    textUnderlineOffset: "3px",
+                                }}
+                            >
+                                {`$${formatWithCommas(netIncome)}`}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
-                <button className="action-button1" onClick={handleGeneratePDF}>
-                    Generate
+                <button
+                    className="action-button1"
+                    onClick={handleGeneratePDF}
+                    disabled={!isTableEnabled}
+                >
+                    Generate Document
                 </button>
 
                 {/* Pop-up modal to view the generated file */}
@@ -1057,7 +1141,7 @@ const IncomeStatement = () => {
                             >
                                 &times;
                             </span>
-                            <h2 style={{ marginBottom: "10%" }}>Trial Balance File Generated</h2>
+                            <h2 style={{ marginBottom: "10%" }}>Income Statement File Generated</h2>
                             <div
                                 className="main-button"
                                 style={{
