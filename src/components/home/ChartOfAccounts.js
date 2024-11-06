@@ -865,9 +865,9 @@ const Accounts = () => {
         const changesList = [];
 
         // Loop through the array from the last element to the first
-        for (let i = allUpdates.length - 1; i >= 0; i--) {
+        for (let i = 0; i < allUpdates.length; i++) {
             const currUpdate = allUpdates[i];
-            const prevUpdate = i < allUpdates.length - 1 ? allUpdates[i + 1] : null; // Compare with the next update (older)
+            const prevUpdate = i > 0 ? allUpdates[i - 1] : null; // Compare with the next update
 
             const changes = [];
 

@@ -12,6 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import "react-toastify/dist/ReactToastify.css";
+import useLoading from "../bufferHandler/useLoading";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const TrialBalance = () => {
     // Function variables
@@ -41,7 +43,6 @@ const TrialBalance = () => {
     const [trialBalanceType, setTrialBalanceType] = useState("Regular");
     const [asOfDate, setAsOfDate] = useState("");
     const isTableEnabled = trialBalanceType && asOfDate;
-
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
@@ -52,6 +53,7 @@ const TrialBalance = () => {
             X
         </button>
     );
+    const { loading, withLoading } = useLoading();
 
     useEffect(() => {
         // Retrieve the user data from localStorage
@@ -320,7 +322,7 @@ const TrialBalance = () => {
         navigate("/account-ledger");
     };
 
-    const handleGeneratePDF = async () => {
+    const handleGeneratePDF = withLoading(async () => {
         if (trialBalanceRef.current) {
             const htmlContent = trialBalanceRef.current.innerHTML;
 
@@ -346,7 +348,7 @@ const TrialBalance = () => {
             }
             setIsViewGeneratedFileVisible(true);
         }
-    };
+    });
 
     const emailFinancialStatementFile = async () => {
         const emailContent = {
