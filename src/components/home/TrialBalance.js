@@ -982,13 +982,16 @@ const TrialBalance = () => {
                         </div>
                     )}
                 </div>
-                <button
+
+                {isTableEnabled && (
+                    <button
                     className="action-button1"
                     onClick={handleGeneratePDF}
                     disabled={!isTableEnabled}
                 >
                     Generate Document
                 </button>
+                )}
 
                 {/* Pop-up modal to view the generated file */}
                 {isViewGeneratedFileVisible && (

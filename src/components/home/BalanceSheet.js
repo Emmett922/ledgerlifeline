@@ -840,7 +840,7 @@ const BalanceSheet = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            As of
+                            For the period ending
                             <input
                                 type="date"
                                 id="as-of-date"
@@ -873,7 +873,7 @@ const BalanceSheet = () => {
                                             fontSize: "22px",
                                         }}
                                     >
-                                        Assests
+                                        Assets
                                     </th>
                                     <th
                                         style={{
@@ -1381,13 +1381,16 @@ const BalanceSheet = () => {
                         </table>
                     )}
                 </div>
-                <button
-                    className="action-button1"
-                    onClick={handleGeneratePDF}
-                    disabled={!isTableEnabled}
-                >
-                    Generate Document
-                </button>
+
+                {isTableEnabled && (
+                    <button
+                        className="action-button1"
+                        onClick={handleGeneratePDF}
+                        disabled={!isTableEnabled}
+                    >
+                        Generate Document
+                    </button>
+                )}
 
                 {/* Pop-up modal to view the generated file */}
                 {isViewGeneratedFileVisible && (

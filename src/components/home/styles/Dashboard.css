@@ -211,9 +211,9 @@ body {
 .dashboard .bottom-boxes .Quick-Ratio {
     width: 30%; /* Adjust this to control the box width */
     height: auto;
-    color: #25b800;
+    color: black;
     border-radius: 8px;
-    border: 5px solid #25b800;
+    border: 2px solid black;
     padding: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -229,6 +229,10 @@ body {
     font-size: 30px;
     font-weight: bold;
 }
+
+.ratio-num {
+    color: #1c7c26;
+}
   
 .dashboard .top-boxes:hover .Current-Ratio:hover, 
 .dashboard .top-boxes:hover .Return-Assets:hover, 
@@ -236,9 +240,9 @@ body {
 .dashboard .bottom-boxes:hover .Net-Profit:hover, 
 .dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
 .dashboard .bottom-boxes:hover .Quick-Ratio:hover {
-    background-color: #1c7c26;
-    border: 5px solid #1c7c26;
-    color: #fff;
+    border: 3px solid black;
+    color: black;
+    transform: scale(1.05);
 }
   
 @media (max-width: 768px) {

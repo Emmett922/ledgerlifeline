@@ -458,12 +458,18 @@ const RetainedEarnings = () => {
                     account.accountName.toLowerCase().includes("revenue") &&
                     !account.accountName.toLowerCase().includes("unearned")
             )
-            .reduce((total, account) => total + findClosestBalance(account.journalEntries, asOfDate), 0);
+            .reduce(
+                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
+                0
+            );
 
         // Calculate total expenses
         const totalExpenses = accounts
             .filter((account) => account.accountName.toLowerCase().includes("expense"))
-            .reduce((total, account) => total + findClosestBalance(account.journalEntries, asOfDate), 0);
+            .reduce(
+                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
+                0
+            );
 
         // Calculate net income
         const netIncome = totalRevenue - totalExpenses;
@@ -812,7 +818,7 @@ const RetainedEarnings = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            As of
+                            For the period ending
                             <input
                                 type="date"
                                 id="as-of-date"
@@ -905,11 +911,13 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Net Income:</div>
+                                                <div className="label">Add Net Income:</div>
                                                 <div
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                        textDecoration: "underline",
+                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(netIncome)}`}
@@ -931,6 +939,8 @@ const RetainedEarnings = () => {
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                        textDecoration: "underline",
+                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(drawings.toFixed(2))}`}
@@ -965,13 +975,16 @@ const RetainedEarnings = () => {
                         </div>
                     )}
                 </div>
-                <button
-                    className="action-button1"
-                    onClick={handleGeneratePDF}
-                    disabled={!isTableEnabled}
-                >
-                    Generate Document
-                </button>
+                
+                {isTableEnabled && (
+                    <button
+                        className="action-button1"
+                        onClick={handleGeneratePDF}
+                        disabled={!isTableEnabled}
+                    >
+                        Generate Document
+                    </button>
+                )}
 
                 {/* Pop-up modal to view the generated file */}
                 {isViewGeneratedFileVisible && (

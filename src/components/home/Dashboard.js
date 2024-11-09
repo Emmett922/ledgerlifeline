@@ -363,19 +363,19 @@ const Dashboard = () => {
                         <div className="Current-Ratio">
                             <h1 className="box-title">Current Ratio</h1>
                             <div className="percentage">
-                                <h1>515.62%</h1>
+                                <h1 className="ratio-num">515.62%</h1>
                             </div>
                         </div>
                         <div className="Return-Assets">
                             <h1 className="box-title">Return on Assets</h1>
                             <div className="percentage">
-                                <h1>18.96%</h1>
+                                <h1 className="ratio-num">18.96%</h1>
                             </div>
                         </div>
                         <div className="Return-Equity">
                             <h1 className="box-title">Return on Equity</h1>
                             <div>
-                                <h1>28.02%</h1>
+                                <h1 className="ratio-num">28.02%</h1>
                             </div>
                         </div>
                     </div>
@@ -383,19 +383,19 @@ const Dashboard = () => {
                         <div className="Net-Profit">
                             <h1 className="box-title">Net Profit Margin</h1>
                             <div className="percentage">
-                                <h1>49.67%</h1>
+                                <h1 className="ratio-num">49.67%</h1>
                             </div>
                         </div>
                         <div className="Asset-Turnover">
                             <h1 className="box-title">Asset Turnover</h1>
                             <div className="percentage">
-                                <h1>38.18%</h1>
+                                <h1 className="ratio-num">38.18%</h1>
                             </div>
                         </div>
                         <div className="Quick-Ratio">
                             <h1 className="box-title">Quick Ratio</h1>
                             <div className="percentage">
-                                <h1>515.62%</h1>
+                                <h1 className="ratio-num">515.62%</h1>
                             </div>
                         </div>
                     </div>

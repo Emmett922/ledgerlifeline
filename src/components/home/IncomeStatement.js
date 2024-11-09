@@ -1122,13 +1122,16 @@ const IncomeStatement = () => {
                         </div>
                     )}
                 </div>
-                <button
-                    className="action-button1"
-                    onClick={handleGeneratePDF}
-                    disabled={!isTableEnabled}
-                >
-                    Generate Document
-                </button>
+                
+                {isTableEnabled && (
+                    <button
+                        className="action-button1"
+                        onClick={handleGeneratePDF}
+                        disabled={!isTableEnabled}
+                    >
+                        Generate Document
+                    </button>
+                )}
 
                 {/* Pop-up modal to view the generated file */}
                 {isViewGeneratedFileVisible && (
