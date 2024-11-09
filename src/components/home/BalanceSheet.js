@@ -424,8 +424,6 @@ const BalanceSheet = () => {
             return 0;
         }
 
-        console.log("Formatted asOfDate:", asOfDateString);
-
         // Filter entries with dates less than or equal to the asOfDateString
         const validEntries = journalEntries
             .filter((entry) => {
@@ -436,31 +434,59 @@ const BalanceSheet = () => {
             })
             .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
 
-        // Log sorted valid entries for debugging
-        console.log("Filtered and sorted entries:", validEntries);
+        // Return the closest entry's currBalance or 0 if none found
+        const closestBalance = validEntries.length > 0 ? validEntries[0].currBalance : 0;
 
-        // Get the closest entry's currBalance, take its absolute value if available, or default to 0 if none found
-        return validEntries.length > 0 ? Math.abs(validEntries[0].currBalance) : 0;
+        return closestBalance;
     };
 
-    const calculateTotals = (accounts) => {
+    const calculateNetIncome = (accounts) => {
         // Calculate total revenue
-        const totalAsset = accounts
-            .filter((account) => account.accountCatagory.toLowerCase().includes("asset"))
+        const totalRevenue = accounts
+            .filter(
+                (account) =>
+                    account.accountName.toLowerCase().includes("revenue") &&
+                    !account.accountName.toLowerCase().includes("unearned")
+            )
             .reduce(
                 (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
                 0
             );
 
         // Calculate total expenses
+        const totalExpenses = accounts
+            .filter((account) => account.accountName.toLowerCase().includes("expense"))
+            .reduce(
+                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
+                0
+            );
+
+        // Calculate net income
+        const netIncome = totalRevenue - totalExpenses;
+
+        return netIncome; // Return as a string formatted to 2 decimal places
+    };
+
+    // Usage in the component
+    const netIncome = calculateNetIncome(filteredAccounts);
+
+    const calculateTotals = (accounts) => {
+        // Calculate total equity
         const totalEquity = accounts
             .filter((account) => account.accountCatagory.toLowerCase().includes("equity"))
-            .reduce(
-                (total, account) => total + findClosestBalance(account.journalEntries, asOfDate),
-                0
-            );
+            .reduce((total, account) => {
+                const closestBalance = findClosestBalance(account.journalEntries, asOfDate);
 
-        // Calculate total expenses
+                // Use netIncome if account is "Retained Earnings" and balance is 0, otherwise use closestBalance
+                const balance =
+                    account.accountName === "Retained Earnings" && closestBalance === 0
+                        ? netIncome // Use netIncome if Retained Earnings balance is 0
+                        : closestBalance; // Otherwise, use closestBalance
+
+                return total + balance;
+            }, 0); // Start total as a numeric 0
+
+        // Calculate total liabilities
         const totalLiability = accounts
             .filter(
                 (account) =>
@@ -905,7 +931,8 @@ const BalanceSheet = () => {
                                             account.accountSubcatagory
                                                 .toLowerCase()
                                                 .includes("current") &&
-                                            findClosestBalance(account.journalEntries, asOfDate) > 0
+                                            findClosestBalance(account.journalEntries, asOfDate) !==
+                                                0
                                     )
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
@@ -954,6 +981,8 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                             textAlign: "right",
                                             paddingRight: "50px",
+                                            textDecoration: "underline",
+                                            textUnderlineOffset: "3px",
                                         }}
                                     >
                                         {`$${formatWithCommas(
@@ -1010,7 +1039,9 @@ const BalanceSheet = () => {
                                                 .includes("asset") &&
                                             !account.accountSubcatagory
                                                 .toLowerCase()
-                                                .includes("current")
+                                                .includes("current") &&
+                                            findClosestBalance(account.journalEntries, asOfDate) !==
+                                                0
                                     )
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
@@ -1064,6 +1095,8 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                             textAlign: "right",
                                             paddingRight: "50px",
+                                            textDecoration: "underline",
+                                            textUnderlineOffset: "3px",
                                         }}
                                     >
                                         {`$${formatWithCommas(
@@ -1227,6 +1260,8 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                             textAlign: "right",
                                             paddingRight: "50px",
+                                            textDecoration: "underline",
+                                            textUnderlineOffset: "3px",
                                         }}
                                     >
                                         {`$${formatWithCommas(
@@ -1265,7 +1300,7 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                         }}
                                     >
-                                        Owners Equity
+                                        Owner's Equity
                                     </td>
                                     <td
                                         style={{
@@ -1297,21 +1332,22 @@ const BalanceSheet = () => {
                                                         paddingRight: "250px", // Match the padding of Total Amount
                                                     }}
                                                 >
-                                                    {findClosestBalance(
-                                                        account.journalEntries,
-                                                        asOfDate
-                                                    )
+                                                    {account.accountName === "Retained Earnings" &&
+                                                    account.balance === 0
                                                         ? `$${formatWithCommas(
+                                                              netIncome.toFixed(2)
+                                                          )}`
+                                                        : `$${formatWithCommas(
                                                               findClosestBalance(
                                                                   account.journalEntries,
                                                                   asOfDate
                                                               ).toFixed(2)
-                                                          )}`
-                                                        : "$0.00"}
+                                                          )}`}
                                                 </td>
                                             </tr>
                                         </React.Fragment>
                                     ))}
+
                                 <tr>
                                     <td
                                         style={{
@@ -1327,29 +1363,33 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                             textAlign: "right",
                                             paddingRight: "50px",
+                                            textDecoration: "underline",
+                                            textUnderlineOffset: "3px",
                                         }}
                                     >
                                         {`$${formatWithCommas(
                                             filteredAccounts
-                                                .filter(
-                                                    (account) =>
-                                                        account.accountCatagory
-                                                            .toLowerCase()
-                                                            .includes("equity") &&
-                                                        findClosestBalance(
-                                                            account.journalEntries,
-                                                            asOfDate
-                                                        ) > 0
+                                                .filter((account) =>
+                                                    account.accountCatagory
+                                                        .toLowerCase()
+                                                        .includes("equity")
                                                 )
-                                                .reduce(
-                                                    (total, account) =>
-                                                        total +
-                                                        (findClosestBalance(
-                                                            account.journalEntries,
-                                                            asOfDate
-                                                        ) || 0),
-                                                    0
-                                                )
+                                                .reduce((total, account) => {
+                                                    const closestBalance = findClosestBalance(
+                                                        account.journalEntries,
+                                                        asOfDate
+                                                    );
+
+                                                    // Check if account is "Retained Earnings" and balance is 0
+                                                    const balance =
+                                                        account.accountName ===
+                                                            "Retained Earnings" &&
+                                                        closestBalance === 0
+                                                            ? netIncome // Use netIncome if Retained Earnings balance is 0
+                                                            : closestBalance; // Otherwise, use closestBalance
+
+                                                    return total + (balance || 0);
+                                                }, 0)
                                                 .toFixed(2)
                                         )}`}
                                     </td>

@@ -285,13 +285,23 @@ const TrialBalance = () => {
     // Receives the post reference from the journal page and automatically searches it
 
     const formatWithCommas = (value) => {
-        const [integerPart, decimalPart] = value.split(".");
+        // Check if the value is negative
+        const isNegative = value < 0;
+
+        // Convert the value to a string and remove the minus sign if negative
+        const absoluteValue = Math.abs(value).toFixed(2);
+
+        // Split the value into integer and decimal parts
+        const [integerPart, decimalPart] = absoluteValue.split(".");
 
         // Format the integer part with commas
         const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        // Return formatted value with the decimal part
-        return `${formattedInteger}.${decimalPart}`;
+        // Combine formatted integer and decimal parts
+        const formattedValue = `${formattedInteger}.${decimalPart}`;
+
+        // Return the formatted value with parentheses if negative
+        return isNegative ? `${formattedValue}` : formattedValue;
     };
 
     const handleInputChange = (event) => {
@@ -465,8 +475,6 @@ const TrialBalance = () => {
             return 0;
         }
 
-        console.log("Formatted asOfDate:", asOfDateString);
-
         // Filter entries with dates less than or equal to the asOfDateString
         const validEntries = journalEntries
             .filter((entry) => {
@@ -477,11 +485,10 @@ const TrialBalance = () => {
             })
             .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
 
-        // Log sorted valid entries for debugging
-        console.log("Filtered and sorted entries:", validEntries);
+        // Return the closest entry's currBalance or 0 if none found
+        const closestBalance = validEntries.length > 0 ? validEntries[0].currBalance : 0;
 
-        // Get the closest entry's currBalance, take its absolute value if available, or default to 0 if none found
-        return validEntries.length > 0 ? Math.abs(validEntries[0].currBalance) : 0;
+        return closestBalance;
     };
 
     const content = (
@@ -769,6 +776,11 @@ const TrialBalance = () => {
                             </thead>
                             <tbody>
                                 {filteredAccounts
+                                    .filter(
+                                        (account) =>
+                                            findClosestBalance(account.journalEntries, asOfDate) !==
+                                            0
+                                    )
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
                                         <React.Fragment key={index}>
@@ -985,12 +997,12 @@ const TrialBalance = () => {
 
                 {isTableEnabled && (
                     <button
-                    className="action-button1"
-                    onClick={handleGeneratePDF}
-                    disabled={!isTableEnabled}
-                >
-                    Generate Document
-                </button>
+                        className="action-button1"
+                        onClick={handleGeneratePDF}
+                        disabled={!isTableEnabled}
+                    >
+                        Generate Document
+                    </button>
                 )}
 
                 {/* Pop-up modal to view the generated file */}

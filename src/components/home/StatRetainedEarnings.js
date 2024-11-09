@@ -865,8 +865,7 @@ const RetainedEarnings = () => {
                             {filteredAccounts
                                 .filter(
                                     (account) =>
-                                        account.accountName.toLowerCase().includes("retained") &&
-                                        account.accountName.toLowerCase().includes("earnings")
+                                        account.accountName === "Retained Earnings"
                                 )
                                 .map((account, index) => {
                                     // Calculate ending balance
@@ -888,7 +887,7 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Beginning Balance:</div>
+                                                <div className="label">Beginning Balance</div>
                                                 <div
                                                     className="value"
                                                     style={{
@@ -911,7 +910,7 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Add Net Income:</div>
+                                                <div className="label">Add Net Income</div>
                                                 <div
                                                     className="value"
                                                     style={{
@@ -934,7 +933,7 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Less Drawings:</div>
+                                                <div className="label">Less Drawings</div>
                                                 <div
                                                     className="value"
                                                     style={{
@@ -957,7 +956,7 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Ending Balance:</div>
+                                                <div className="label">Ending Balance</div>
                                                 <div
                                                     className="value"
                                                     style={{

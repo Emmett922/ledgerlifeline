@@ -472,13 +472,23 @@ const Accounts = () => {
     );
 
     const formatWithCommas = (value) => {
-        const [integerPart, decimalPart] = value.split(".");
+        // Check if the value is negative
+        const isNegative = value < 0;
+
+        // Convert the value to a string and remove the minus sign if negative
+        const absoluteValue = Math.abs(value).toFixed(2);
+
+        // Split the value into integer and decimal parts
+        const [integerPart, decimalPart] = absoluteValue.split(".");
 
         // Format the integer part with commas
         const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        // Return formatted value with the decimal part
-        return `${formattedInteger}.${decimalPart}`;
+        // Combine formatted integer and decimal parts
+        const formattedValue = `${formattedInteger}.${decimalPart}`;
+
+        // Return the formatted value with parentheses if negative
+        return isNegative ? `(${formattedValue})` : formattedValue;
     };
 
     const handleDebitChange = (event) => {
