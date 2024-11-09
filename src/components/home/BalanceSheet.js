@@ -368,13 +368,23 @@ const BalanceSheet = () => {
     // Receives the post reference from the journal page and automatically searches it
 
     const formatWithCommas = (value) => {
-        const [integerPart, decimalPart] = value.split(".");
+        // Check if the value is negative
+        const isNegative = value < 0;
+
+        // Convert the value to a string and remove the minus sign if negative
+        const absoluteValue = Math.abs(value).toFixed(2);
+
+        // Split the value into integer and decimal parts
+        const [integerPart, decimalPart] = absoluteValue.split(".");
 
         // Format the integer part with commas
         const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-        // Return formatted value with the decimal part
-        return `${formattedInteger}.${decimalPart}`;
+        // Combine formatted integer and decimal parts
+        const formattedValue = `${formattedInteger}.${decimalPart}`;
+
+        // Return the formatted value with parentheses if negative
+        return isNegative ? `${formattedValue}` : formattedValue;
     };
 
     const handleInputChange = (event) => {
@@ -396,12 +406,6 @@ const BalanceSheet = () => {
 
     const toggleCalculator = () => {
         setShowCalculator(!showCalculator);
-    };
-
-    const getLastDayOfMonth = () => {
-        const date = new Date();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-        return lastDay.toLocaleDateString(); // Format the date as needed
     };
 
     // Helper function to convert a date to "YYYY-MM-DD" format
@@ -507,27 +511,6 @@ const BalanceSheet = () => {
     // Usage in the component
 
     const netEquityandLiability = calculateTotals(filteredAccounts);
-
-    const formatNegativeBalance = (value) => {
-        // Check if the value is negative
-        const isNegative = parseFloat(value) < 0;
-
-        // Remove negative sign if it exists
-        const absoluteValue = Math.abs(parseFloat(value)).toString();
-
-        const [integerPart, decimalPart] = absoluteValue.split(".");
-
-        // Format the integer part with commas
-        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-        // Construct the final formatted value
-        const formattedValue = decimalPart
-            ? `${formattedInteger}.${decimalPart}`
-            : formattedInteger;
-
-        // Return the formatted value with parentheses if it was originally negative
-        return isNegative ? `(${formattedValue})` : formattedValue;
-    };
 
     const handleGeneratePDF = async () => {
         if (divRef.current) {
@@ -903,10 +886,13 @@ const BalanceSheet = () => {
                                     </th>
                                     <th
                                         style={{
-                                            textAlign: "right",
-                                            paddingRight: "50px",
+                                            textAlign: "left",
                                         }}
-                                    ></th>
+                                    >
+                                        Debit
+                                    </th>
+                                    <th style={{ textAlign: "left" }}>Credit</th>
+                                    <th style={{ textAlign: "left" }}>Total Amounts</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -920,6 +906,8 @@ const BalanceSheet = () => {
                                     >
                                         Current Assets
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td></td>
                                 </tr>
                                 {filteredAccounts
@@ -939,30 +927,62 @@ const BalanceSheet = () => {
                                         <React.Fragment key={index}>
                                             <tr>
                                                 <td
-                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                    style={{
+                                                        padding: "20px 50px",
+                                                        width: "600px",
+                                                    }}
                                                 >
                                                     {account.accountName}
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        padding: "20px 0",
-                                                        width: "200px",
-                                                        textAlign: "right", // Ensure text is right-aligned
-                                                        paddingRight: "250px", // Match the padding of Total Amount
-                                                    }}
-                                                >
-                                                    {findClosestBalance(
-                                                        account.journalEntries,
-                                                        asOfDate
-                                                    )
-                                                        ? `$${formatWithCommas(
-                                                              findClosestBalance(
-                                                                  account.journalEntries,
-                                                                  asOfDate
-                                                              ).toFixed(2)
-                                                          )}`
-                                                        : "$0.00"}
-                                                </td>
+
+                                                {findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) > 0 ? (
+                                                    // When the balance is positive, render the amount in the second <td>
+                                                    <>
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                ) : (
+                                                    // When the balance is non-positive, render the amount in the third <td>
+                                                    <>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                )}
                                             </tr>
                                         </React.Fragment>
                                     ))}
@@ -975,6 +995,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Current Assets
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",
@@ -1030,6 +1052,8 @@ const BalanceSheet = () => {
                                             paddingRight: "50px",
                                         }}
                                     ></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 {filteredAccounts
                                     .filter(
@@ -1048,35 +1072,62 @@ const BalanceSheet = () => {
                                         <React.Fragment key={index}>
                                             <tr>
                                                 <td
-                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                    style={{
+                                                        padding: "20px 50px",
+                                                        width: "600px",
+                                                    }}
                                                 >
                                                     {account.accountName}
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        padding: "20px 0",
-                                                        width: "200px",
-                                                        textAlign: "right", // Ensure text is right-aligned
-                                                        paddingRight: "250px", // Match the padding of Total Amount
-                                                    }}
-                                                >
-                                                    {findClosestBalance(
-                                                        account.journalEntries,
-                                                        asOfDate
-                                                    ) > 0
-                                                        ? `$${formatWithCommas(
-                                                              findClosestBalance(
-                                                                  account.journalEntries,
-                                                                  asOfDate
-                                                              ).toFixed(2)
-                                                          )}`
-                                                        : `$${formatNegativeBalance(
-                                                              findClosestBalance(
-                                                                  account.journalEntries,
-                                                                  asOfDate
-                                                              ).toFixed(2)
-                                                          )}`}
-                                                </td>
+
+                                                {findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) > 0 ? (
+                                                    // When the balance is positive, render the amount in the second <td>
+                                                    <>
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                ) : (
+                                                    // When the balance is non-positive, render the amount in the third <td>
+                                                    <>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                )}
                                             </tr>
                                         </React.Fragment>
                                     ))}
@@ -1089,6 +1140,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Non-Current Assets
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",
@@ -1132,6 +1185,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Assets
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",
@@ -1171,15 +1226,17 @@ const BalanceSheet = () => {
                             <thead>
                                 <tr>
                                     <th
-                                        colSpan={2}
                                         style={{
                                             textAlign: "left",
                                             fontWeight: "bold",
                                             fontSize: "22px",
                                         }}
                                     >
-                                        Equity & liabilities
+                                        Equity & Liabilities
                                     </th>
+                                    <th />
+                                    <th />
+                                    <th />
                                 </tr>
                             </thead>
                             <tbody>
@@ -1191,16 +1248,11 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                         }}
                                     >
-                                        Current liabilities
+                                        Current Liabilities
                                     </td>
-                                    <td
-                                        style={{
-                                            fontWeight: "bold",
-                                            paddingLeft: "25px",
-                                            textAlign: "right",
-                                            paddingRight: "50px",
-                                        }}
-                                    ></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 {filteredAccounts
                                     .filter(
@@ -1218,30 +1270,62 @@ const BalanceSheet = () => {
                                         <React.Fragment key={index}>
                                             <tr>
                                                 <td
-                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                    style={{
+                                                        padding: "20px 50px",
+                                                        width: "600px",
+                                                    }}
                                                 >
                                                     {account.accountName}
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        padding: "20px 0",
-                                                        width: "200px",
-                                                        textAlign: "right", // Ensure text is right-aligned
-                                                        paddingRight: "250px", // Match the padding of Total Amount
-                                                    }}
-                                                >
-                                                    {findClosestBalance(
-                                                        account.journalEntries,
-                                                        asOfDate
-                                                    )
-                                                        ? `$${formatWithCommas(
-                                                              findClosestBalance(
-                                                                  account.journalEntries,
-                                                                  asOfDate
-                                                              ).toFixed(2)
-                                                          )}`
-                                                        : "$0.00"}
-                                                </td>
+
+                                                {findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) > 0 ? (
+                                                    // When the balance is positive, render the amount in the second <td>
+                                                    <>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                ) : (
+                                                    // When the balance is non-positive
+                                                    <>
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            $
+                                                            {formatWithCommas(
+                                                                findClosestBalance(
+                                                                    account.journalEntries,
+                                                                    asOfDate
+                                                                ).toFixed(2)
+                                                            )}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                )}
                                             </tr>
                                         </React.Fragment>
                                     ))}
@@ -1254,6 +1338,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Liabilities
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",
@@ -1302,14 +1388,9 @@ const BalanceSheet = () => {
                                     >
                                         Owner's Equity
                                     </td>
-                                    <td
-                                        style={{
-                                            fontWeight: "bold",
-                                            paddingLeft: "25px",
-                                            textAlign: "right",
-                                            paddingRight: "50px",
-                                        }}
-                                    ></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 {filteredAccounts
                                     .filter((account) =>
@@ -1320,30 +1401,72 @@ const BalanceSheet = () => {
                                         <React.Fragment key={index}>
                                             <tr>
                                                 <td
-                                                    style={{ padding: "20px 50px", width: "600px" }}
+                                                    style={{
+                                                        padding: "20px 50px",
+                                                        width: "600px",
+                                                    }}
                                                 >
                                                     {account.accountName}
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        padding: "20px 0",
-                                                        width: "200px",
-                                                        textAlign: "right", // Ensure text is right-aligned
-                                                        paddingRight: "250px", // Match the padding of Total Amount
-                                                    }}
-                                                >
-                                                    {account.accountName === "Retained Earnings" &&
-                                                    account.balance === 0
-                                                        ? `$${formatWithCommas(
-                                                              netIncome.toFixed(2)
-                                                          )}`
-                                                        : `$${formatWithCommas(
-                                                              findClosestBalance(
-                                                                  account.journalEntries,
-                                                                  asOfDate
-                                                              ).toFixed(2)
-                                                          )}`}
-                                                </td>
+
+                                                {findClosestBalance(
+                                                    account.journalEntries,
+                                                    asOfDate
+                                                ) >= 0 ? (
+                                                    // When the balance is positive, render the amount in the second <td>
+                                                    <>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            {account.accountName ===
+                                                                "Retained Earnings" &&
+                                                            account.balance === 0
+                                                                ? `$${formatWithCommas(
+                                                                      netIncome.toFixed(2)
+                                                                  )}`
+                                                                : `$${formatWithCommas(
+                                                                      findClosestBalance(
+                                                                          account.journalEntries,
+                                                                          asOfDate
+                                                                      ).toFixed(2)
+                                                                  )}`}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                ) : (
+                                                    // When the balance is non-positive
+                                                    <>
+                                                        <td
+                                                            style={{
+                                                                padding: "20px 0",
+                                                                width: "200px",
+                                                                textAlign: "right",
+                                                                paddingRight: "250px", // Match the padding of Total Amount
+                                                            }}
+                                                        >
+                                                            {account.accountName ===
+                                                                "Retained Earnings" &&
+                                                            account.balance === 0
+                                                                ? `$${formatWithCommas(
+                                                                      netIncome.toFixed(2)
+                                                                  )}`
+                                                                : `$${formatWithCommas(
+                                                                      findClosestBalance(
+                                                                          account.journalEntries,
+                                                                          asOfDate
+                                                                      ).toFixed(2)
+                                                                  )}`}
+                                                        </td>
+                                                        <td /> {/* Blank <td> */}
+                                                        <td /> {/* Blank <td> */}
+                                                    </>
+                                                )}
                                             </tr>
                                         </React.Fragment>
                                     ))}
@@ -1357,6 +1480,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Equity
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",
@@ -1404,6 +1529,8 @@ const BalanceSheet = () => {
                                     >
                                         Total Liabilities & Equity
                                     </td>
+                                    <td></td>
+                                    <td></td>
                                     <td
                                         style={{
                                             fontWeight: "bold",

@@ -474,7 +474,7 @@ const RetainedEarnings = () => {
         // Calculate net income
         const netIncome = totalRevenue - totalExpenses;
 
-        return netIncome.toFixed(2); // Return as a string formatted to 2 decimal places
+        return netIncome; // Return as a string formatted to 2 decimal places
     };
 
     // Usage in the component
@@ -863,14 +863,12 @@ const RetainedEarnings = () => {
                             </div>
 
                             {filteredAccounts
-                                .filter(
-                                    (account) =>
-                                        account.accountName === "Retained Earnings"
-                                )
+                                .filter((account) => account.accountName === "Retained Earnings")
                                 .map((account, index) => {
                                     // Calculate ending balance
                                     const beginningBalance = account.initialBalance || 0;
                                     const netIncomeValue = netIncome || 0;
+                                    const totalIncome = beginningBalance + netIncomeValue;
                                     const drawings = account.initialBalance || 0; // Adjust if there is a specific drawings field
                                     const endingBalance =
                                         beginningBalance + netIncomeValue - drawings;
@@ -915,12 +913,34 @@ const RetainedEarnings = () => {
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                    }}
+                                                >
+                                                    {`$${formatWithCommas(netIncome.toFixed(2))}`}
+                                                </div>
+                                            </div>
+
+                                            {/* Total Income */}
+                                            <div
+                                                className="balance-row"
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    width: "80%",
+                                                    padding: "10px 50px",
+                                                    marginLeft: "5%",
+                                                }}
+                                            >
+                                                <div className="label">Total Income</div>
+                                                <div
+                                                    className="value"
+                                                    style={{
+                                                        fontWeight: "bold",
                                                         textDecoration: "underline",
                                                         textUnderlineOffset: "3px",
                                                     }}
-                                                >
-                                                    {`$${formatWithCommas(netIncome)}`}
-                                                </div>
+                                                >{`$${formatWithCommas(
+                                                    totalIncome.toFixed(2)
+                                                )}`}</div>
                                             </div>
 
                                             {/* Less Drawings */}
@@ -938,8 +958,6 @@ const RetainedEarnings = () => {
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
-                                                        textDecoration: "underline",
-                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(drawings.toFixed(2))}`}
@@ -961,6 +979,8 @@ const RetainedEarnings = () => {
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                        textDecoration: "double underline",
+                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(
@@ -974,7 +994,7 @@ const RetainedEarnings = () => {
                         </div>
                     )}
                 </div>
-                
+
                 {isTableEnabled && (
                     <button
                         className="action-button1"
