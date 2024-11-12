@@ -908,11 +908,13 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Add Net Income</div>
+                                                <div className="label">Add: Net Income</div>
                                                 <div
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                        textDecoration: "underline",
+                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(netIncome.toFixed(2))}`}
@@ -953,11 +955,13 @@ const RetainedEarnings = () => {
                                                     padding: "10px 50px",
                                                 }}
                                             >
-                                                <div className="label">Less Drawings</div>
+                                                <div className="label">Less: Dividends</div>
                                                 <div
                                                     className="value"
                                                     style={{
                                                         fontWeight: "bold",
+                                                        textDecoration: "underline",
+                                                        textUnderlineOffset: "3px",
                                                     }}
                                                 >
                                                     {`$${formatWithCommas(drawings.toFixed(2))}`}

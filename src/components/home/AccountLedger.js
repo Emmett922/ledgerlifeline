@@ -1021,7 +1021,7 @@ const AccountLedger = () => {
                         localStorage.removeItem("account"); // Remove the account ID
                     }}
                 >
-                    Back to Chart of Accounts
+                    Go to Chart of Accounts
                 </Link>
             </main>
         </section>

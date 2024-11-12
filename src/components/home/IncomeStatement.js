@@ -20,25 +20,22 @@ const IncomeStatement = () => {
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
     const [storedUserEmail, setStoredUserEmail] = useState("");
-    const [storedPostReference, setStoredPostReference] = useState("");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [fetchedEntry, setFetchedEntry] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
     const [minBalance, setMinBalance] = useState("0.00");
     const [maxBalance, setMaxBalance] = useState("0.00");
     const [errorMessageArray, setErrorMessageArray] = useState([]);
     const [accountArray, setAccountArray] = useState([]);
-    const [viewEntryDetails, setViewEntryDetails] = useState(false);
-    const [expandedRow, setExpandedRow] = useState(null);
     const incomeStatementRef = useRef(null);
     const [isViewGeneratedFileVisible, setIsViewGeneratedFileVisible] = useState(false);
     const [pdfUrl, setPdfUrl] = useState("");
     const [asOfDate, setAsOfDate] = useState("");
-    const isTableEnabled = asOfDate;
+    const [yearDate, setYearDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const isTableEnabled = yearDate;
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
@@ -59,7 +56,7 @@ const IncomeStatement = () => {
             navigate("/", { replace: true });
         }
 
-        // If all other checks are met, get the storedUser's username
+        // If all other checks are met, get the storedUser's username, role, and email
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
@@ -375,11 +372,20 @@ const IncomeStatement = () => {
         return `${formattedInteger}.${decimalPart}`;
     };
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
+    const handleInputChange = (e) => {
+        const year = e.target.value;
 
-        if (name === "as-of-date") {
-            setAsOfDate(value);
+        // Update the input value state regardless
+        setYearDate(year);
+
+        // Check if the input year is exactly "2024" and has a length of 4
+        if (year.length === 4 && year === "2024") {
+            // Create a date for December 31st of the year 2024
+            const date = new Date(`${year}-12-31`);
+            setAsOfDate(date);
+        } else {
+            // Clear the date if the input year isn't complete or isn't 2024
+            setAsOfDate(null);
         }
     };
 
@@ -803,15 +809,15 @@ const IncomeStatement = () => {
                                 marginTop: "10px",
                             }}
                         >
-                            As of
+                            For the year ending December 31st,
                             <input
-                                type="date"
-                                id="as-of-date"
-                                name="as-of-date"
-                                value={asOfDate}
+                                type="number"
+                                id="as-of-year"
+                                name="as-of-year"
+                                value={yearDate}
                                 onChange={handleInputChange}
                                 required
-                                title="Chose as of date"
+                                title="Choose a year"
                                 style={{
                                     borderRadius: "5px",
                                     background: "none",
@@ -821,6 +827,10 @@ const IncomeStatement = () => {
                                     border: "2px solid",
                                     filter: "invert(1)",
                                 }}
+                                min="1900"
+                                max="2100"
+                                step="1"
+                                placeholder="YYYY"
                             />
                         </div>
                     </div>
@@ -1122,7 +1132,7 @@ const IncomeStatement = () => {
                         </div>
                     )}
                 </div>
-                
+
                 {isTableEnabled && (
                     <button
                         className="action-button1"

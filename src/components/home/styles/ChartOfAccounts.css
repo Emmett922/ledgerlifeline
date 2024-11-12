@@ -89,6 +89,35 @@ body {
     align-items: center;
 }
 
+input#as-of-year::placeholder {
+    color: black;
+}
+
+input#as-of-year::-webkit-input-placeholder {
+    color: black;
+}
+
+input#as-of-year::-moz-placeholder {
+    color: black;
+}
+
+input#as-of-year:-ms-input-placeholder {
+    color: black;
+}
+
+input#as-of-year::-ms-input-placeholder {
+    color: black;
+}
+
+/* Hide default spinner */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+
 /* Search box*/
 .header-search {
     display: flex;
