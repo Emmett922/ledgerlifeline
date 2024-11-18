@@ -67,7 +67,7 @@ const Accounts = () => {
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
     const [userArray, setUserArray] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [emailSubject, setEmailSubject] = useState("");
     const [emailMessage, setEmailMessage] = useState("");
     const [isEmailUserVisible, setIsEmailUserVisible] = useState(false);
@@ -235,26 +235,44 @@ const Accounts = () => {
         }
     }, [API_URL]);
 
-    const adminEmailUserOptions = userArray
-        .filter((user) => user.role === "Manager" || user.role === "Accountant")
-        .map((user) => ({
-            value: user,
-            label: `${user.first_name} ${user.last_name}`,
-        }));
+    const adminEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Manager" || user.role === "Accountant")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
 
-    const managerEmailUserOptions = userArray
-        .filter((user) => user.role === "Admin" || user.role === "Accountant")
-        .map((user) => ({
-            value: user,
-            label: `${user.first_name} ${user.last_name}`,
-        }));
+    const managerEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Admin" || user.role === "Accountant")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
 
-    const accountantEmailUserOptions = userArray
-        .filter((user) => user.role === "Admin" || user.role === "Manager")
-        .map((user) => ({
-            value: user,
-            label: `${user.first_name} ${user.last_name}`,
-        }));
+    const accountantEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Manager" || user.role === "Manager")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
 
     // Handle the input changes from editing the account
     const handleEditInputChange = (event) => {
@@ -986,36 +1004,36 @@ const Accounts = () => {
     const handleEmail = async () => {
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
 
-        setTimeout(async () => {
-            try {
-                const response = await fetch(`${API_URL}/email/send-custom-email`, {
-                    method: "POST",
-                    headers: {
-                        "content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        user: selectedUser,
-                        subject: emailSubject,
-                        message: formattedMessage,
-                        senderName: storedUserFullName,
-                    }),
-                });
+        // Send an email to each selected user
+        for (const user of selectedUsers) {
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                        method: "POST",
+                        headers: {
+                            "content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            user: user.value,
+                            subject: emailSubject,
+                            message: formattedMessage,
+                            senderName: storedUserFullName,
+                        }),
+                    });
 
-                const result = await response.json();
-                if (response.ok) {
-                    // Store the message in localStorage
-                    localStorage.setItem("toastMessage", result.message);
+                    const result = await response.json();
+                    if (response.ok) {
+                        // Store the message in localStorage
+                        localStorage.setItem("toastMessage", result.message);
 
-                    // Reload the page after storing the message
-                    window.location.reload();
-                } else {
-                    alert(`Failed to send email: ${result.message}`);
+                        // Reload the page after storing the message
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error("Error sending email:", error);
                 }
-            } catch (error) {
-                console.error("Error sending email:", error);
-                alert("Failed to send email.");
-            }
-        }, 0);
+            }, 0);
+        }
 
         setIsEmailUserVisible(false);
     };
@@ -2377,19 +2395,25 @@ const Accounts = () => {
                                         id="selectUser"
                                         name="selectUser"
                                         title="Select a user to send an email to"
-                                        value={
-                                            adminEmailUserOptions.find(
-                                                (option) => option.value === selectedUser
-                                            ) || null
-                                        }
-                                        onChange={(option) => {
-                                            console.log(option.value);
-                                            setSelectedUser(option.value);
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(adminEmailUserOptions.slice(1)); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
                                         }}
                                         options={adminEmailUserOptions}
                                         isSearchable={true}
+                                        isMulti={true}
                                         required
-                                        placeholder="Select a user"
+                                        placeholder="Select user(s)"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -2458,19 +2482,25 @@ const Accounts = () => {
                                         id="selectUser"
                                         name="selectUser"
                                         title="Select a user to send an email to"
-                                        value={
-                                            managerEmailUserOptions.find(
-                                                (option) => option.value === selectedUser
-                                            ) || null
-                                        }
-                                        onChange={(option) => {
-                                            console.log(option.value);
-                                            setSelectedUser(option.value);
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(managerEmailUserOptions.slice(1)); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
                                         }}
                                         options={managerEmailUserOptions}
                                         isSearchable={true}
+                                        isMulti={true}
                                         required
-                                        placeholder="Select a user"
+                                        placeholder="Select user(s)"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -2539,19 +2569,27 @@ const Accounts = () => {
                                         id="selectUser"
                                         name="selectUser"
                                         title="Select a user to send an email to"
-                                        value={
-                                            accountantEmailUserOptions.find(
-                                                (option) => option.value === selectedUser
-                                            ) || null
-                                        }
-                                        onChange={(option) => {
-                                            console.log(option.value);
-                                            setSelectedUser(option.value);
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(
+                                                    accountantEmailUserOptions.slice(1)
+                                                ); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
                                         }}
                                         options={accountantEmailUserOptions}
                                         isSearchable={true}
+                                        isMulti={true}
                                         required
-                                        placeholder="Select a user"
+                                        placeholder="Select user(s)"
                                     />
                                 </div>
                                 <div className="form-group">

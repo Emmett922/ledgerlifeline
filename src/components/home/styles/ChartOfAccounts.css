@@ -337,7 +337,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .modal-content,
-.account .modal-email-content, 
+.modal-email-content, 
 .account .modal-view-logs-content,
 .modal-new-journal-entry-content,
 .modal-view-entry-details-content {

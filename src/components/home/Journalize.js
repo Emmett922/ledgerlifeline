@@ -16,7 +16,6 @@ import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import { faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { faFilePdf, faFileExcel, faFileAlt } from "@fortawesome/free-solid-svg-icons";
-import { width } from "@fortawesome/free-regular-svg-icons/faAddressBook";
 
 const Journalize = () => {
     // Function variables
@@ -2814,6 +2813,7 @@ const Journalize = () => {
                                                         </option>
                                                         <option value="Regular">Regular</option>
                                                         <option value="Adjusting">Adjusting</option>
+                                                        <option value="Closing">Closing</option>
                                                     </select>
                                                     {/* Render the error message below the select input */}
                                                     {!journalType && errorForJournalType && (

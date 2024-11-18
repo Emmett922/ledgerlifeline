@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./styles/Accounts.css";
 import { Link } from "react-router-dom";
+import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import Calendar from "react-calendar";
 import Calculator from "../calc/Calculator";
 import Draggable from "react-draggable";
 import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
 import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,6 +21,7 @@ const AccountLedger = () => {
     const [fetchedAccount, setFetchedAccount] = useState("");
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserRole, setStoredUserRole] = useState("");
+    const [storedUserFullName, setStoredUserFullName] = useState("");
     const [storedPostReference, setStoredPostReference] = useState("");
     const [showCalendar, setShowCalendar] = useState(false);
     const [showCalculator, setShowCalculator] = useState(false);
@@ -33,9 +36,11 @@ const AccountLedger = () => {
     const [accountArray, setAccountArray] = useState([]);
     const [viewEntryDetails, setViewEntryDetails] = useState(false);
     const [expandedRow, setExpandedRow] = useState(null);
-
-    // -- Code for toggling the table in ascending and descending order -- //
-    const [isDescending, setIsDescending] = useState(true); // State for sorting order
+    const [userArray, setUserArray] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [emailSubject, setEmailSubject] = useState("");
+    const [emailMessage, setEmailMessage] = useState("");
+    const [isEmailUserVisible, setIsEmailUserVisible] = useState(false);
 
     const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
@@ -61,6 +66,7 @@ const AccountLedger = () => {
         if (storedUser) {
             setStoredUserName(storedUser.username);
             setStoredUserRole(storedUser.role);
+            setStoredUserFullName(`${storedUser.first_name} ${storedUser.last_name}`);
         }
 
         const storedPR = JSON.parse(localStorage.getItem("PR"));
@@ -111,6 +117,56 @@ const AccountLedger = () => {
             }
         };
         fetchAccounts();
+
+        // Get all users from database in
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle result
+                if (response.ok) {
+                    setUserArray(result);
+                } else {
+                    toast("Failed to retrieve users!", {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (error) {
+                console.log(error);
+                toast("An error occured. Failed to retrieve users!", {
+                    style: {
+                        backgroundColor: "#333",
+                        color: "white",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                    },
+                    progressStyle: {
+                        backgroundColor: "#2196f3", // Solid blue color for progress bar
+                        backgroundImage: "none",
+                    },
+                    closeButton: <CustomCloseButton />,
+                });
+            }
+        };
+        fetchUsers();
 
         // Get error messages
         const fetchErrorMessages = async () => {
@@ -418,27 +474,85 @@ const AccountLedger = () => {
         setExpandedRow(expandedRow === index ? null : index);
     };
 
-    {
-        /* 
-    let currentBalance = fetchedAccount.balance; // Start with the initial balance
-
-    const calculateBalance = (debits, credits) => {
-        // Calculate total debit and credit for this row
-        const totalDebits = debits.reduce((sum, debit) => sum + debit.amount, 0);
-        const totalCredits = credits.reduce((sum, credit) => sum + credit.amount, 0);
-
-        // Update the current balance by adding debits and subtracting credits
-        currentBalance = currentBalance + totalDebits - totalCredits;
-
-        // Return the formatted balance
-        return `$${formatWithCommas(currentBalance.toFixed(2))}`;
-    };
-    */
-    }
-
     const handlePostReferenceClick = (pr) => {
         localStorage.setItem("PR", JSON.stringify(pr));
         navigate("/journalize");
+    };
+
+    const adminEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Manager" || user.role === "Accountant")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
+
+    const managerEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Admin" || user.role === "Accountant")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
+
+    const accountantEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray
+            .filter((user) => user.role === "Manager" || user.role === "Manager")
+            .map((user) => ({
+                value: user,
+                label: `${user.first_name} ${user.last_name}`,
+            })),
+    ];
+
+    const handleEmail = async () => {
+        const formattedMessage = emailMessage.replace(/\n/g, "<br>");
+
+        // Send an email to each selected user
+        for (const user of selectedUsers) {
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                        method: "POST",
+                        headers: {
+                            "content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            user: user.value,
+                            subject: emailSubject,
+                            message: formattedMessage,
+                            senderName: storedUserFullName,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        // Store the message in localStorage
+                        localStorage.setItem("toastMessage", result.message);
+
+                        // Reload the page after storing the message
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error("Error sending email:", error);
+                }
+            }, 0);
+        }
+
+        setIsEmailUserVisible(false);
     };
 
     const content = (
@@ -595,6 +709,15 @@ const AccountLedger = () => {
                         <div className="header-main">
                             <h1 className="header-title">General Ledger</h1>
                             <button
+                                className="email-btn"
+                                title="Email Employee"
+                                onClick={() => {
+                                    setIsEmailUserVisible(true);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                            </button>
+                            <button
                                 onClick={toggleCalendar}
                                 style={{ background: "none", border: "none", cursor: "pointer" }}
                                 title="Open/Close pop-up calendar"
@@ -615,6 +738,15 @@ const AccountLedger = () => {
                     {storedUserRole === "Accountant" && (
                         <div className="header-main">
                             <h1 className="header-title">General Ledger</h1>
+                            <button
+                                className="email-btn"
+                                title="Email Employee"
+                                onClick={() => {
+                                    setIsEmailUserVisible(true);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                            </button>
                             <button
                                 onClick={toggleCalendar}
                                 title="Open/Close pop-up calendar"
@@ -744,8 +876,10 @@ const AccountLedger = () => {
                             {filteredAccounts
                                 .filter(
                                     (account) =>
-                                        account.journalEntries && account.journalEntries.length > 0
-                                ) // Only show accounts with journal entries
+                                        account.journalEntries && // Account has journal entries
+                                        account.journalEntries.length > 0 && // Has at least one journal entry
+                                        account.balance !== 0 // Balance is not zero
+                                )
                                 .sort((a, b) => a.accountNumber - b.accountNumber)
                                 .map((account, index) => {
                                     const isExpanded = expandedRow === index; // Check if the current row is expanded
@@ -1023,6 +1157,269 @@ const AccountLedger = () => {
                 >
                     Go to Chart of Accounts
                 </Link>
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Admin" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(adminEmailUserOptions.slice(1)); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
+                                        }}
+                                        options={adminEmailUserOptions}
+                                        isSearchable={true}
+                                        isMulti={true}
+                                        required
+                                        placeholder="Select user(s)"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Manager" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(managerEmailUserOptions.slice(1)); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
+                                        }}
+                                        options={managerEmailUserOptions}
+                                        isSearchable={true}
+                                        isMulti={true}
+                                        required
+                                        placeholder="Select user(s)"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Pop-up section to email single user */}
+                {isEmailUserVisible && storedUserRole === "Accountant" && (
+                    <div className="modal">
+                        <div className="modal-email-content">
+                            <span
+                                className="close"
+                                title="Close modal"
+                                onClick={() => setIsEmailUserVisible(false)}
+                            >
+                                &times;
+                            </span>
+                            <h2>Send Email</h2>
+                            <form onSubmit={handleEmail}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(
+                                                    accountantEmailUserOptions.slice(1)
+                                                ); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
+                                        }}
+                                        options={accountantEmailUserOptions}
+                                        isSearchable={true}
+                                        isMulti={true}
+                                        required
+                                        placeholder="Select user(s)"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailSubject">Subject</label>
+                                    <input
+                                        type="text"
+                                        id="emailSubject"
+                                        name="emailSubject"
+                                        title="Give email a subject"
+                                        placeholder="Enter the subject"
+                                        value={emailSubject}
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="emailMessage">Message</label>
+                                    <textarea
+                                        id="emailMessage"
+                                        name="emailMessage"
+                                        title="Enter an email message"
+                                        placeholder="Enter your message"
+                                        value={emailMessage}
+                                        onChange={(e) => setEmailMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="modal-btns">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
+                                        Send Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="cancel-button"
+                                        title="Cancel email draft"
+                                        onClick={() => setIsEmailUserVisible(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </main>
         </section>
     );

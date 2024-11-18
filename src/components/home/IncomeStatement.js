@@ -861,7 +861,8 @@ const IncomeStatement = () => {
                                     .filter(
                                         (account) =>
                                             account.accountName.toLowerCase().includes("revenue") &&
-                                            !account.accountName.toLowerCase().includes("unearned")
+                                            !account.accountName.toLowerCase().includes("unearned") &&
+                                            findClosestBalance(account.journalEntries, asOfDate) > 0
                                     )
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
