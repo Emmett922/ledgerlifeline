@@ -197,52 +197,101 @@ body {
     color: #007bff;
 }
 
-.dashboard .top-boxes, .bottom-boxes {
+.dashboard .top-boxes, .dashboard .bottom-boxes {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 30px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
-  
+
+/* Box Styling */
 .dashboard .top-boxes .Current-Ratio, 
 .dashboard .top-boxes .Return-Assets, 
 .dashboard .top-boxes .Return-Equity,
 .dashboard .bottom-boxes .Net-Profit, 
 .dashboard .bottom-boxes .Asset-Turnover, 
 .dashboard .bottom-boxes .Quick-Ratio {
-    width: 30%; /* Adjust this to control the box width */
-    height: auto;
-    color: black;
-    border-radius: 8px;
-    border: 2px solid black;
-    padding: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: calc(33% - 20px);
+    background: #ffffff;
+    color: #333333;
+    border-radius: 12px;
+    border: 2px solid #dddddd;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
-.dashboard .top-boxes .box-title,
+/* Hover Effect */
+.dashboard .top-boxes .Current-Ratio:hover, 
+.dashboard .top-boxes .Return-Assets:hover, 
+.dashboard .top-boxes .Return-Equity:hover,
+.dashboard .bottom-boxes .Net-Profit:hover, 
+.dashboard .bottom-boxes .Asset-Turnover:hover, 
+.dashboard .bottom-boxes .Quick-Ratio:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #58a1be, #007bff);
+    color: white;
+    border-color: transparent;
+}
+
+/* Title Styling */
+.dashboard .top-boxes .box-title, 
 .dashboard .bottom-boxes .box-title {
     width: 100%;
     text-align: left;
-    font-size: 30px;
+    font-size: 24px;
     font-weight: bold;
+    color: #444444;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* Ratio Number Styling */
+.percentage {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between the percentage and arrow */
 }
 
 .ratio-num {
+    font-size: 36px;
+    font-weight: bold;
     color: #1c7c26;
+    transition: color 0.3s ease, transform 0.3s ease;
 }
-  
-.dashboard .top-boxes:hover .Current-Ratio:hover, 
-.dashboard .top-boxes:hover .Return-Assets:hover, 
-.dashboard .top-boxes:hover .Return-Equity:hover,
-.dashboard .bottom-boxes:hover .Net-Profit:hover, 
-.dashboard .bottom-boxes:hover .Asset-Turnover:hover, 
-.dashboard .bottom-boxes:hover .Quick-Ratio:hover {
-    border: 3px solid black;
-    color: black;
-    transform: scale(1.05);
+
+.arrow {
+    font-size: 24px;
+    font-weight: bold;
+    color: gray; /* Default color before animation */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover Effect for Ratio Numbers and Arrows Within Hovered Box */
+.dashboard .top-boxes .Current-Ratio:hover .ratio-num, 
+.dashboard .top-boxes .Return-Assets:hover .ratio-num, 
+.dashboard .top-boxes .Return-Equity:hover .ratio-num,
+.dashboard .bottom-boxes .Net-Profit:hover .ratio-num, 
+.dashboard .bottom-boxes .Asset-Turnover:hover .ratio-num, 
+.dashboard .bottom-boxes .Quick-Ratio:hover .ratio-num {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.dashboard .top-boxes .Current-Ratio:hover .arrow, 
+.dashboard .top-boxes .Return-Assets:hover .arrow, 
+.dashboard .top-boxes .Return-Equity:hover .arrow,
+.dashboard .bottom-boxes .Net-Profit:hover .arrow, 
+.dashboard .bottom-boxes .Asset-Turnover:hover .arrow, 
+.dashboard .bottom-boxes .Quick-Ratio:hover .arrow {
+    color: white;
+    transform: scale(1.2);
 }
   
 @media (max-width: 768px) {
