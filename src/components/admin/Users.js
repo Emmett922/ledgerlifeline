@@ -3,8 +3,14 @@ import { useNavigate } from "react-router-dom";
 import "./styles/Users.css";
 import { Link } from "react-router-dom";
 import Select from "react-select";
+import Calendar from "react-calendar";
+import Calculator from "../calc/Calculator";
+import Draggable from "react-draggable";
+import "react-calendar/dist/Calendar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { faCalculator } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -40,9 +46,11 @@ const Users = () => {
     const [endDate, setEndDate] = useState("");
     const [userArray, setUserArray] = useState([]);
     const [userTable, setUserTable] = useState(1);
-    const API_URL = process.env.REACT_APP_API_URL;
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserFullName, setStoredUserFullName] = useState("");
+    const [isEmailAllUserVisible, setIsEmailAllUserVisible] = useState(false);
+    const API_URL = process.env.REACT_APP_API_URL;
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -536,46 +544,39 @@ const Users = () => {
 
     const handleEmailToAll = async () => {
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
-        const subject = emailSubject;
 
-        const emailInfo = {
-            users: userArray,
-            subject: subject,
-            message: formattedMessage,
-        };
+        // Send an email to each selected user
+        for (const user of selectedUsers) {
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/email/send-custom-email`, {
+                        method: "POST",
+                        headers: {
+                            "content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            user: user.value,
+                            subject: emailSubject,
+                            message: formattedMessage,
+                            senderName: storedUserFullName,
+                        }),
+                    });
 
-        try {
-            const response = await fetch(`${API_URL}/email/send-email-to-all-users`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(emailInfo),
-            });
+                    const result = await response.json();
+                    if (response.ok) {
+                        // Store the message in localStorage
+                        localStorage.setItem("toastMessage", result.message);
 
-            console.log("Response Status:", response.status);
-
-            // Handle response directly based on status
-            if (response.ok) {
-                // Parse the response JSON
-                const result = await response.json();
-
-                // Store the result message locally to deliver on page reload
-                localStorage.setItem("toastMessage", result.message || "Emails sent successfully");
-
-                // Reload the page after storing the message
-                setTimeout(() => {
-                    window.location.reload();
-                }, 300); // Small delay for page reload
-            } else {
-                // Parse error message if response is not OK
-                const errorResult = await response.json();
-                throw new Error(errorResult.message || "Failed to send emails");
-            }
-        } catch (error) {
-            console.error("Error sending email:", error);
-            alert("Failed to send email: " + error.message);
+                        // Reload the page after storing the message
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error("Error sending email:", error);
+                }
+            }, 0);
         }
+
+        setIsEmailUserVisible(false);
     };
 
     const handleLogout = () => {

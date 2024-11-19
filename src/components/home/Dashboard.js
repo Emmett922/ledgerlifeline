@@ -26,6 +26,7 @@ const Dashboard = () => {
     const [emailSubject, setEmailSubject] = useState("");
     const [emailMessage, setEmailMessage] = useState("");
     const [selectedUsers, setSelectedUsers] = useState([]);
+    const [pendingEntries, setPendingEntries] = useState([]);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -122,6 +123,30 @@ const Dashboard = () => {
             }
         };
         fetchUsers();
+
+        const fetchPendingEntries = async () => {
+            try {
+                const response = await fetch(`${API_URL}/journal-entry/pending`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle the result
+                if (response.ok) {
+                    if (result.length !== 0) {
+                        setPendingEntries(result);
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchPendingEntries();
 
         // Show toast message if present in localStorage
         const toastMessage = localStorage.getItem("toastMessage");
