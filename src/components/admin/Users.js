@@ -48,9 +48,10 @@ const Users = () => {
     const [userTable, setUserTable] = useState(1);
     const [storedUserName, setStoredUserName] = useState("");
     const [storedUserFullName, setStoredUserFullName] = useState("");
-    const [isEmailAllUserVisible, setIsEmailAllUserVisible] = useState(false);
     const API_URL = process.env.REACT_APP_API_URL;
     const [selectedUsers, setSelectedUsers] = useState([]);
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [showCalculator, setShowCalculator] = useState(false);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -576,7 +577,15 @@ const Users = () => {
             }, 0);
         }
 
-        setIsEmailUserVisible(false);
+        setIsEmailAllVisible(false);
+    };
+
+    const toggleCalendar = () => {
+        setShowCalendar(!showCalendar);
+    };
+
+    const toggleCalculator = () => {
+        setShowCalculator(!showCalculator);
     };
 
     const handleLogout = () => {
@@ -585,6 +594,17 @@ const Users = () => {
     };
 
     const isSuspendedBtnsDisabled = !(startDate && endDate);
+
+    const adminEmailUserOptions = [
+        {
+            value: "ALL",
+            label: "ALL",
+        },
+        ...userArray.map((user) => ({
+            value: user,
+            label: `${user.first_name} ${user.last_name}`,
+        })),
+    ];
 
     const content = (
         <section className="users">
@@ -656,7 +676,66 @@ const Users = () => {
                         >
                             View Expired Passwords
                         </button>
+                        <button
+                            className="email-btn"
+                            title="Email Employee"
+                            onClick={() => {
+                                setIsEmailAllVisible(true);
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faEnvelope} size="lg" />
+                        </button>
+                        <button
+                            onClick={toggleCalendar}
+                            style={{ background: "none", border: "none", cursor: "pointer" }}
+                            title="Open/Close pop-up calendar"
+                        >
+                            <FontAwesomeIcon icon={faCalendar} size="2x" />
+                        </button>
+                        <button
+                            onClick={toggleCalculator}
+                            style={{ background: "none", border: "none", cursor: "pointer" }}
+                            title="Open/Close pop-up calculator"
+                        >
+                            <FontAwesomeIcon icon={faCalculator} size="2x" />
+                        </button>
                     </div>
+
+                    {/* Draggable Calendar pop-up */}
+                    {showCalendar && (
+                        <Draggable>
+                            <div
+                                className="calendar-popup"
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 1000,
+                                    padding: "10px",
+                                    backgroundColor: "white",
+                                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                                }}
+                            >
+                                <Calendar />
+                            </div>
+                        </Draggable>
+                    )}
+
+                    {/* Draggable Calculator pop-up */}
+                    {showCalculator && (
+                        <div
+                            className="calculator-popup"
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                zIndex: 1000,
+                            }}
+                        >
+                            <Calculator />
+                        </div>
+                    )}
+
                     <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{storedUserName}</span>
@@ -1228,7 +1307,7 @@ const Users = () => {
                                         type="button"
                                         className="cancel-button"
                                         title="Cancel email draft"
-                                        onClick={() => setIsEmailUserVisible(false)}
+                                        onClick={() => setIsEmailAllVisible(false)}
                                     >
                                         Cancel
                                     </button>
@@ -1241,7 +1320,7 @@ const Users = () => {
                 {/* Pop-up section to email all users */}
                 {isEmailAllVisible && (
                     <div className="modal">
-                        <div className="modal-content">
+                        <div className="modal-email-content">
                             <span
                                 className="close"
                                 title="Close modal"
@@ -1249,14 +1328,42 @@ const Users = () => {
                             >
                                 &times;
                             </span>
-                            <h2>Send Email to All Users</h2>
+                            <h2>Send Email</h2>
                             <form onSubmit={handleEmailToAll}>
+                                <div className="form-group">
+                                    <label htmlFor="selectUser">To</label>
+                                    <Select
+                                        id="selectUser"
+                                        name="selectUser"
+                                        title="Select a user to send an email to"
+                                        value={selectedUsers} // array of selected users
+                                        onChange={(selectedOptions) => {
+                                            if (
+                                                selectedOptions.some(
+                                                    (option) => option.value === "ALL"
+                                                )
+                                            ) {
+                                                // If "ALL" is selected, set all users as selected
+                                                setSelectedUsers(adminEmailUserOptions.slice(1)); // all except "ALL"
+                                            } else {
+                                                // Otherwise, set selected users to whatever is chosen
+                                                setSelectedUsers(selectedOptions);
+                                            }
+                                        }}
+                                        options={adminEmailUserOptions}
+                                        isSearchable={true}
+                                        isMulti={true}
+                                        required
+                                        placeholder="Select user(s)"
+                                    />
+                                </div>
                                 <div className="form-group">
                                     <label htmlFor="emailSubject">Subject</label>
                                     <input
                                         type="text"
                                         id="emailSubject"
                                         name="emailSubject"
+                                        title="Give email a subject"
                                         placeholder="Enter the subject"
                                         value={emailSubject}
                                         onChange={(e) => setEmailSubject(e.target.value)}
@@ -1268,19 +1375,25 @@ const Users = () => {
                                     <textarea
                                         id="emailMessage"
                                         name="emailMessage"
+                                        title="Enter an email message"
                                         placeholder="Enter your message"
                                         value={emailMessage}
                                         onChange={(e) => setEmailMessage(e.target.value)}
                                         required
-                                    ></textarea>
+                                    />
                                 </div>
                                 <div className="modal-btns">
-                                    <button type="submit" className="send-button">
+                                    <button
+                                        type="submit"
+                                        title="Send email to user"
+                                        className="send-button"
+                                    >
                                         Send Email
                                     </button>
                                     <button
                                         type="button"
                                         className="cancel-button"
+                                        title="Cancel email draft"
                                         onClick={() => setIsEmailAllVisible(false)}
                                     >
                                         Cancel

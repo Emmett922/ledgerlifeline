@@ -279,156 +279,196 @@ const Dashboard = () => {
     };
 
     useEffect(() => {
-        // Function to animate a number with color transitions
-        const animatePercentage = (element, targetValue, duration, customThresholdLow, customThresholdHigh) => {
-          const stepTime = Math.abs(Math.floor(duration / targetValue));
-          let currentValue = 0;
-      
-          const interval = setInterval(() => {
-            currentValue += 1;
-            element.textContent = `${currentValue.toFixed(2)}%`;
-      
-            // Apply color logic progressively during the count based on thresholds
-            if (currentValue > customThresholdHigh) {
-              element.style.color = "green"; // High values based on custom upper threshold (above 70%)
-            } else if (currentValue < customThresholdLow) {
-              element.style.color = "red"; // Low values based on custom lower threshold (below 60%)
-            } else {
-              element.style.color = "orange"; // Neutral values between 60% and 70%
-            }
-      
-            if (currentValue >= targetValue) {
-              clearInterval(interval);
-              element.textContent = `${targetValue.toFixed(2)}%`; // Ensure final value matches
-            }
-          }, stepTime);
-        };
-      
-        // Query all elements with the "ratio-num" class and animate them
-        const ratioElements = document.querySelectorAll(".ratio-num");
-        ratioElements.forEach((el) => {
-          const targetValue = parseFloat(el.textContent.replace("%", ""));
-          const ratioClass = el.closest('.percentage').classList[1];  // Get the class of the parent box (e.g., "Current-Ratio", "Asset-Turnover")
-          
-          // Define custom thresholds based on ratio type
-          let customThresholdLow = 0;
-          let customThresholdHigh = 0;
-      
-          // Define custom thresholds for each ratio
-          if (ratioClass === "Current-Ratio") {
-            customThresholdLow = 133.33;  // (1:75) Lower threshold for Current Ratio
-            customThresholdHigh = 800; // (2:25) Upper threshold for Current Ratio
-          } if (ratioClass === "Return-Assets") {
-            customThresholdLow = 3;  // Return Assets lower threshold
-            customThresholdHigh = 5; // Return Assets upper threshold
-          } if (ratioClass === "Return-Equity") {
-            customThresholdLow = 5;  // Return Equity lower threshold
-            customThresholdHigh = 10; // Return Equity upper threshold
-          } if (ratioClass === "Net-Profit") {
-            customThresholdLow = 5;  // Net Profit lower threshold
-            customThresholdHigh = 10; // Net Profit upper threshold
-          } if (ratioClass === "Asset-Turnover") {
-            customThresholdLow = 0.5;  // Asset Turnover lower threshold
-            customThresholdHigh = 0.75; // Asset Turnover upper threshold
-          } if (ratioClass === "Quick-Ratio") {
-            customThresholdLow = 111.11;  // (1:0.9) Quick Ratio lower threshold
-            customThresholdHigh = 120; // (1.2:1) Quick Ratio upper threshold
-          }
-      
-          animatePercentage(el, targetValue, 1000, customThresholdLow, customThresholdHigh); // 1-second animation with thresholds
-        });
-      }, []);
-      
-      useEffect(() => {
-        // Function to animate and add arrow icons
-        const animateAndSetArrows = (element, targetValue, duration, customThresholdLow, customThresholdHigh) => {
-          if (!element) return; // Skip if the element doesn't exist
-          const stepTime = Math.abs(Math.floor(duration / targetValue));
-          let currentValue = 0;
-      
-          const interval = setInterval(() => {
+        const animateAndSetArrows = (
+            element,
+            targetValue,
+            duration,
+            customThresholdLow,
+            customThresholdHigh
+        ) => {
+            if (!element) return; // Skip if the element doesn't exist
+            const stepTime = Math.abs(Math.floor(duration / targetValue));
+            let currentValue = 0;
+
             const ratioNumElement = element.querySelector(".ratio-num");
             const arrow = element.querySelector(".arrow");
-      
-            if (!ratioNumElement || !arrow) {
-              clearInterval(interval); // Stop if element is null
-              return;
-            }
-      
-            currentValue += 1;
-            ratioNumElement.textContent = `${currentValue.toFixed(2)}%`;
-      
-            // Apply color progressively during count based on the ratio type's thresholds
-            if (currentValue > customThresholdHigh) {
-              ratioNumElement.style.color = "green";
-              arrow.style.color = "green"; // Set the arrow color to match
-            } else if (currentValue < customThresholdLow) {
-              ratioNumElement.style.color = "red";
-              arrow.style.color = "red"; // Set the arrow color to match
-            } else {
-              ratioNumElement.style.color = "orange";
-              arrow.style.color = "orange"; // Set the arrow color to match
-            }
-      
-            if (currentValue >= targetValue) {
-              clearInterval(interval);
-              ratioNumElement.textContent = `${targetValue.toFixed(2)}%`;
-      
-              // Set final arrow based on value and custom threshold
-              if (targetValue > customThresholdHigh) {
-                arrow.textContent = "↑"; // Up arrow for high (above 70%)
-                ratioNumElement.style.color = "green"; // Match number color
-                arrow.style.color = "green"; // Match arrow color
-              } else if (targetValue < customThresholdLow) {
-                arrow.textContent = "↓"; // Down arrow for low (below 60%)
-                ratioNumElement.style.color = "red"; // Match number color
-                arrow.style.color = "red"; // Match arrow color
-              } else {
-                arrow.textContent = "→"; // Side arrow for neutral (between 60%-70%)
-                ratioNumElement.style.color = "orange"; // Match number color
-                arrow.style.color = "orange"; // Match arrow color
-              }
-            }
-          }, stepTime);
+
+            if (!ratioNumElement || !arrow) return; // Skip if elements are missing
+
+            // Set an initial arrow and color before the animation begins
+            arrow.textContent = "→"; // Neutral side arrow
+            ratioNumElement.style.color = "orange";
+            arrow.style.color = "orange";
+
+            const interval = setInterval(() => {
+                currentValue += 1;
+                ratioNumElement.textContent = `${currentValue.toFixed(2)}%`;
+
+                // Update the arrow and color dynamically based on the current value
+                if (currentValue > customThresholdHigh) {
+                    ratioNumElement.style.color = "green";
+                    arrow.style.color = "green";
+                    arrow.textContent = "↑"; // Up arrow for high values
+                } else if (currentValue < customThresholdLow) {
+                    ratioNumElement.style.color = "red";
+                    arrow.style.color = "red";
+                    arrow.textContent = "↓"; // Down arrow for low values
+                } else {
+                    ratioNumElement.style.color = "orange";
+                    arrow.style.color = "orange";
+                    arrow.textContent = "→"; // Side arrow for neutral values
+                }
+
+                if (currentValue >= targetValue) {
+                    clearInterval(interval);
+                    ratioNumElement.textContent = `${targetValue.toFixed(2)}%`;
+                }
+            }, stepTime);
         };
-      
+
+        const ratioElements = document.querySelectorAll(".percentage");
+        ratioElements.forEach((el) => {
+            const ratioNumElement = el.querySelector(".ratio-num");
+            if (!ratioNumElement) return;
+
+            const targetValue = parseFloat(ratioNumElement.textContent.replace("%", ""));
+            const ratioClass = el.classList[1];
+            let customThresholdLow = 0;
+            let customThresholdHigh = 0;
+
+            // Define custom thresholds based on ratio type
+            if (ratioClass === "Current-Ratio") {
+                customThresholdLow = 133.33;
+                customThresholdHigh = 800;
+            }
+            if (ratioClass === "Return-Assets") {
+                customThresholdLow = 3;
+                customThresholdHigh = 5;
+            }
+            if (ratioClass === "Return-Equity") {
+                customThresholdLow = 5;
+                customThresholdHigh = 10;
+            }
+            if (ratioClass === "Net-Profit") {
+                customThresholdLow = 5;
+                customThresholdHigh = 10;
+            }
+            if (ratioClass === "Asset-Turnover") {
+                customThresholdLow = 0.5;
+                customThresholdHigh = 0.75;
+            }
+            if (ratioClass === "Quick-Ratio") {
+                customThresholdLow = 111.11;
+                customThresholdHigh = 120;
+            }
+
+            if (!isNaN(targetValue)) {
+                animateAndSetArrows(el, targetValue, 1000, customThresholdLow, customThresholdHigh);
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        // Function to animate and add arrow icons
+        const animateAndSetArrows = (
+            element,
+            targetValue,
+            duration,
+            customThresholdLow,
+            customThresholdHigh
+        ) => {
+            if (!element) return; // Skip if the element doesn't exist
+            const stepTime = Math.abs(Math.floor(duration / targetValue));
+            let currentValue = 0;
+
+            const interval = setInterval(() => {
+                const ratioNumElement = element.querySelector(".ratio-num");
+                const arrow = element.querySelector(".arrow");
+
+                if (!ratioNumElement || !arrow) {
+                    clearInterval(interval); // Stop if element is null
+                    return;
+                }
+
+                currentValue += 1;
+                ratioNumElement.textContent = `${currentValue.toFixed(2)}%`;
+
+                // Apply color progressively during count based on the ratio type's thresholds
+                if (currentValue > customThresholdHigh) {
+                    ratioNumElement.style.color = "green";
+                    arrow.style.color = "green"; // Set the arrow color to match
+                } else if (currentValue < customThresholdLow) {
+                    ratioNumElement.style.color = "red";
+                    arrow.style.color = "red"; // Set the arrow color to match
+                } else {
+                    ratioNumElement.style.color = "orange";
+                    arrow.style.color = "orange"; // Set the arrow color to match
+                }
+
+                if (currentValue >= targetValue) {
+                    clearInterval(interval);
+                    ratioNumElement.textContent = `${targetValue.toFixed(2)}%`;
+
+                    // Set final arrow based on value and custom threshold
+                    if (targetValue > customThresholdHigh) {
+                        arrow.textContent = "↑"; // Up arrow for high (above 70%)
+                        ratioNumElement.style.color = "green"; // Match number color
+                        arrow.style.color = "green"; // Match arrow color
+                    } else if (targetValue < customThresholdLow) {
+                        arrow.textContent = "↓"; // Down arrow for low (below 60%)
+                        ratioNumElement.style.color = "red"; // Match number color
+                        arrow.style.color = "red"; // Match arrow color
+                    } else {
+                        arrow.textContent = "→"; // Side arrow for neutral (between 60%-70%)
+                        ratioNumElement.style.color = "orange"; // Match number color
+                        arrow.style.color = "orange"; // Match arrow color
+                    }
+                }
+            }, stepTime);
+        };
+
         // Query all elements with the "percentage" class and process them
         const ratioElements = document.querySelectorAll(".percentage");
         ratioElements.forEach((el) => {
-          const ratioNumElement = el.querySelector(".ratio-num");
-          if (!ratioNumElement) return; // Skip if the ratio number element is missing
-      
-          const targetValue = parseFloat(ratioNumElement.textContent.replace("%", ""));
-          const ratioClass = el.classList[1];  // Get the class of the current box
-          let customThresholdLow = 0;
-          let customThresholdHigh = 0;
-      
-          // Define custom thresholds for each ratio
-          if (ratioClass === "Current-Ratio") {
-            customThresholdLow = 133.33;  // (1:75) Lower threshold for Current Ratio
-            customThresholdHigh = 800; // (2:25) Upper threshold for Current Ratio
-          } if (ratioClass === "Return-Assets") {
-            customThresholdLow = 3;  // Return Assets lower threshold
-            customThresholdHigh = 5; // Return Assets upper threshold
-          } if (ratioClass === "Return-Equity") {
-            customThresholdLow = 5;  // Return Equity lower threshold
-            customThresholdHigh = 10; // Return Equity upper threshold
-          } if (ratioClass === "Net-Profit") {
-            customThresholdLow = 5;  // Net Profit lower threshold
-            customThresholdHigh = 10; // Net Profit upper threshold
-          } if (ratioClass === "Asset-Turnover") {
-            customThresholdLow = 0.5;  // Asset Turnover lower threshold
-            customThresholdHigh = 0.75; // Asset Turnover upper threshold
-          } if (ratioClass === "Quick-Ratio") {
-            customThresholdLow = 111.11;  // (1:0.9) Quick Ratio lower threshold
-            customThresholdHigh = 120; // (1.2:1) Quick Ratio upper threshold
-          }
-      
-          if (!isNaN(targetValue)) {
-            animateAndSetArrows(el, targetValue, 1000, customThresholdLow, customThresholdHigh); // 1-second animation with thresholds
-          }
+            const ratioNumElement = el.querySelector(".ratio-num");
+            if (!ratioNumElement) return; // Skip if the ratio number element is missing
+
+            const targetValue = parseFloat(ratioNumElement.textContent.replace("%", ""));
+            const ratioClass = el.classList[1]; // Get the class of the current box
+            let customThresholdLow = 0;
+            let customThresholdHigh = 0;
+
+            // Define custom thresholds for each ratio
+            if (ratioClass === "Current-Ratio") {
+                customThresholdLow = 133.33; // (1:75) Lower threshold for Current Ratio
+                customThresholdHigh = 800; // (2:25) Upper threshold for Current Ratio
+            }
+            if (ratioClass === "Return-Assets") {
+                customThresholdLow = 3; // Return Assets lower threshold
+                customThresholdHigh = 5; // Return Assets upper threshold
+            }
+            if (ratioClass === "Return-Equity") {
+                customThresholdLow = 5; // Return Equity lower threshold
+                customThresholdHigh = 10; // Return Equity upper threshold
+            }
+            if (ratioClass === "Net-Profit") {
+                customThresholdLow = 5; // Net Profit lower threshold
+                customThresholdHigh = 10; // Net Profit upper threshold
+            }
+            if (ratioClass === "Asset-Turnover") {
+                customThresholdLow = 0.5; // Asset Turnover lower threshold
+                customThresholdHigh = 0.75; // Asset Turnover upper threshold
+            }
+            if (ratioClass === "Quick-Ratio") {
+                customThresholdLow = 111.11; // (1:0.9) Quick Ratio lower threshold
+                customThresholdHigh = 120; // (1.2:1) Quick Ratio upper threshold
+            }
+
+            if (!isNaN(targetValue)) {
+                animateAndSetArrows(el, targetValue, 1000, customThresholdLow, customThresholdHigh); // 1-second animation with thresholds
+            }
         });
-      }, []);
+    }, []);
 
     const content = (
         <section className="dashboard">
@@ -692,36 +732,36 @@ const Dashboard = () => {
                 <div className="dashboard1">
                     <div className="top-boxes">
                         <div className="percentage Current-Ratio">
-                        <div className="box-title">Current Ratio</div>
-                        <div className="ratio-num">515.62%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Current Ratio</div>
+                            <div className="ratio-num">515.62%</div>
+                            <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Assets">
-                        <div className="box-title">Return on Assets</div>
-                        <div className="ratio-num">18.96%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Return on Assets</div>
+                            <div className="ratio-num">18.96%</div>
+                            <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Equity">
-                        <div className="box-title">Return on Equity</div>
-                        <div className="ratio-num">28.02%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Return on Equity</div>
+                            <div className="ratio-num">28.02%</div>
+                            <div className="arrow"></div>
                         </div>
                     </div>
                     <div className="bottom-boxes">
                         <div className="percentage Net-Profit">
-                        <div className="box-title">Net Profit</div>
-                        <div className="ratio-num">49.67%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Net Profit</div>
+                            <div className="ratio-num">49.67%</div>
+                            <div className="arrow"></div>
                         </div>
                         <div className="percentage Asset-Turnover">
-                        <div className="box-title">Asset Turnover</div>
-                        <div className="ratio-num">38.18%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Asset Turnover</div>
+                            <div className="ratio-num">38.18%</div>
+                            <div className="arrow"></div>
                         </div>
                         <div className="percentage Quick-Ratio">
-                        <div className="box-title">Quick Ratio</div>
-                        <div className="ratio-num">515.62%</div>
-                        <div className="arrow"></div>
+                            <div className="box-title">Quick Ratio</div>
+                            <div className="ratio-num">515.62%</div>
+                            <div className="arrow"></div>
                         </div>
                     </div>
                 </div>

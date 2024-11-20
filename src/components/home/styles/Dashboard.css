@@ -226,6 +226,12 @@ body {
     cursor: pointer;
 }
 
+.dashboard .bottom-boxes .Net-Profit, 
+.dashboard .bottom-boxes .Asset-Turnover, 
+.dashboard .bottom-boxes .Quick-Ratio {
+    margin-top: 10px;
+}
+
 /* Hover Effect */
 .dashboard .top-boxes .Current-Ratio:hover, 
 .dashboard .top-boxes .Return-Assets:hover, 
@@ -235,7 +241,7 @@ body {
 .dashboard .bottom-boxes .Quick-Ratio:hover {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #58a1be, #007bff);
+    background: linear-gradient(135deg, #e4e4e4, #dfefff);
     color: white;
     border-color: transparent;
 }
