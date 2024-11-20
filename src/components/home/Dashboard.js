@@ -27,6 +27,7 @@ const Dashboard = () => {
     const [emailMessage, setEmailMessage] = useState("");
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [pendingEntries, setPendingEntries] = useState([]);
+    const [accountArray, setAccountArray] = useState([]);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -73,6 +74,43 @@ const Dashboard = () => {
                 }, 500);
             }
         }
+
+        const fetchAccounts = async () => {
+            try {
+                const response = await fetch(`${API_URL}/accounts`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                // Gather the result
+                const result = await response.json();
+
+                // Handle result
+                if (response.ok) {
+                    setAccountArray(result);
+                } else {
+                    // Show toast message
+                    toast(`${result.message}`, {
+                        style: {
+                            backgroundColor: "#333",
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                        },
+                        progressStyle: {
+                            backgroundColor: "#2196f3", // Solid blue color for progress bar
+                            backgroundImage: "none",
+                        },
+                        closeButton: <CustomCloseButton />,
+                    });
+                }
+            } catch (error) {
+                alert("An error occured. Failed to retrieve account!");
+            }
+        };
+        fetchAccounts();
 
         // Get all users from database in
         const fetchUsers = async () => {
@@ -123,6 +161,7 @@ const Dashboard = () => {
             }
         };
         fetchUsers();
+
 
         const fetchPendingEntries = async () => {
             try {
@@ -240,6 +279,18 @@ const Dashboard = () => {
                 label: `${user.first_name} ${user.last_name}`,
             })),
     ];
+
+    const handleClickToJournal = () => {
+        localStorage.setItem("tab", "pending");
+        navigate('/journalize');      
+    }
+
+    let assetBalance = 0;
+    for (let account of accountArray) {
+        if (account.accountCategory === "asset") {
+            assetBalance += account.balance;
+        }
+    }
 
     const handleEmail = async () => {
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
@@ -733,7 +784,11 @@ const Dashboard = () => {
                     <div className="top-boxes">
                         <div className="percentage Current-Ratio">
                             <div className="box-title">Current Ratio</div>
-                            <div className="ratio-num">515.62%</div>
+                            <div className="ratio-num">515.62%
+
+
+
+                            </div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Assets">
@@ -762,6 +817,18 @@ const Dashboard = () => {
                             <div className="box-title">Quick Ratio</div>
                             <div className="ratio-num">515.62%</div>
                             <div className="arrow"></div>
+                        </div>
+                    </div>
+                    <div className="pending-row">
+                        <div className="Pending"
+                        onClick={handleClickToJournal}
+                        title="Go to pending journal entries"
+                        >
+                            <div 
+                            className="box-title" 
+                            style= {{color: "orange"}}
+                            >Pending Entries: {pendingEntries.length}</div>
+                            <div className="linkHint" style={{color: "orange"}}>{">"}</div>
                         </div>
                     </div>
                 </div>

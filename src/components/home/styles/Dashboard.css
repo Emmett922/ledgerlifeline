@@ -210,7 +210,8 @@ body {
 .dashboard .top-boxes .Return-Equity,
 .dashboard .bottom-boxes .Net-Profit, 
 .dashboard .bottom-boxes .Asset-Turnover, 
-.dashboard .bottom-boxes .Quick-Ratio {
+.dashboard .bottom-boxes .Quick-Ratio,
+.dashboard .pending-row .Pending {
     width: calc(33% - 20px);
     background: #ffffff;
     color: #333333;
@@ -223,12 +224,13 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    cursor:default;
 }
 
 .dashboard .bottom-boxes .Net-Profit, 
 .dashboard .bottom-boxes .Asset-Turnover, 
-.dashboard .bottom-boxes .Quick-Ratio {
+.dashboard .bottom-boxes .Quick-Ratio,
+.dashboard .pending-row .Pending {
     margin-top: 10px;
 }
 
@@ -238,7 +240,8 @@ body {
 .dashboard .top-boxes .Return-Equity:hover,
 .dashboard .bottom-boxes .Net-Profit:hover, 
 .dashboard .bottom-boxes .Asset-Turnover:hover, 
-.dashboard .bottom-boxes .Quick-Ratio:hover {
+.dashboard .bottom-boxes .Quick-Ratio:hover,
+.dashboard .pending-row .Pending:hover {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.2);
     background: linear-gradient(135deg, #e4e4e4, #dfefff);
@@ -257,6 +260,29 @@ body {
     margin-bottom: 10px;
     position: relative;
 }
+
+
+.dashboard .pending-row {
+    width: 100%;
+    text-align: left;
+    font-size: 24px;
+    font-weight: bold;
+    color: #444444;
+    margin-top: 80px;
+    position: relative;
+    display: grid;
+    place-items: center
+}
+
+.dashboard .pending-row .Pending {
+    display: flex;
+    flex-direction:row;
+    justify-content: space-between;
+    align-items: center;
+    width: 45%;
+    cursor: pointer;
+}
+
 
 /* Ratio Number Styling */
 .percentage {
@@ -295,7 +321,8 @@ body {
 .dashboard .top-boxes .Return-Equity:hover .arrow,
 .dashboard .bottom-boxes .Net-Profit:hover .arrow, 
 .dashboard .bottom-boxes .Asset-Turnover:hover .arrow, 
-.dashboard .bottom-boxes .Quick-Ratio:hover .arrow {
+.dashboard .bottom-boxes .Quick-Ratio:hover .arrow,
+.dashboard .pending-row .pending:hover {
     color: white;
     transform: scale(1.2);
 }
@@ -310,7 +337,8 @@ body {
     .dashboard .top-boxes .Return-Equity,
     .dashboard .bottom-boxes .Net-Profit, 
     .dashboard .bottom-boxes .Asset-Turnover, 
-    .dashboard .bottom-boxes .Quick-Ratio {
+    .dashboard .bottom-boxes .Quick-Ratio,
+    .dashboard .pending-row .Pending {
         width: 100%;
         margin-bottom: 10px;
     }
