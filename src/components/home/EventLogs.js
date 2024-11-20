@@ -701,7 +701,7 @@ const EventLogs = () => {
                         <h1 className="header-title">Event Logs</h1>
                         <button
                             className="email-btn"
-                            title="Email Employee"
+                            title="Email"
                             onClick={() => {
                                 setIsEmailUserVisible(true);
                             }}

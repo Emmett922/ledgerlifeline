@@ -399,11 +399,11 @@ select:disabled {
     background-color: #1c4a7c;
 }
 
-.account .modal-btns .cancel-button {
+.modal-btns .cancel-button {
     background-color: #dc3545;
 }
 
-.account .modal-btns .cancel-button:hover {
+.modal-btns .cancel-button:hover {
     background-color: #a52a2a;
 }
 

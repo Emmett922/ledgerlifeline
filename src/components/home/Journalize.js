@@ -1083,7 +1083,7 @@ const Journalize = () => {
                         </button>
                         <button
                             className="email-btn"
-                            title="Email Employee"
+                            title="Email"
                             onClick={() => {
                                 setIsEmailUserVisible(true);
                             }}
