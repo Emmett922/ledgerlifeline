@@ -162,7 +162,6 @@ const Dashboard = () => {
         };
         fetchUsers();
 
-
         const fetchPendingEntries = async () => {
             try {
                 const response = await fetch(`${API_URL}/journal-entry/pending`, {
@@ -282,8 +281,8 @@ const Dashboard = () => {
 
     const handleClickToJournal = () => {
         localStorage.setItem("tab", "pending");
-        navigate('/journalize');      
-    }
+        navigate("/journalize");
+    };
 
     let assetBalance = 0;
     for (let account of accountArray) {
@@ -390,7 +389,7 @@ const Dashboard = () => {
             // Define custom thresholds based on ratio type
             if (ratioClass === "Current-Ratio") {
                 customThresholdLow = 133.33;
-                customThresholdHigh = 800;
+                customThresholdHigh = 350;
             }
             if (ratioClass === "Return-Assets") {
                 customThresholdLow = 3;
@@ -492,7 +491,7 @@ const Dashboard = () => {
             // Define custom thresholds for each ratio
             if (ratioClass === "Current-Ratio") {
                 customThresholdLow = 133.33; // (1:75) Lower threshold for Current Ratio
-                customThresholdHigh = 800; // (2:25) Upper threshold for Current Ratio
+                customThresholdHigh = 350; // (2:25) Upper threshold for Current Ratio
             }
             if (ratioClass === "Return-Assets") {
                 customThresholdLow = 3; // Return Assets lower threshold
@@ -784,16 +783,12 @@ const Dashboard = () => {
                     <div className="top-boxes">
                         <div className="percentage Current-Ratio">
                             <div className="box-title">Current Ratio</div>
-                            <div className="ratio-num">515.62%
-
-
-
-                            </div>
+                            <div className="ratio-num">890.56%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Assets">
                             <div className="box-title">Return on Assets</div>
-                            <div className="ratio-num">18.96%</div>
+                            <div className="ratio-num">16.89%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Equity">
@@ -815,20 +810,22 @@ const Dashboard = () => {
                         </div>
                         <div className="percentage Quick-Ratio">
                             <div className="box-title">Quick Ratio</div>
-                            <div className="ratio-num">515.62%</div>
+                            <div className="ratio-num">890.56%</div>
                             <div className="arrow"></div>
                         </div>
                     </div>
                     <div className="pending-row">
-                        <div className="Pending"
-                        onClick={handleClickToJournal}
-                        title="Go to pending journal entries"
+                        <div
+                            className="Pending"
+                            onClick={handleClickToJournal}
+                            title="Go to pending journal entries"
                         >
-                            <div 
-                            className="box-title" 
-                            style= {{color: "orange"}}
-                            >Pending Entries: {pendingEntries.length}</div>
-                            <div className="linkHint" style={{color: "orange"}}>{">"}</div>
+                            <div className="box-title" style={{ color: "orange" }}>
+                                Pending Entries: {pendingEntries.length}
+                            </div>
+                            <div className="linkHint" style={{ color: "orange" }}>
+                                {">"}
+                            </div>
                         </div>
                     </div>
                 </div>
