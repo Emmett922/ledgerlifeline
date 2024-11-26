@@ -766,7 +766,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    <div className="user-profile">
+                    <div className="user-profile"> 
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{username}</span>
                         <a>
