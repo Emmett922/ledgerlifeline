@@ -1169,7 +1169,7 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                         }}
                                     >
-                                        Non-Current Assets
+                                        Long Term Assets
                                     </td>
                                     <td
                                         style={{
