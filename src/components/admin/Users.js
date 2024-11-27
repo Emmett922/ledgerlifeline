@@ -678,7 +678,7 @@ const Users = () => {
                         </button>
                         <button
                             className="email-btn"
-                            title="Email Employee"
+                            title="Email"
                             onClick={() => {
                                 setIsEmailAllVisible(true);
                             }}

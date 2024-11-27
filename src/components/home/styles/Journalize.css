@@ -173,6 +173,7 @@
 .credit-input .single-input {
     display: flex;
     align-items: center;
+    margin-bottom: 2.5%;
 }
 
 
@@ -263,6 +264,7 @@
 .journal-entry-creation-table .action-button2.cancel:hover {
     background-color: #a52a2a; /* Darker red on hover */
 }
+
 
 .journal-entry-creation-table input[type="text"],
 .journal-entry-creation-table input[type="tel"],

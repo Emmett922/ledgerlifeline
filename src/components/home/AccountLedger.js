@@ -710,7 +710,7 @@ const AccountLedger = () => {
                             <h1 className="header-title">General Ledger</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -740,7 +740,7 @@ const AccountLedger = () => {
                             <h1 className="header-title">General Ledger</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}

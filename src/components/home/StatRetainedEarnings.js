@@ -813,7 +813,7 @@ const RetainedEarnings = () => {
                             <h1 className="header-title">Statement of Retained Earnings</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -843,7 +843,7 @@ const RetainedEarnings = () => {
                             <h1 className="header-title">Statement of Retained Earnings</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}

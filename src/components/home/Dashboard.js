@@ -167,7 +167,6 @@ const Dashboard = () => {
         };
         fetchUsers();
 
-
         const fetchPendingEntries = async () => {
             try {
                 const response = await fetch(`${API_URL}/journal-entry/pending`, {
@@ -287,7 +286,7 @@ const Dashboard = () => {
 
     const handleClickToJournal = () => {
         localStorage.setItem("tab", "pending");
-        navigate('/journalize');
+        navigate("/journalize");      
     }
 
 
@@ -511,7 +510,7 @@ const Dashboard = () => {
             // Define custom thresholds based on ratio type
             if (ratioClass === "Current-Ratio") {
                 customThresholdLow = 133.33;
-                customThresholdHigh = 800;
+                customThresholdHigh = 350;
             }
             if (ratioClass === "Return-Assets") {
                 customThresholdLow = 3;
@@ -613,7 +612,7 @@ const Dashboard = () => {
             // Define custom thresholds for each ratio
             if (ratioClass === "Current-Ratio") {
                 customThresholdLow = 133.33; // (1:75) Lower threshold for Current Ratio
-                customThresholdHigh = 800; // (2:25) Upper threshold for Current Ratio
+                customThresholdHigh = 350; // (2:25) Upper threshold for Current Ratio
             }
             if (ratioClass === "Return-Assets") {
                 customThresholdLow = 3; // Return Assets lower threshold
@@ -798,7 +797,7 @@ const Dashboard = () => {
                             <h1 className="header-title">Dashboard</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -828,7 +827,7 @@ const Dashboard = () => {
                             <h1 className="header-title accountant">Dashboard</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -888,7 +887,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    <div className="user-profile">
+                    <div className="user-profile"> 
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{username}</span>
                         <a>
@@ -938,15 +937,17 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="pending-row">
-                        <div className="Pending"
+                        <div
+                            className="Pending"
                             onClick={handleClickToJournal}
                             title="Go to pending journal entries"
                         >
-                            <div
-                                className="box-title"
-                                style={{ color: "orange" }}
-                            >Pending Entries: {pendingEntries.length}</div>
-                            <div className="linkHint" style={{ color: "orange" }}>{">"}</div>
+                            <div className="box-title" style={{ color: "orange" }}>
+                                Pending Entries: {pendingEntries.length}
+                            </div>
+                            <div className="linkHint" style={{ color: "orange" }}>
+                                {">"}
+                            </div>
                         </div>
                     </div>
                 </div>

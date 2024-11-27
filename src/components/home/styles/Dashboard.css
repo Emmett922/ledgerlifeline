@@ -23,7 +23,7 @@ body {
 .dashboard {
     display: flex;
     width: 100%;
-    max-width: 1550px;
+    max-width: 1950px;
 }
 
 /* Sidebar styles */
@@ -96,8 +96,7 @@ body {
     align-items: center;
     margin: auto;
     gap: 10px;
-    margin-top: -1%;
-    margin-right: -1%;
+    padding-top: 1%;
 }
 
 .profile-name {
@@ -161,7 +160,7 @@ body {
 
 /* Main content styles */
 .dashboard .main-content {
-    width: 170vh;         /*This is a tempory solution, need to make to change with the window size*/
+    width: 180vh;
     margin-left: 20px;
     background: rgba(255, 255, 255, 0.9);
     padding: 20px;

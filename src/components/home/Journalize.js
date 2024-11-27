@@ -657,13 +657,13 @@ const Journalize = () => {
     };
 
     const [toggleState, setToggleState] = useState(() => {
-        const storedTab = localStorage.getItem("tab")
+        const storedTab = localStorage.getItem("tab");
         return storedTab === "pending" ? 4 : 1;
-    })
+    });
 
     useEffect(() => {
         localStorage.removeItem("tab");
-    })
+    });
 
     const toggleTab = (index) => {
         setToggleState(index);
@@ -1083,7 +1083,7 @@ const Journalize = () => {
                         </button>
                         <button
                             className="email-btn"
-                            title="Email Employee"
+                            title="Email"
                             onClick={() => {
                                 setIsEmailUserVisible(true);
                             }}

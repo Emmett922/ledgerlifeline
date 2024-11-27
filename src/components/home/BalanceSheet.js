@@ -862,7 +862,7 @@ const BalanceSheet = () => {
                             <h1 className="header-title">Balance Sheet</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -892,7 +892,7 @@ const BalanceSheet = () => {
                             <h1 className="header-title">Balance Sheet</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -1169,7 +1169,7 @@ const BalanceSheet = () => {
                                             paddingLeft: "25px",
                                         }}
                                     >
-                                        Non-Current Assets
+                                        Long Term Assets
                                     </td>
                                     <td
                                         style={{

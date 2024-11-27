@@ -1200,7 +1200,7 @@ const Accounts = () => {
                             </button>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -1231,7 +1231,7 @@ const Accounts = () => {
                             <h1 className="header-title">Chart of Accounts</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
@@ -1260,7 +1260,7 @@ const Accounts = () => {
                             <h1 className="header-title accountant">Chart of Accounts</h1>
                             <button
                                 className="email-btn"
-                                title="Email Employee"
+                                title="Email"
                                 onClick={() => {
                                     setIsEmailUserVisible(true);
                                 }}
