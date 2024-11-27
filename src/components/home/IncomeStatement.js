@@ -715,6 +715,8 @@ const IncomeStatement = () => {
         setIsEmailUserVisible(false);
     };
 
+    console.log(asOfDate)
+
     const content = (
         <section className="income-statement">
             <ToastContainer />

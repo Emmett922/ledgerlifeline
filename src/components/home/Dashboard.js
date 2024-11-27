@@ -28,6 +28,11 @@ const Dashboard = () => {
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [pendingEntries, setPendingEntries] = useState([]);
     const [accountArray, setAccountArray] = useState([]);
+    const [returnOnAssets, setReturnOnAssets] = useState(null);
+    const [returnOnEquity, setReturnOnEquity] = useState(null);
+    const [netProfitPercent, setNetProfitPercent] = useState(null);
+    const [assetTurnover, setAssetTurnover] = useState(null);
+    const [quickRatio, setQuickRatio] = useState(null);
     const navigate = useNavigate();
     const CustomCloseButton = ({ closeToast }) => (
         <button
@@ -282,15 +287,9 @@ const Dashboard = () => {
 
     const handleClickToJournal = () => {
         localStorage.setItem("tab", "pending");
-        navigate('/journalize');      
+        navigate('/journalize');
     }
 
-    let assetBalance = 0;
-    for (let account of accountArray) {
-        if (account.accountCategory === "asset") {
-            assetBalance += account.balance;
-        }
-    }
 
     const handleEmail = async () => {
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
@@ -329,24 +328,146 @@ const Dashboard = () => {
         setIsEmailUserVisible(false);
     };
 
+
+    const calculateCurrentRatio = () => {
+        let assetBalance = 0;
+        let liabilityBalance = 0;
+
+        for (let account of accountArray) {
+            if (account.accountCatagory === "Asset" && account.accountSubcatagory === "Current") {
+                assetBalance += account.balance;
+            }
+            if (account.accountCatagory === "Liability" && account.accountSubcatagory === "Current") {
+                liabilityBalance += account.balance;
+            }
+        }
+
+        return ((assetBalance / liabilityBalance) * 100).toFixed(2);
+    }
+    const currentRatio = calculateCurrentRatio();
+
+
+    const calculateReturnOnAssets = () => {
+        let totalAssets = 0;
+        let netIncome = 4525;
+
+        for (let account of accountArray) {
+            if (account.accountCatagory === "Asset") {
+                totalAssets += account.balance;
+            }
+        }
+
+        if (totalAssets === 0) {
+            return 0; // Return 0 to avoid division by zero
+        }
+
+        return ((netIncome / totalAssets) * 100).toFixed(2);
+    };
+
+    const calculateReturnOnEquity = () => {
+        let totalEquity = 0;
+        let netIncome = 4525;
+
+        for (let account of accountArray) {
+            if (account.accountCatagory === "Equity") {
+                totalEquity += account.balance;
+            }
+        }
+
+        if (totalEquity === 0) {
+            return 0;
+        }
+
+        return ((netIncome / totalEquity) * 100).toFixed(2);
+    };
+
+    const calculateNetProfit = () => {
+        let revenue = 0;
+        let expense = 0;
+
+        for (let account of accountArray) {
+            if (account.accountCatagory === "Revenue") {
+                revenue += account.balance;
+            }
+
+            if (account.accountCatagory === "Expense") {
+                expense += account.balance;
+            }
+        }
+
+        if (expense === 0) {
+            return 0;
+        }
+
+        return ((revenue-expense) / expense * 100).toFixed(2);
+    };
+
+    const calculateAssetTurnover = () => {
+        let totalAssets = 0;
+        let totalRevenue = 0;
+
+        for (let account of accountArray) {
+            if (account.accountCatagory === "Asset") {
+                totalAssets += account.balance;
+            }
+
+            if (account.accountCatagory === "Revenue") {
+                totalRevenue += account.balance;
+            }
+        }
+
+        return ((totalRevenue / totalAssets) * 100).toFixed(2);
+    }
+
+    const calculateQuickRatio = () => {
+        let quickAssets = 0;
+        let currentLiabilities = 0;
+
+        for (let account of accountArray) {
+            if (["Accounts Receivable", "Cash", "Supplies"].includes(account.accountName)) {
+                quickAssets += account.balance;
+            }
+
+            if (account.accountCatagory === "Liability" && account.accountSubcatagory === "Current") {
+                currentLiabilities += account.balance;
+            }
+        }
+        return ((quickAssets / currentLiabilities) * 100).toFixed(2);
+    }
+
+    // Calculate dashboard values once accountArray is updated
     useEffect(() => {
-        const animateAndSetArrows = (
-            element,
-            targetValue,
-            duration,
-            customThresholdLow,
-            customThresholdHigh
-        ) => {
-            if (!element) return; // Skip if the element doesn't exist
+        if (accountArray.length > 0) {
+            const roa = calculateReturnOnAssets();
+            setReturnOnAssets(roa);
+
+            const roe = calculateReturnOnEquity();
+            setReturnOnEquity(roe);
+
+            const np = calculateNetProfit();
+            setNetProfitPercent(np);
+
+            const ato = calculateAssetTurnover();
+            setAssetTurnover(ato);
+
+            const qr = calculateQuickRatio();
+            setQuickRatio(qr);
+        }
+    }, [accountArray]);  // Recalculate when accountArray changes
+
+    
+    // Arrow animation effect
+    useEffect(() => {
+        const animateAndSetArrows = (element, targetValue, duration, customThresholdLow, customThresholdHigh) => {
+            if (!element) return;
             const stepTime = Math.abs(Math.floor(duration / targetValue));
             let currentValue = 0;
 
             const ratioNumElement = element.querySelector(".ratio-num");
             const arrow = element.querySelector(".arrow");
 
-            if (!ratioNumElement || !arrow) return; // Skip if elements are missing
+            if (!ratioNumElement || !arrow) return;
 
-            // Set an initial arrow and color before the animation begins
             arrow.textContent = "→"; // Neutral side arrow
             ratioNumElement.style.color = "orange";
             arrow.style.color = "orange";
@@ -355,7 +476,6 @@ const Dashboard = () => {
                 currentValue += 1;
                 ratioNumElement.textContent = `${currentValue.toFixed(2)}%`;
 
-                // Update the arrow and color dynamically based on the current value
                 if (currentValue > customThresholdHigh) {
                     ratioNumElement.style.color = "green";
                     arrow.style.color = "green";
@@ -377,6 +497,7 @@ const Dashboard = () => {
             }, stepTime);
         };
 
+        // Trigger animations
         const ratioElements = document.querySelectorAll(".percentage");
         ratioElements.forEach((el) => {
             const ratioNumElement = el.querySelector(".ratio-num");
@@ -409,15 +530,15 @@ const Dashboard = () => {
                 customThresholdHigh = 0.75;
             }
             if (ratioClass === "Quick-Ratio") {
-                customThresholdLow = 111.11;
-                customThresholdHigh = 120;
+                customThresholdLow = 0.9;
+                customThresholdHigh = 1.2;
             }
 
             if (!isNaN(targetValue)) {
                 animateAndSetArrows(el, targetValue, 1000, customThresholdLow, customThresholdHigh);
             }
         });
-    }, []);
+    }, [returnOnAssets, returnOnEquity]);  // Re-run when values change.
 
     useEffect(() => {
         // Function to animate and add arrow icons
@@ -520,6 +641,7 @@ const Dashboard = () => {
             }
         });
     }, []);
+
 
     const content = (
         <section className="dashboard">
@@ -784,51 +906,47 @@ const Dashboard = () => {
                     <div className="top-boxes">
                         <div className="percentage Current-Ratio">
                             <div className="box-title">Current Ratio</div>
-                            <div className="ratio-num">515.62%
-
-
-
-                            </div>
+                            <div className="ratio-num">{currentRatio}%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Assets">
                             <div className="box-title">Return on Assets</div>
-                            <div className="ratio-num">18.96%</div>
+                            <div className="ratio-num">{returnOnAssets}%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Return-Equity">
                             <div className="box-title">Return on Equity</div>
-                            <div className="ratio-num">28.02%</div>
+                            <div className="ratio-num">{returnOnEquity}%</div>
                             <div className="arrow"></div>
                         </div>
                     </div>
                     <div className="bottom-boxes">
                         <div className="percentage Net-Profit">
                             <div className="box-title">Net Profit</div>
-                            <div className="ratio-num">49.67%</div>
+                            <div className="ratio-num">{netProfitPercent}%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Asset-Turnover">
                             <div className="box-title">Asset Turnover</div>
-                            <div className="ratio-num">38.18%</div>
+                            <div className="ratio-num">{assetTurnover}%</div>
                             <div className="arrow"></div>
                         </div>
                         <div className="percentage Quick-Ratio">
                             <div className="box-title">Quick Ratio</div>
-                            <div className="ratio-num">515.62%</div>
+                            <div className="ratio-num">{quickRatio}</div>
                             <div className="arrow"></div>
                         </div>
                     </div>
                     <div className="pending-row">
                         <div className="Pending"
-                        onClick={handleClickToJournal}
-                        title="Go to pending journal entries"
+                            onClick={handleClickToJournal}
+                            title="Go to pending journal entries"
                         >
-                            <div 
-                            className="box-title" 
-                            style= {{color: "orange"}}
+                            <div
+                                className="box-title"
+                                style={{ color: "orange" }}
                             >Pending Entries: {pendingEntries.length}</div>
-                            <div className="linkHint" style={{color: "orange"}}>{">"}</div>
+                            <div className="linkHint" style={{ color: "orange" }}>{">"}</div>
                         </div>
                     </div>
                 </div>
