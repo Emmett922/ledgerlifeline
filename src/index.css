@@ -32,9 +32,9 @@ body.overflow-auto {
   position: absolute;
   margin-top: 73px;
   top: 0;
-  left: 50%;
-  height: 135px;
-  width: 180px;
+  left: 49.8%;
+  height: 223px;
+  width: 260px;
   transform: translateX(-50%); /* Center horizontally */
   background-color: rgba(255, 255, 255, 0.9);;
   text-align: center;
@@ -44,6 +44,12 @@ body.overflow-auto {
   text-align: center;
   align-items: center;
   z-index: 1; /* Ensure it's above other content */
+}
+
+.register .img-heading {
+  left: 50%;
+  height: 135px;
+  width: 180px;
 }
 
 .forgotPassword .img-heading,
@@ -57,11 +63,17 @@ body.overflow-auto {
 .forgotPassword .logo,
 .acceptRequest .logo {
   position: absolute;
-  left: 43.65%;
-  height: 212px;
-  width: 250px;
+  left: 43%;
+  height: 300px;
+  width: 338px;
   object-fit: contain;
   z-index: 2;
+}
+
+.register .logo {
+  left: 44.95%;
+  height: 212px;
+  width: 250px;
 }
 
 .forgotPassword .logo,
@@ -196,4 +208,39 @@ button:disabled,
 
 .actions {
   text-align: center;
+}
+
+@media (max-width: 1550px) {
+  .login .img-heading,
+  .register .img-heading,
+  .forgotPassword .img-heading,
+  .acceptRequest .img-heading {
+    position: absolute;
+    margin-top: 73px;
+    top: 0;
+    left: 50%;
+    height: 135px;
+    width: 180px;
+    transform: translateX(-50%); /* Center horizontally */
+    background-color: rgba(255, 255, 255, 0.9);;
+    text-align: center;
+    border-radius: 10%;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    z-index: 1; /* Ensure it's above other content */
+  }
+
+  .login .logo,
+  .register .logo,
+  .forgotPassword .logo,
+  .acceptRequest .logo {
+    position: absolute;
+    left: 43.65%;
+    height: 212px;
+    width: 250px;
+    object-fit: contain;
+    z-index: 2;
+  }
 }
