@@ -232,6 +232,11 @@ button:disabled,
     z-index: 1; /* Ensure it's above other content */
   }
 
+  .forgotPassword .img-heading,
+  .register .img-heading {
+    margin-top: 15px;
+  }
+
   .login .logo,
   .register .logo,
   .forgotPassword .logo,

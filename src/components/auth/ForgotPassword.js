@@ -288,9 +288,9 @@ const ForgotPassword = () => {
             <ToastContainer />
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="img-heading"></div>
-            <div className="forgot-password-container">
                 {/* Step 1: Email and Username*/}
                 {step === 1 && (
+                <div className="forgot-password-container">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep1}>
                         <h2>Forgot Password</h2>
                         <div className="forgot-input-group">
@@ -330,10 +330,12 @@ const ForgotPassword = () => {
                             Next
                         </button>
                     </form>
+                </div>
                 )}
 
                 {/* Step 2: Security Question */}
                 {step === 2 && (
+                    <div className="forgot-password-container">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep2}>
                         <h2>Security Question</h2>
                         <div className="forgot-input-group">
@@ -361,10 +363,12 @@ const ForgotPassword = () => {
                             Next
                         </button>
                     </form>
+                </div>
                 )}
 
                 {/* Step 3: New Username and Password */}
                 {step === 3 && (
+                    <div className="forgot-password-container finalForm">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep3}>
                         <h2>Set New Password</h2>
                         <div className="forgot-input-group">
@@ -445,6 +449,7 @@ const ForgotPassword = () => {
                             Submit
                         </button>
                     </form>
+                </div>
                 )}
 
                 {/* Step 4: Confirmation and login redirection */}
@@ -459,7 +464,6 @@ const ForgotPassword = () => {
                         </Link>
                     </form>
                 )}
-            </div>
         </section>
     );
     return content;
