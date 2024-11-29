@@ -34,6 +34,7 @@ select:disabled {
 
 /* Main content styles */
 .account .main-content,
+.dashboard .main-content,
 .chartOfAccount .main-content {
     width: 170vh;
     /*This is a tempory solution, need to make to change with the window size*/

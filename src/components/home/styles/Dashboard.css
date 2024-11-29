@@ -23,7 +23,7 @@ body {
 .dashboard {
     display: flex;
     width: 100%;
-    max-width: 1950px;
+    max-width: 1550px;
 }
 
 /* Sidebar styles */
@@ -83,7 +83,6 @@ body {
 .calendar-btn {
     margin-left: -0.5%;
 }
-
 
 .pfp {
     height: 45px;

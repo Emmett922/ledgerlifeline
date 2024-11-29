@@ -208,11 +208,7 @@ const Dashboard = () => {
                 },
                 closeButton: <CustomCloseButton />,
             });
-
-            // Delay removal of the message from localStorage
-            setTimeout(() => {
-                localStorage.removeItem("toastMessage");
-            }, 500); // Delay by 500ms (can be adjusted as needed)
+            localStorage.removeItem("toastMessage");
         }
 
         // Add listener for back button to prevent going back to login page
@@ -286,9 +282,8 @@ const Dashboard = () => {
 
     const handleClickToJournal = () => {
         localStorage.setItem("tab", "pending");
-        navigate("/journalize");      
-    }
-
+        navigate("/journalize");
+    };
 
     const handleEmail = async () => {
         const formattedMessage = emailMessage.replace(/\n/g, "<br>");
@@ -327,7 +322,6 @@ const Dashboard = () => {
         setIsEmailUserVisible(false);
     };
 
-
     const calculateCurrentRatio = () => {
         let assetBalance = 0;
         let liabilityBalance = 0;
@@ -336,15 +330,17 @@ const Dashboard = () => {
             if (account.accountCatagory === "Asset" && account.accountSubcatagory === "Current") {
                 assetBalance += account.balance;
             }
-            if (account.accountCatagory === "Liability" && account.accountSubcatagory === "Current") {
+            if (
+                account.accountCatagory === "Liability" &&
+                account.accountSubcatagory === "Current"
+            ) {
                 liabilityBalance += account.balance;
             }
         }
 
         return ((assetBalance / liabilityBalance) * 100).toFixed(2);
-    }
+    };
     const currentRatio = calculateCurrentRatio();
-
 
     const calculateReturnOnAssets = () => {
         let totalAssets = 0;
@@ -398,7 +394,7 @@ const Dashboard = () => {
             return 0;
         }
 
-        return ((revenue-expense) / expense * 100).toFixed(2);
+        return (((revenue - expense) / expense) * 100).toFixed(2);
     };
 
     const calculateAssetTurnover = () => {
@@ -416,7 +412,7 @@ const Dashboard = () => {
         }
 
         return ((totalRevenue / totalAssets) * 100).toFixed(2);
-    }
+    };
 
     const calculateQuickRatio = () => {
         let quickAssets = 0;
@@ -427,12 +423,15 @@ const Dashboard = () => {
                 quickAssets += account.balance;
             }
 
-            if (account.accountCatagory === "Liability" && account.accountSubcatagory === "Current") {
+            if (
+                account.accountCatagory === "Liability" &&
+                account.accountSubcatagory === "Current"
+            ) {
                 currentLiabilities += account.balance;
             }
         }
         return ((quickAssets / currentLiabilities) * 100).toFixed(2);
-    }
+    };
 
     // Calculate dashboard values once accountArray is updated
     useEffect(() => {
@@ -452,12 +451,17 @@ const Dashboard = () => {
             const qr = calculateQuickRatio();
             setQuickRatio(qr);
         }
-    }, [accountArray]);  // Recalculate when accountArray changes
+    }, [accountArray]); // Recalculate when accountArray changes
 
-    
     // Arrow animation effect
     useEffect(() => {
-        const animateAndSetArrows = (element, targetValue, duration, customThresholdLow, customThresholdHigh) => {
+        const animateAndSetArrows = (
+            element,
+            targetValue,
+            duration,
+            customThresholdLow,
+            customThresholdHigh
+        ) => {
             if (!element) return;
             const stepTime = Math.abs(Math.floor(duration / targetValue));
             let currentValue = 0;
@@ -537,7 +541,7 @@ const Dashboard = () => {
                 animateAndSetArrows(el, targetValue, 1000, customThresholdLow, customThresholdHigh);
             }
         });
-    }, [returnOnAssets, returnOnEquity]);  // Re-run when values change.
+    }, [returnOnAssets, returnOnEquity]); // Re-run when values change.
 
     useEffect(() => {
         // Function to animate and add arrow icons
@@ -640,7 +644,6 @@ const Dashboard = () => {
             }
         });
     }, []);
-
 
     const content = (
         <section className="dashboard">
@@ -887,7 +890,7 @@ const Dashboard = () => {
                         </div>
                     )}
 
-                    <div className="user-profile"> 
+                    <div className="user-profile">
                         <img className="pfp" src="/Default_pfp.svg.png" alt="LedgerLifeline Logo" />
                         <span className="profile-name">{username}</span>
                         <a>

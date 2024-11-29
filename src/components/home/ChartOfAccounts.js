@@ -207,31 +207,7 @@ const Accounts = () => {
                 },
                 closeButton: <CustomCloseButton />,
             });
-
-            // Delay removal of the message from localStorage
-            setTimeout(() => {
-                localStorage.removeItem("toastMessage");
-            }, 500); // Delay by 500ms (can be adjusted as needed)
-        }
-
-        const accountCreationResult = localStorage.getItem("accountCreated");
-        if (accountCreationResult) {
-            toast("New Account created!", {
-                style: {
-                    backgroundColor: "#333",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                },
-                progressStyle: {
-                    backgroundColor: "#2196f3", // Solid blue color for progress bar
-                    backgroundImage: "none",
-                },
-                closeButton: <CustomCloseButton />,
-            });
-            setTimeout(() => {
-                localStorage.removeItem("accountCreated");
-            }, 500);
+            localStorage.removeItem("toastMessage");
         }
     }, [API_URL]);
 
