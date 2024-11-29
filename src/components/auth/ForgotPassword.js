@@ -288,8 +288,8 @@ const ForgotPassword = () => {
             <ToastContainer />
             <img className="logo" src="/ledgerlifelinelogo.png" alt="LedgerLifeline Logo" />
             <div className="img-heading"></div>
-                {/* Step 1: Email and Username*/}
-                {step === 1 && (
+            {/* Step 1: Email and Username*/}
+            {step === 1 && (
                 <div className="forgot-password-container">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep1}>
                         <h2>Forgot Password</h2>
@@ -331,11 +331,11 @@ const ForgotPassword = () => {
                         </button>
                     </form>
                 </div>
-                )}
+            )}
 
-                {/* Step 2: Security Question */}
-                {step === 2 && (
-                    <div className="forgot-password-container">
+            {/* Step 2: Security Question */}
+            {step === 2 && (
+                <div className="forgot-password-container">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep2}>
                         <h2>Security Question</h2>
                         <div className="forgot-input-group">
@@ -364,11 +364,11 @@ const ForgotPassword = () => {
                         </button>
                     </form>
                 </div>
-                )}
+            )}
 
-                {/* Step 3: New Username and Password */}
-                {step === 3 && (
-                    <div className="forgot-password-container finalForm">
+            {/* Step 3: New Username and Password */}
+            {step === 3 && (
+                <div className="forgot-password-container finalForm">
                     <form id="forgotPasswordForm" onSubmit={handleSubmitStep3}>
                         <h2>Set New Password</h2>
                         <div className="forgot-input-group">
@@ -450,10 +450,11 @@ const ForgotPassword = () => {
                         </button>
                     </form>
                 </div>
-                )}
+            )}
 
-                {/* Step 4: Confirmation and login redirection */}
-                {step === 4 && (
+            {/* Step 4: Confirmation and login redirection */}
+            {step === 4 && (
+                <div className="forgot-password-container">
                     <form id="forgotPasswordForm">
                         <h2>Password Change Successful</h2>
                         <div className="forgot-input-group">
@@ -463,7 +464,8 @@ const ForgotPassword = () => {
                             Login
                         </Link>
                     </form>
-                )}
+                </div>
+            )}
         </section>
     );
     return content;
