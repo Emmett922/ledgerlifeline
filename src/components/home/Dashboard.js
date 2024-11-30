@@ -322,6 +322,41 @@ const Dashboard = () => {
         setIsEmailUserVisible(false);
     };
 
+    // Helper function to convert a date to "YYYY-MM-DD" format
+    const formatDateString = (date) => {
+        const dateObj = new Date(date); // Ensure date is a Date object
+        if (isNaN(dateObj)) {
+            console.error("Invalid date encountered:", date);
+            return null;
+        }
+        // Format date to "YYYY-MM-DD"
+        return dateObj.toISOString().split("T")[0];
+    };
+
+    const findClosestBalance = (journalEntries, asOfDate) => {
+        const asOfDateString = formatDateString(asOfDate);
+
+        if (!asOfDateString) {
+            console.error("Invalid asOfDate provided:", asOfDate);
+            return 0;
+        }
+
+        // Filter entries based on the criteria
+        const validEntries = journalEntries
+            .filter((entry) => {
+                const entryDateString = formatDateString(entry.date);
+
+                // Check both conditions: valid date and type not "Closing"
+                return (
+                    entryDateString && entryDateString <= asOfDateString && entry.type !== "Closing"
+                );
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort in descending order by date
+
+        // Return the closest entry's currBalance as an integer, or 0 if none found
+        return validEntries.length > 0 ? parseInt(validEntries[0].currBalance, 10) : 0;
+    };
+
     const calculateCurrentRatio = () => {
         let assetBalance = 0;
         let liabilityBalance = 0;
@@ -344,16 +379,30 @@ const Dashboard = () => {
 
     const calculateReturnOnAssets = () => {
         let totalAssets = 0;
-        let netIncome = 4525;
+        let netIncome = 0;
+        let retainedEarnings = 0;
 
         for (let account of accountArray) {
             if (account.accountCatagory === "Asset") {
                 totalAssets += account.balance;
             }
+            if (account.accountCatagory === "Revenue") {
+                netIncome += account.balance;
+            }
+            if (account.accountCatagory === "Expense") {
+                netIncome -= account.balance;
+            }
+            if (account.accountName === "Retained Earnings") {
+                retainedEarnings += account.balance;
+            }
+        }
+
+        if (netIncome === 0) {
+            netIncome = retainedEarnings;
         }
 
         if (totalAssets === 0) {
-            return 0; // Return 0 to avoid division by zero
+            return 0;
         }
 
         return ((netIncome / totalAssets) * 100).toFixed(2);
@@ -361,12 +410,26 @@ const Dashboard = () => {
 
     const calculateReturnOnEquity = () => {
         let totalEquity = 0;
-        let netIncome = 4525;
+        let netIncome = 0;
+        let retainedEarnings = 0;
 
         for (let account of accountArray) {
             if (account.accountCatagory === "Equity") {
                 totalEquity += account.balance;
             }
+            if (account.accountCatagory === "Revenue") {
+                netIncome += account.balance;
+            }
+            if (account.accountCatagory === "Expense") {
+                netIncome -= account.balance;
+            }
+            if (account.accountName === "Retained Earnings") {
+                retainedEarnings += account.balance;
+            }
+        }
+
+        if (netIncome === 0) {
+            netIncome = retainedEarnings;
         }
 
         if (totalEquity === 0) {
@@ -379,22 +442,25 @@ const Dashboard = () => {
     const calculateNetProfit = () => {
         let revenue = 0;
         let expense = 0;
+        let now = new Date();
 
         for (let account of accountArray) {
             if (account.accountCatagory === "Revenue") {
-                revenue += account.balance;
+                revenue += findClosestBalance(account.journalEntries, now);
             }
 
             if (account.accountCatagory === "Expense") {
-                expense += account.balance;
+                expense += findClosestBalance(account.journalEntries, now);
             }
         }
 
-        if (expense === 0) {
+        // Avoid division by zero
+        if (revenue === 0) {
             return 0;
         }
 
-        return (((revenue - expense) / expense) * 100).toFixed(2);
+        // Correct formula for Net Profit Margin
+        return (((revenue - expense) / revenue) * 100).toFixed(2);
     };
 
     const calculateAssetTurnover = () => {
