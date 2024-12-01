@@ -1338,7 +1338,8 @@ const BalanceSheet = () => {
                                             account.accountSubcatagory
                                                 .toLowerCase()
                                                 .includes("current") &&
-                                            findClosestBalance(account.journalEntries, asOfDate) > 0
+                                            findClosestBalance(account.journalEntries, asOfDate) !==
+                                                0
                                     )
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
@@ -1441,9 +1442,23 @@ const BalanceSheet = () => {
                                     <td></td>
                                 </tr>
                                 {filteredAccounts
-                                    .filter((account) =>
-                                        account.accountCatagory.toLowerCase().includes("equity")
-                                    )
+                                    .filter((account) => {
+                                        const isEquity = account.accountCatagory
+                                            .toLowerCase()
+                                            .includes("equity");
+                                        const isRetainedEarnings =
+                                            account.accountName === "Retained Earnings";
+                                        const hasNonZeroBalance =
+                                            findClosestBalance(account.journalEntries, asOfDate) !==
+                                            0;
+
+                                        // Include only:
+                                        // - Retained Earnings, regardless of balance
+                                        // - Other equity accounts with non-zero balance
+                                        return (
+                                            isEquity && (isRetainedEarnings || hasNonZeroBalance)
+                                        );
+                                    })
                                     .sort((a, b) => a.accountNumber - b.accountNumber)
                                     .map((account, index) => (
                                         <React.Fragment key={index}>

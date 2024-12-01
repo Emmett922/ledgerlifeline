@@ -485,10 +485,18 @@ const Dashboard = () => {
         let currentLiabilities = 0;
 
         for (let account of accountArray) {
-            if (["Accounts Receivable", "Cash", "Supplies"].includes(account.accountName)) {
+            // Include only the most liquid assets
+            if (
+                account.accountCatagory === "Asset" &&
+                account.accountSubcatagory === "Current" &&
+                ["Cash", "Accounts Receivable"].includes(
+                    account.accountName
+                )
+            ) {
                 quickAssets += account.balance;
             }
 
+            // Include only current liabilities
             if (
                 account.accountCatagory === "Liability" &&
                 account.accountSubcatagory === "Current"
@@ -496,6 +504,14 @@ const Dashboard = () => {
                 currentLiabilities += account.balance;
             }
         }
+
+        // Avoid division by zero
+        if (currentLiabilities === 0) {
+            console.warn("No current liabilities available to calculate quick ratio.");
+            return 0; // or return "N/A"
+        }
+
+        // Return the quick ratio
         return ((quickAssets / currentLiabilities) * 100).toFixed(2);
     };
 
