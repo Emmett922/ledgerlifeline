@@ -2,6 +2,8 @@
 
 Welcome to the frontend codebase of **Ledger Lifeline**, an accounting software application designed to virtualize the bookkeeping process. This repository contains the React-based frontend for managing accounting processes such as journalizing, posting entries to the ledger, generating financial statements, calculating financial ratios, and maintaining a chart of accounts. The frontend integrates seamlessly with the backend to provide a user-friendly and efficient experience.
 
+The backend API codebase of **Ledger Lifeline** can be found [here](https://github.com/Emmett922/ledgerlifeline-api).
+
 ## Table of Contents
 
 - [About the Application](#about-the-application)
