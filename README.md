@@ -13,6 +13,13 @@ The backend API codebase of **Ledger Lifeline** can be found [here](https://gith
   - [Auth](#auth)
   - [Admin](#admin)
   - [Home](#home)
+ 
+### 🎥 Project Walkthrough  
+
+For a complete overview of **Ledger Lifeline**, watch the final presentation walkthrough:  
+[![Ledger Lifeline Walkthrough](https://img.youtube.com/vi/nakW6qyESC8/0.jpg)](https://www.youtube.com/watch?v=nakW6qyESC8)  
+
+Click the image or [this link](https://www.youtube.com/watch?v=nakW6qyESC8) to watch.
 
 ---
 
